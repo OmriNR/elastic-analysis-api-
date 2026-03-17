@@ -1,0 +1,45 @@
+## --- .NET Core / .NET 5+ ---
+[Bin]
+[Obj]
+bin/
+obj/
+
+## --- Visual Studio ---
+.vs/
+*.user
+*.userosscache
+*.sln.docstates
+
+## --- Visual Studio Code ---
+.vscode/
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+.history/
+
+## --- Database / Secrets (Crucial for Postgres) ---
+# Don't check in your local dev secrets!
+appsettings.Development.json
+*.pfx
+*.publishsettings
+
+## --- Entity Framework ---
+# If you use EF migrations, we keep them, 
+# but we ignore the log files.
+*.log
+*.sql
+
+## --- Packages ---
+*.nupkg
+# NuGet packages folder
+packages/
+# Restore symbol files
+*.pdb
+
+## --- OS specific ---
+.DS_Store
+Thumbs.db
+
+## --- Testing ---
+TestResults/
