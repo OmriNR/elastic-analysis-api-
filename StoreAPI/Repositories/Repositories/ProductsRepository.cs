@@ -50,4 +50,17 @@ public class ProductsRepository : IProductsRepository
 
         return prodcuts;
     }
+
+    public List<Product> GetProductsByCategory(string category)
+    {
+        var products =  _context.Products.Where(p => p.Category == category).ToList<Product>();
+
+        return products;
+    }
+
+    public List<Product> GetProductsByUser(string user)
+    {
+        var porducts = _context.Products.Where(p => p.OwnerId ==  user).ToList<Product>();
+        return porducts;
+    }
 }

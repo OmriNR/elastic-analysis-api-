@@ -9,4 +9,6 @@ public interface IProductsRepository
     void DeleteProduct(Product product);
     Product? GetProduct(string id);
     List<Product> GetProducts(List<string> ids);
+    List<Product> GetProductsByCategory(string category);
+    List<Product> GetProductsByUser(string user);
 }

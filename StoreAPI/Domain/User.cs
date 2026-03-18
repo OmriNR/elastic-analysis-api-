@@ -5,11 +5,15 @@ using System.Text.Json.Serialization;
 
 namespace Domain;
 
-public class Customer
+public class User
 {
-    [DataMember(Name = "customer_id")]
-    [JsonPropertyName("customer_id")]
-    public Guid CustomerId { get; set; }
+    [DataMember(Name = "user_id")]
+    [JsonPropertyName("user_id")]
+    public string UserId { get; set; }
+    
+    [DataMember(Name = "user_name")]
+    [JsonPropertyName("user_name")]
+    public string UserName { get; set; }
     
     [DataMember(Name = "age")]
     [JsonPropertyName("age")]
