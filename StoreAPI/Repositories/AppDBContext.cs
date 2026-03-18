@@ -10,7 +10,7 @@ public class AppDBContext : DbContext
     
     public DbSet<Product> Products { get; set; }
     public DbSet<Order> Orders { get; set; }
-    public DbSet<Customer> Customers { get; set; }
+    public DbSet<User> Users { get; set; }
     public DbSet<Discount> Discounts { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -20,6 +20,7 @@ public class AppDBContext : DbContext
         modelBuilder.Entity<Product>(entity =>
         {
             entity.Property(e => e.ProductId).HasColumnName(Consts.ID).IsRequired();
+            entity.Property(e => e.OwnerId).HasColumnName(Consts.OWNER_ID).IsRequired();
             entity.Property(e => e.Name).HasColumnName(Consts.NAME);
             entity.Property(e => e.Description).HasColumnName(Consts.DESCRIPTION);
             entity.Property(e => e.Category).HasColumnName(Consts.CATEGORY).IsRequired();
@@ -40,10 +41,11 @@ public class AppDBContext : DbContext
             entity.Property(e => e.Items).HasColumnName(Consts.ITEMS);
         });
         
-        modelBuilder.Entity<Customer>().ToTable(Consts.CUSTOMERS_TABLE);
-        modelBuilder.Entity<Customer>(entity =>
+        modelBuilder.Entity<User>().ToTable(Consts.USERS_TABLE);
+        modelBuilder.Entity<User>(entity =>
         {
-            entity.Property(e => e.CustomerId).HasColumnName(Consts.ID).IsRequired();
+            entity.Property(e => e.UserId).HasColumnName(Consts.ID).IsRequired();
+            entity.Property(e => e.UserName).HasColumnName(Consts.NAME);
             entity.Property(e => e.Age).HasColumnName(Consts.AGE);
             entity.Property(e => e.Gender).HasColumnName(Consts.GENDER);
             entity.Property(e => e.City).HasColumnName(Consts.CITY);

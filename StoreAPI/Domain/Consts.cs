@@ -2,10 +2,11 @@
 
 public class Consts
 {
-    public const string CUSTOMERS_TABLE = "Customers";
+    public const string USERS_TABLE = "Users";
     public const string DISCOUNTS_TABLE = "Discounts";
     public const string PRODUCTS_TABLE = "Products";
     public const string ORDERS_TABLE = "Orders";
+    
     public const string ID = "ID";
     public const string AGE = "AGE";
     public const string GENDER = "GENDER";
@@ -13,6 +14,7 @@ public class Consts
     public const string COUNTRY = "COUNTRY";
     public const string CREATED_AT = "CREATED_AT";
     
+    public const string OWNER_ID = "OWNER_ID";
     public const string NAME = "NAME";
     public const string DESCRIPTION = "DESCRIPTION";
     public const string CATEGORY = "CATEGORY";

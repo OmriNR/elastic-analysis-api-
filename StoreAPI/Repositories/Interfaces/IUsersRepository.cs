@@ -4,8 +4,8 @@ namespace Repositories.Interfaces;
 
 public interface IUserRepository
 {
-    void CreateCustomer(User user);
-    void UpdateCustomer(User user);
-    void DeleteCustomer(User user);
-    User GetCustomer(string customerId);
+    void CreateUser(User user);
+    void UpdateUser(User user);
+    void DeleteUser(User user);
+    User? GetUser(string userId);
 }
