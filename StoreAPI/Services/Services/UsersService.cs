@@ -22,7 +22,7 @@ public class UsersService : IUsersService
         if (user == null)
         {
             status = Statuses.NOT_FOUND;
-            error = "User {id} not found";
+            error = $"User {userId} not found";
             return null;
         }
 
@@ -45,11 +45,9 @@ public class UsersService : IUsersService
             
             return newUser!;
         }
-        else
-        {
-            status = Statuses.INVALID;
-            return null;
-        }
+        
+        status = Statuses.INVALID;
+        return null;
     }
 
     public User UpdeateUser(User user, out Statuses status, out string error)
@@ -62,7 +60,7 @@ public class UsersService : IUsersService
         if (check == null)
         {
             status = Statuses.NOT_FOUND;
-            error = "User {userId} not found";
+            error = $"User {user.UserId} not found";
             return null;
         }
 
@@ -73,11 +71,9 @@ public class UsersService : IUsersService
             var updatedUser = _userRepository.GetUser(user.UserId);
             return updatedUser!;
         }
-        else
-        {
-            status = Statuses.INVALID;
-            return null;
-        }
+        
+        status = Statuses.INVALID;
+        return null;
     }
 
     public void DeleteUser(string userId, out Statuses status, out string error)
@@ -104,12 +100,12 @@ public class UsersService : IUsersService
 
         if (user.Age <= 0)
         {
-            error += "Age must be greater than zero";
+            error += " Age must be greater than zero";
         }
 
         if (user.UserName == string.Empty || user.UserName == null)
         {
-            error += "USERNAME is required";
+            error += " USERNAME is required";
         }
         
         return error == string.Empty;

@@ -23,27 +23,35 @@ public class DiscountsRepository : IDiscountsRepository
     public void DeleteDiscount(Discount discount)
     {
         _context.Discounts.Remove(discount);
+        _context.SaveChanges();
     }
 
     public void UpdateDiscount(Discount discount)
     {
+        var local = _context.Discounts.Local.FirstOrDefault(d => d.DiscountId == discount.DiscountId);
+
+        if (local != null)
+        {
+            _context.Entry(local).CurrentValues.SetValues(discount);
+        }
+        
         _context.Discounts.Update(discount);
+        _context.SaveChanges();
     }
 
-    public async Task<Discount?> GetDiscount(string id)
+    public Discount? GetDiscount(string id)
     {
-        var discount = await _context.Discounts.FindAsync(id);
-
+        var discount = _context.Discounts.Find(id);
         return discount;
     }
 
-    public async Task<Discount?> GetDiscountByProduct(string productId)
+    public Discount? GetDiscountByProduct(string productId)
     {
-        var discount = await _context.Discounts
+        var discount = _context.Discounts
             .Where(d => d.Products.Any(p => p == productId))
             .Where(d => d.ExpiredAt >=  DateTime.Now)
             .OrderByDescending(d => d.ExpiredAt)
-            .FirstOrDefaultAsync();
+            .FirstOrDefault();
         
         return discount;
     }
