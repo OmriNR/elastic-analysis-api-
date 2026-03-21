@@ -9,7 +9,7 @@ public class Order
 {
     [DataMember(Name = "order_id")]
     [JsonPropertyName("order_id")]
-    public Guid OrderId { get; set; }
+    public string OrderId { get; set; }
     
     [DataMember(Name = "timestamp")]
     [JsonPropertyName("timestamp")]
