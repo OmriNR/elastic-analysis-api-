@@ -25,6 +25,9 @@ builder.Services.AddScoped<IUserRepository, UsersRepository>();
 builder.Services.AddScoped<IDiscountsService, DiscountService>();
 builder.Services.AddScoped<IDiscountsRepository, DiscountsRepository>();
 
+builder.Services.AddScoped<IOrdersService, OrdersService>();
+builder.Services.AddScoped<IOrdersRepository, OrdersRepository>();
+
 var app = builder.Build();
 
 app.UseSwagger();

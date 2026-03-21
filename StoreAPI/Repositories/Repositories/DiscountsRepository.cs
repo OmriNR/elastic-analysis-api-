@@ -14,10 +14,10 @@ public class DiscountsRepository : IDiscountsRepository
     }
 
 
-    public async Task CreateDiscount(Discount discount)
+    public void CreateDiscount(Discount discount)
     {
         _context.Add(discount);
-        await _context.SaveChangesAsync();
+        _context.SaveChanges();
     }
 
     public void DeleteDiscount(Discount discount)
