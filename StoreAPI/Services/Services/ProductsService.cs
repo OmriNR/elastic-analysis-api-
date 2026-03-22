@@ -128,7 +128,6 @@ public class ProductsService : IProductsService
         {
             status = Statuses.NOT_FOUND;
             error = $"Products from {category} not found";
-            return null;
         }
 
         return products;
@@ -138,53 +137,55 @@ public class ProductsService : IProductsService
     {
         error = string.Empty;
         status = Statuses.OK;
+        List<Product> products = new List<Product>();
         
         var check = _userRepository.GetUser(user);
 
         if (check == null)
         {
-            status = Statuses.INVALID;
+            status = Statuses.NOT_FOUND;
             error = $"User {user} not found";
-            return null;
+            
+        }
+        else
+        {
+            products =  _productsRepository.GetProductsByUser(user);
+
+            if (products.Count == 0)
+            {
+                status = Statuses.NOT_FOUND;
+                error = $"Products by {user} not found";
+            }
         }
         
-        var products =  _productsRepository.GetProductsByUser(user);
-
-        if (products.Count == 0)
-        {
-            status = Statuses.NOT_FOUND;
-            error = $"Products by {user} not found";
-        }
-
         return products;
     }
 
     private bool isProductValid(Product product, out string error)
     {
         error = string.Empty;
-        if (product.Category == null || product.Category == "")
-        {
-            error += "Category is required";
-        }
-
         if (product.Name == null || product.Name == "")
         {
-            error += " Product name is required";
+            error = "Product name is required";
+            return false;
         }
-
-        if (product.OwnerId == null || product.OwnerId == "")
+        
+        if (product.Category == null || product.Category == "")
         {
-            error += " OwnerId is required";
+            error = "Category is required";
+            return false;
         }
 
         if (product.Quantity <= 0)
         {
-            error += " Quantity is required and must be greater than 0";
+            error = "Quantity is required and must be greater than 0";
+            return false;
         }
 
         if (product.OwnerId == null || product.OwnerId == string.Empty)
         {
-            error += " OwnerId is required";
+            error = "OwnerId is required";
+            return false;
         }
         else
         {
@@ -192,10 +193,11 @@ public class ProductsService : IProductsService
 
             if (owner == null)
             {
-                error += $" user {product.OwnerId} does not exist";
+                error = $"user {product.OwnerId} does not exist";
+                return false;
             }
         }
 
-        return error == string.Empty;
+        return true;
     }
 }
