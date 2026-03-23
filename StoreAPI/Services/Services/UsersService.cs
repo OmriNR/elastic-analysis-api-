@@ -86,7 +86,7 @@ public class UsersService : IUsersService
         if (user == null)
         {
             status = Statuses.NOT_FOUND;
-            error = "User {userId} not found";
+            error = $"User {userId} not found";
         }
         else
         {
@@ -97,17 +97,19 @@ public class UsersService : IUsersService
     private bool IsUserValid(User user, out string error)
     {
         error = string.Empty;
-
-        if (user.Age <= 0)
-        {
-            error += " Age must be greater than zero";
-        }
-
+        
         if (user.UserName == string.Empty || user.UserName == null)
         {
-            error += " USERNAME is required";
+            error = "USERNAME is required";
+            return false;
         }
         
-        return error == string.Empty;
+        if (user.Age <= 0)
+        {
+            error = "Age must be greater than zero";
+            return false;
+        }
+        
+        return true;
     }
 }

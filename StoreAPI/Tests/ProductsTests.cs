@@ -118,9 +118,9 @@ public class ProductsTests
 
         var product = _service.GetProductById(PRODUCT_ID_EXIST, out var status, out var error);
         
-        Assert.That(product != null);
-        Assert.That(expectedStatus == status);
-        Assert.That(expectedError == error);
+        Assert.That(product, Is.Not.Null);
+        Assert.That(status, Is.EqualTo(expectedStatus));
+        Assert.That(error,  Is.EqualTo(expectedError));
     }
     
     [Test]
@@ -131,9 +131,9 @@ public class ProductsTests
 
         var product = _service.GetProductById(PRODUCT_ID_NOT_FOUND, out var status, out var error);
         
-        Assert.That(product == null);
-        Assert.That(expectedStatus == status);
-        Assert.That(expectedError == error);
+        Assert.That(product, Is.Null);
+        Assert.That(status, Is.EqualTo(expectedStatus));
+        Assert.That(error,  Is.EqualTo(expectedError));
     }
 
     [Test]
@@ -144,9 +144,9 @@ public class ProductsTests
 
         var products = _service.GetProductsByCategory(PRODUCT_CATEGORY, out var status, out var error);
         
-        Assert.That(products.Count == 1);
-        Assert.That(expectedStatus == status);
-        Assert.That(expectedError == error);
+        Assert.That(products.Count, Is.EqualTo(1));
+        Assert.That(status, Is.EqualTo(expectedStatus));
+        Assert.That(error,  Is.EqualTo(expectedError));
     }
 
     [Test]
@@ -157,9 +157,9 @@ public class ProductsTests
 
         var products = _service.GetProductsByCategory(NO_FOUND_PRODUCT_CATEGORY, out var status, out var error);
         
-        Assert.That(products.Count == 0);
-        Assert.That(expectedStatus == status);
-        Assert.That(expectedError == error);
+        Assert.That(products.Count, Is.EqualTo(0));
+        Assert.That(status, Is.EqualTo(expectedStatus));
+        Assert.That(error,  Is.EqualTo(expectedError));
     }
     
     [Test]
@@ -170,20 +170,22 @@ public class ProductsTests
 
         var products = _service.GetProductsByUser(USER_ID_EXIST, out var status, out var error);
         
-        Assert.That(products.Count == 1);
-        Assert.That(expectedStatus == status);
-        Assert.That(expectedError == error);
+        Assert.That(products.Count, Is.EqualTo(1));
+        Assert.That(status, Is.EqualTo(expectedStatus));
+        Assert.That(error,  Is.EqualTo(expectedError));
     }
 
     [Test]
     public void Get_User_not_found()
     {
         var expectedStatus = Statuses.NOT_FOUND;
-
+        var expectedError = $"User {USER_ID_NOT_FOUND} not found";
+        
         var products = _service.GetProductsByUser(USER_ID_NOT_FOUND, out var status, out var error);
         
-        Assert.That(products.Count == 0);
-        Assert.That(expectedStatus == status);
+        Assert.That(products.Count, Is.EqualTo(0));
+        Assert.That(status, Is.EqualTo(expectedStatus));
+        Assert.That(error,  Is.EqualTo(expectedError));
     }
     
     [Test]
@@ -194,9 +196,9 @@ public class ProductsTests
         
         var product = _service.UpdateProduct(nonExistsProduct, out var status, out var error);
         
-        Assert.That(product == null);
-        Assert.That(expectedStatus == status);
-        Assert.That(expectedError == error);
+        Assert.That(product, Is.Null);
+        Assert.That(status, Is.EqualTo(expectedStatus));
+        Assert.That(error,  Is.EqualTo(expectedError));
     }
     
     [Test]
@@ -207,9 +209,9 @@ public class ProductsTests
         
         var product = _service.UpdateProduct(productNoName, out var status, out var error);
         
-        Assert.That(product == null);
-        Assert.That(expectedStatus == status);
-        Assert.That(expectedError == error);
+        Assert.That(product, Is.Null);
+        Assert.That(status, Is.EqualTo(expectedStatus));
+        Assert.That(error,  Is.EqualTo(expectedError));
     }
     
     [Test]
@@ -220,9 +222,9 @@ public class ProductsTests
         
         var product = _service.UpdateProduct(productNoCategory, out var status, out var error);
         
-        Assert.That(product == null);
-        Assert.That(expectedStatus == status);
-        Assert.That(expectedError == error);
+        Assert.That(product,  Is.Null);
+        Assert.That(status, Is.EqualTo(expectedStatus));
+        Assert.That(error,  Is.EqualTo(expectedError));
     }
     
     [Test]
@@ -233,9 +235,9 @@ public class ProductsTests
         
         var product = _service.UpdateProduct(productNoQuantity, out var status, out var error);
         
-        Assert.That(product == null);
-        Assert.That(expectedStatus == status);
-        Assert.That(expectedError == error);
+        Assert.That(product, Is.Null);
+        Assert.That(status, Is.EqualTo(expectedStatus));
+        Assert.That(error,  Is.EqualTo(expectedError));
     }
     
     [Test]
@@ -246,9 +248,9 @@ public class ProductsTests
         
         var product = _service.UpdateProduct(productNoOwner, out var status, out var error);
         
-        Assert.That(product == null);
-        Assert.That(expectedStatus == status);
-        Assert.That(expectedError == error);
+        Assert.That(product, Is.Null);
+        Assert.That(status, Is.EqualTo(expectedStatus));
+        Assert.That(error,  Is.EqualTo(expectedError));
     }
     
     [Test]
@@ -259,9 +261,9 @@ public class ProductsTests
         
         var product = _service.UpdateProduct(productOwnerNoExist, out var status, out var error);
         
-        Assert.That(product == null);
-        Assert.That(expectedStatus == status);
-        Assert.That(expectedError == error);
+        Assert.That(product, Is.Null);
+        Assert.That(status, Is.EqualTo(expectedStatus));
+        Assert.That(error,  Is.EqualTo(expectedError));
     }
     
     [Test]
@@ -272,9 +274,9 @@ public class ProductsTests
         
         var product = _service.UpdateProduct(validProduct, out var status, out var error);
         
-        Assert.That(product != null);
-        Assert.That(expectedStatus == status);
-        Assert.That(expectedError == error);
+        Assert.That(product, Is.Not.Null);
+        Assert.That(status, Is.EqualTo(expectedStatus));
+        Assert.That(error,  Is.EqualTo(expectedError));
     }
     
     [Test]
@@ -285,9 +287,9 @@ public class ProductsTests
         
         var product = _service.CreateProduct(productNoName, out var status, out var error);
         
-        Assert.That(product == null);
-        Assert.That(expectedStatus == status);
-        Assert.That(expectedError == error);
+        Assert.That(product, Is.Null);
+        Assert.That(status, Is.EqualTo(expectedStatus));
+        Assert.That(error,  Is.EqualTo(expectedError));
     }
     
     [Test]
@@ -298,9 +300,9 @@ public class ProductsTests
         
         var product = _service.CreateProduct(productNoCategory, out var status, out var error);
         
-        Assert.That(product == null);
-        Assert.That(expectedStatus == status);
-        Assert.That(expectedError == error);
+        Assert.That(product, Is.Null);
+        Assert.That(status, Is.EqualTo(expectedStatus));
+        Assert.That(error,  Is.EqualTo(expectedError));
     }
     
     [Test]
@@ -311,9 +313,9 @@ public class ProductsTests
         
         var product = _service.CreateProduct(productNoQuantity, out var status, out var error);
         
-        Assert.That(product == null);
-        Assert.That(expectedStatus == status);
-        Assert.That(expectedError == error);
+        Assert.That(product, Is.Null);
+        Assert.That(status, Is.EqualTo(expectedStatus));
+        Assert.That(error,  Is.EqualTo(expectedError));
     }
     
     [Test]
@@ -324,9 +326,9 @@ public class ProductsTests
         
         var product = _service.CreateProduct(productNoOwner, out var status, out var error);
         
-        Assert.That(product == null);
-        Assert.That(expectedStatus == status);
-        Assert.That(expectedError == error);
+        Assert.That(product, Is.Null);
+        Assert.That(status, Is.EqualTo(expectedStatus));
+        Assert.That(error,  Is.EqualTo(expectedError));
     }
     
     [Test]
@@ -337,9 +339,9 @@ public class ProductsTests
         
         var product = _service.CreateProduct(productOwnerNoExist, out var status, out var error);
         
-        Assert.That(product == null);
-        Assert.That(expectedStatus == status);
-        Assert.That(expectedError == error);
+        Assert.That(product, Is.Null);
+        Assert.That(status, Is.EqualTo(expectedStatus));
+        Assert.That(error,  Is.EqualTo(expectedError));
     }
     
     [Test]
@@ -350,8 +352,8 @@ public class ProductsTests
         
         var product = _service.CreateProduct(validProduct, out var status, out var error);
         
-        Assert.That(product != null);
-        Assert.That(expectedStatus == status);
-        Assert.That(expectedError == error);
+        Assert.That(product, Is.Not.Null);
+        Assert.That(status, Is.EqualTo(expectedStatus));
+        Assert.That(error,  Is.EqualTo(expectedError));;
     }
 }
