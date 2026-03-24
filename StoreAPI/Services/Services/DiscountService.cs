@@ -154,7 +154,7 @@ public class DiscountService : IDiscountsService
         return null;
     }
 
-    public Discount UpdateDiscount(Discount discount, out Statuses status, out string error)
+    /*public Discount UpdateDiscount(Discount discount, out Statuses status, out string error)
     {
         error = string.Empty;
         status = Statuses.OK;
@@ -178,7 +178,7 @@ public class DiscountService : IDiscountsService
         
         status = Statuses.INVALID;
         return null;
-    }
+    }*/
 
     private bool IsDiscountValid(Discount discount, out string error, out List<string> productsNotOnDiscount)
     {
@@ -187,30 +187,36 @@ public class DiscountService : IDiscountsService
         
         if (discount.Percentage <= 0 || discount.Percentage >= 100)
         {
-            error += "Discount percentage must be between 0 and 100";
+            error = "Discount percentage must be between 0 and 100";
+            return false;
         }
         
         if (discount.ExpiredAt <= DateTime.Now)
         {
-            error += " Can't create expired discount";
+            error = "Can't create expired discount";
+            return false;
         }
         
         if (discount.Products.Count == 0)
         {
-            error += "Discount must connect to products";
-        }
-        else
-        {
-            if (discount.Products.Any(p => _productsRepository.GetProduct(p) == null))
-            {
-                error += " Discount product must be non-null";
-            }
-            else
-            {
-                productsNotOnDiscount = discount.Products.Where(p => _discountsRepository.GetDiscountByProduct(p) == null).ToList();
-            }
+            error = "Discount must connect to products";
+            return false;
         }
         
-        return error == string.Empty;
+        if (discount.Products.Any(p => _productsRepository.GetProduct(p) == null))
+        {
+            error = "Discount product must be non-null";
+            return false;
+        }
+        
+        productsNotOnDiscount = discount.Products.Where(p => _discountsRepository.GetDiscountByProduct(p) == null).ToList();
+
+        if (productsNotOnDiscount.Count == 0)
+        {
+            error = "All products are already on discount";
+            return false;
+        }
+
+        return true;
     }
 }

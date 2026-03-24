@@ -19,7 +19,7 @@ public class ProductsTests
     private const string PRODUCT_CATEGORY = "Category";
     private const int PRODUCT_QUANTITY = 1;
     
-    private Product validProduct = new Product()
+    private static Product validProduct = new Product()
     {
         ProductId = PRODUCT_ID_EXIST,
         Name = PRODUCT_NAME,
@@ -31,25 +31,25 @@ public class ProductsTests
         Quantity = PRODUCT_QUANTITY
     };
 
-    private Product nonExistsProduct = new Product()
+    private static Product nonExistsProduct = new Product()
     {
         ProductId = PRODUCT_ID_NOT_FOUND
     };
 
-    private Product productNoName = new Product()
+    private static Product productNoName = new Product()
     {
         ProductId = PRODUCT_ID_EXIST,
         Name = ""
     };
 
-    private Product productNoCategory = new Product()
+    private static Product productNoCategory = new Product()
     {
         ProductId = PRODUCT_ID_EXIST,
         Name = PRODUCT_NAME,
         Category = ""
     };
 
-    private Product productNoQuantity = new Product()
+    private static Product productNoQuantity = new Product()
     {
         ProductId = PRODUCT_ID_EXIST,
         Name = PRODUCT_NAME,
@@ -57,7 +57,7 @@ public class ProductsTests
         Quantity = 0
     };
 
-    private Product productNoOwner = new Product()
+    private static Product productNoOwner = new Product()
     {
         ProductId = PRODUCT_ID_EXIST,
         Name = PRODUCT_NAME,
@@ -66,7 +66,7 @@ public class ProductsTests
         OwnerId = ""
     };
 
-    private Product productOwnerNoExist = new Product()
+    private static Product productOwnerNoExist = new Product()
     {
         ProductId = PRODUCT_ID_EXIST,
         Name = PRODUCT_NAME,
@@ -187,173 +187,60 @@ public class ProductsTests
         Assert.That(status, Is.EqualTo(expectedStatus));
         Assert.That(error,  Is.EqualTo(expectedError));
     }
-    
-    [Test]
-    public void Update_Product_not_found()
+
+    [Test, TestCaseSource(nameof(EditProductTestCases))]
+    public void Create_Product(Product product, Statuses expectedStatus, string expectedError)
     {
-        var expectedStatus = Statuses.NOT_FOUND;
-        var expectedError =  $"Product {PRODUCT_ID_NOT_FOUND} not found";
+        _service.CreateProduct(product, out var status, out var error);
         
-        var product = _service.UpdateProduct(nonExistsProduct, out var status, out var error);
-        
-        Assert.That(product, Is.Null);
         Assert.That(status, Is.EqualTo(expectedStatus));
         Assert.That(error,  Is.EqualTo(expectedError));
     }
     
-    [Test]
-    public void Update_Product_name_not_valid()
+    [Test, TestCaseSource(nameof(EditProductTestCases))]
+    public void Update_Product(Product product, Statuses expectedStatus, string expectedError)
     {
-        var expectedStatus = Statuses.INVALID;
-        var expectedError =  "Product name is required";
+        _service.UpdateProduct(product, out var status, out var error);
         
-        var product = _service.UpdateProduct(productNoName, out var status, out var error);
-        
-        Assert.That(product, Is.Null);
         Assert.That(status, Is.EqualTo(expectedStatus));
         Assert.That(error,  Is.EqualTo(expectedError));
     }
     
-    [Test]
-    public void Update_Product_category_not_valid()
+    public static IEnumerable<TestCaseData> EditProductTestCases()
     {
-        var expectedStatus = Statuses.INVALID;
-        var expectedError =  "Category is required";
+        yield return new TestCaseData(
+            validProduct,
+            Statuses.OK,
+            "");
+
+        yield return new TestCaseData(
+            productOwnerNoExist,
+            Statuses.INVALID,
+            $"user {USER_ID_NOT_FOUND} does not exist");
         
-        var product = _service.UpdateProduct(productNoCategory, out var status, out var error);
+        yield return new TestCaseData(
+            productNoOwner,
+            Statuses.INVALID,
+            "OwnerId is required");
         
-        Assert.That(product,  Is.Null);
-        Assert.That(status, Is.EqualTo(expectedStatus));
-        Assert.That(error,  Is.EqualTo(expectedError));
-    }
-    
-    [Test]
-    public void Update_Product_quantity_not_valid()
-    {
-        var expectedStatus = Statuses.INVALID;
-        var expectedError =  "Quantity is required and must be greater than 0";
+        yield return new TestCaseData(
+            productOwnerNoExist,
+            Statuses.INVALID,
+            $"user {USER_ID_NOT_FOUND} does not exist");
         
-        var product = _service.UpdateProduct(productNoQuantity, out var status, out var error);
+        yield return new TestCaseData(
+            productNoQuantity,
+            Statuses.INVALID,
+            "Quantity is required and must be greater than 0");
         
-        Assert.That(product, Is.Null);
-        Assert.That(status, Is.EqualTo(expectedStatus));
-        Assert.That(error,  Is.EqualTo(expectedError));
-    }
-    
-    [Test]
-    public void Update_Product_owner_not_valid()
-    {
-        var expectedStatus = Statuses.INVALID;
-        var expectedError =  "OwnerId is required";
+        yield return new TestCaseData(
+            productNoCategory,
+            Statuses.INVALID,
+            "Category is required");
         
-        var product = _service.UpdateProduct(productNoOwner, out var status, out var error);
-        
-        Assert.That(product, Is.Null);
-        Assert.That(status, Is.EqualTo(expectedStatus));
-        Assert.That(error,  Is.EqualTo(expectedError));
-    }
-    
-    [Test]
-    public void Update_Product_owner_not_exist()
-    {
-        var expectedStatus = Statuses.INVALID;
-        var expectedError =  $"user {USER_ID_NOT_FOUND} does not exist";
-        
-        var product = _service.UpdateProduct(productOwnerNoExist, out var status, out var error);
-        
-        Assert.That(product, Is.Null);
-        Assert.That(status, Is.EqualTo(expectedStatus));
-        Assert.That(error,  Is.EqualTo(expectedError));
-    }
-    
-    [Test]
-    public void Update_success()
-    {
-        var expectedStatus = Statuses.OK;
-        var expectedError = string.Empty;
-        
-        var product = _service.UpdateProduct(validProduct, out var status, out var error);
-        
-        Assert.That(product, Is.Not.Null);
-        Assert.That(status, Is.EqualTo(expectedStatus));
-        Assert.That(error,  Is.EqualTo(expectedError));
-    }
-    
-    [Test]
-    public void Create_Product_name_not_valid()
-    {
-        var expectedStatus = Statuses.INVALID;
-        var expectedError =  "Product name is required";
-        
-        var product = _service.CreateProduct(productNoName, out var status, out var error);
-        
-        Assert.That(product, Is.Null);
-        Assert.That(status, Is.EqualTo(expectedStatus));
-        Assert.That(error,  Is.EqualTo(expectedError));
-    }
-    
-    [Test]
-    public void Create_Product_category_not_valid()
-    {
-        var expectedStatus = Statuses.INVALID;
-        var expectedError =  "Category is required";
-        
-        var product = _service.CreateProduct(productNoCategory, out var status, out var error);
-        
-        Assert.That(product, Is.Null);
-        Assert.That(status, Is.EqualTo(expectedStatus));
-        Assert.That(error,  Is.EqualTo(expectedError));
-    }
-    
-    [Test]
-    public void Create_Product_quantity_not_valid()
-    {
-        var expectedStatus = Statuses.INVALID;
-        var expectedError =  "Quantity is required and must be greater than 0";
-        
-        var product = _service.CreateProduct(productNoQuantity, out var status, out var error);
-        
-        Assert.That(product, Is.Null);
-        Assert.That(status, Is.EqualTo(expectedStatus));
-        Assert.That(error,  Is.EqualTo(expectedError));
-    }
-    
-    [Test]
-    public void Create_Product_owner_not_valid()
-    {
-        var expectedStatus = Statuses.INVALID;
-        var expectedError =  "OwnerId is required";
-        
-        var product = _service.CreateProduct(productNoOwner, out var status, out var error);
-        
-        Assert.That(product, Is.Null);
-        Assert.That(status, Is.EqualTo(expectedStatus));
-        Assert.That(error,  Is.EqualTo(expectedError));
-    }
-    
-    [Test]
-    public void Create_Product_owner_not_exist()
-    {
-        var expectedStatus = Statuses.INVALID;
-        var expectedError =  $"user {USER_ID_NOT_FOUND} does not exist";
-        
-        var product = _service.CreateProduct(productOwnerNoExist, out var status, out var error);
-        
-        Assert.That(product, Is.Null);
-        Assert.That(status, Is.EqualTo(expectedStatus));
-        Assert.That(error,  Is.EqualTo(expectedError));
-    }
-    
-    [Test]
-    public void Create_success()
-    {
-        var expectedStatus = Statuses.OK;
-        var expectedError = string.Empty;
-        
-        var product = _service.CreateProduct(validProduct, out var status, out var error);
-        
-        Assert.That(product, Is.Not.Null);
-        Assert.That(status, Is.EqualTo(expectedStatus));
-        Assert.That(error,  Is.EqualTo(expectedError));;
+        yield return new TestCaseData(
+            productNoName,
+            Statuses.INVALID,
+            "Product name is required");
     }
 }

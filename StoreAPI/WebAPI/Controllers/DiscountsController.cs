@@ -126,10 +126,4 @@ public class DiscountsController : ControllerBase
             return Problem(ex.Message);
         }
     }
-
-    [HttpPut]
-    public IActionResult Update([FromBody] Discount discount)
-    {
-        return Ok();
-    }
 }
