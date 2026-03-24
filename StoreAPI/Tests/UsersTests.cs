@@ -14,27 +14,27 @@ public class UsersTests
     private const string USER_NAME = "USERNAME";
     private const int USER_AGE = 1;
 
-    private User validUser = new User
+    private static User validUser = new User
     {
         UserId = USER_ID_EXIST,
         UserName = USER_NAME,
         Age = USER_AGE
     };
 
-    private User user_no_name = new User
+    private static User user_no_name = new User
     {
         UserId = USER_ID_EXIST,
         UserName = ""
     };
 
-    private User user_no_age = new User
+    private static User user_no_age = new User
     {
         UserId = USER_ID_EXIST,
         UserName = USER_NAME,
         Age = 0
     };
 
-    private User no_exist = new User
+    private static User no_exist = new User
     {
         UserId = USER_ID_NOT_FOUND,
     };
@@ -83,92 +83,6 @@ public class UsersTests
     }
 
     [Test]
-    public void Create_User_name_invalid()
-    {
-        var expectedStatus = Statuses.INVALID;
-        var expectedError = "USERNAME is required";
-        
-        var user = _service.CreateUser(user_no_name, out var status, out var error );
-        Assert.That(user, Is.Null);
-        Assert.That(status,  Is.EqualTo(expectedStatus));
-        Assert.That(error,   Is.EqualTo(expectedError));
-    }
-    
-    [Test]
-    public void Create_User_age_invalid()
-    {
-        var expectedStatus = Statuses.INVALID;
-        var expectedError = "Age must be greater than zero";
-        
-        var user = _service.CreateUser(user_no_age, out var status, out var error );
-        Assert.That(user, Is.Null);
-        Assert.That(status,  Is.EqualTo(expectedStatus));
-        Assert.That(error,   Is.EqualTo(expectedError));
-    }
-
-    [Test]
-    public void Update_User_not_found()
-    {
-        var expectedStatus = Statuses.NOT_FOUND;
-        var expectedError = $"User {USER_ID_NOT_FOUND} not found";
-        
-        var user = _service.UpdeateUser(no_exist, out var status, out var error);
-        
-        Assert.That(user, Is.Null);
-        Assert.That(status,  Is.EqualTo(expectedStatus));
-        Assert.That(error,   Is.EqualTo(expectedError));
-    }
-    [Test]
-    public void Create_User_success()
-    {
-        var expectedStatus = Statuses.OK;
-        var expectedError = string.Empty;
-        
-        var user = _service.CreateUser(validUser, out var status, out var error);
-        
-        Assert.That(user, Is.Not.Null);
-        Assert.That(status, Is.EqualTo(expectedStatus));
-        Assert.That(error,   Is.EqualTo(expectedError));
-    }
-    
-    [Test]
-    public void Update_User_name_invalid()
-    {
-        var expectedStatus = Statuses.INVALID;
-        var expectedError = "USERNAME is required";
-        
-        var user = _service.UpdeateUser(user_no_name, out var status, out var error );
-        Assert.That(user, Is.Null);
-        Assert.That(status,  Is.EqualTo(expectedStatus));
-        Assert.That(error,   Is.EqualTo(expectedError));
-    }
-    
-    [Test]
-    public void Update_User_age_invalid()
-    {
-        var expectedStatus = Statuses.INVALID;
-        var expectedError = "Age must be greater than zero";
-        
-        var user = _service.UpdeateUser(user_no_age, out var status, out var error );
-        Assert.That(user, Is.Null);
-        Assert.That(status,  Is.EqualTo(expectedStatus));
-        Assert.That(error,   Is.EqualTo(expectedError));
-    }
-
-    [Test]
-    public void Update_User_success()
-    {
-        var expectedStatus = Statuses.OK;
-        var expectedError = string.Empty;
-        
-        var user = _service.UpdeateUser(validUser, out var status, out var error);
-        
-        Assert.That(user, Is.Not.Null);
-        Assert.That(status, Is.EqualTo(expectedStatus));
-        Assert.That(error,   Is.EqualTo(expectedError));
-    }
-
-    [Test]
     public void Delete_User_not_found()
     {
         var expectedStatus = Statuses.NOT_FOUND;
@@ -190,5 +104,64 @@ public class UsersTests
         
         Assert.That(status, Is.EqualTo(expectedStatus));
         Assert.That(error, Is.EqualTo(expectedError));
+    }
+
+    [Test, TestCaseSource(nameof(CreateUserTestCases))]
+    public void Create_User(User user, Statuses expectedStatus, string expectedError)
+    {
+        _service.CreateUser(user, out var status, out var error);
+        
+        Assert.That(status, Is.EqualTo(expectedStatus));
+        Assert.That(error,   Is.EqualTo(expectedError));
+    }
+    
+    [Test, TestCaseSource(nameof(UpdateUserTestCases))]
+    public void Update_User(User user, Statuses expectedStatus, string expectedError)
+    {
+        _service.UpdeateUser(user, out var status, out var error);
+        
+        Assert.That(status, Is.EqualTo(expectedStatus));
+        Assert.That(error,   Is.EqualTo(expectedError));
+    }
+
+    public static IEnumerable<TestCaseData> UpdateUserTestCases()
+    {
+        yield return new TestCaseData(
+            user_no_name,
+            Statuses.INVALID,
+            "USERNAME is required");
+        
+        yield return new TestCaseData(
+            user_no_age,
+            Statuses.INVALID,
+            "Age must be greater than zero");
+
+        yield return new TestCaseData(
+            no_exist,
+            Statuses.NOT_FOUND,
+            $"User {USER_ID_NOT_FOUND} not found");
+        
+        yield return new TestCaseData(
+            validUser,
+            Statuses.OK,
+            "");
+    }
+    
+    public static IEnumerable<TestCaseData> CreateUserTestCases()
+    {
+        yield return new TestCaseData(
+            user_no_name,
+            Statuses.INVALID,
+            "USERNAME is required");
+        
+        yield return new TestCaseData(
+            user_no_age,
+            Statuses.INVALID,
+            "Age must be greater than zero");
+        
+        yield return new TestCaseData(
+            validUser,
+            Statuses.OK,
+            "");
     }
 }
