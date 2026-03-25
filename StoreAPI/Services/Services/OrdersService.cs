@@ -166,19 +166,22 @@ public class OrdersService : IOrdersService
         
         if (order.CustomerID == null || order.CustomerID.Length == 0)
         {
-            error += " CustomerId is Required";
+            error = "CustomerId is Required";
+            return false;
         }
 
         if (order.PaymentMethod == null || order.PaymentMethod.Length == 0)
         {
-            error += " PaymentMethod is Required";
+            error = "PaymentMethod is Required";
+            return false;
         }
 
         if (order.Items.Count == 0)
         {
-            error += " Items are Required and can't be empty";
+            error = "Items are Required and can't be empty";
+            return false;
         }
         
-        return error.Length == 0;
+        return true;
     }
 }
