@@ -1,4 +1,5 @@
 ﻿using Domain;
+using Microsoft.Extensions.Logging;
 using Repositories.Interfaces;
 using Services.Interfaces;
 
@@ -6,13 +7,15 @@ namespace Services.Services;
 
 public class OrdersService : IOrdersService
 {
+    private readonly ILogger<IOrdersService> _logger;
     private readonly IOrdersRepository _ordersRepository;
     private readonly IUserRepository _userRepository;
     private readonly IProductsRepository _productsRepository;
     private readonly IDiscountsRepository _discountsRepository;
 
-    public OrdersService(IOrdersRepository ordersRepository, IUserRepository userRepository, IProductsRepository productsRepository, IDiscountsRepository discountsRepository)
+    public OrdersService(ILogger<IOrdersService> logger, IOrdersRepository ordersRepository, IUserRepository userRepository, IProductsRepository productsRepository, IDiscountsRepository discountsRepository)
     {
+        _logger = logger;
         _ordersRepository = ordersRepository;
         _userRepository = userRepository;
         _productsRepository = productsRepository;
@@ -21,6 +24,7 @@ public class OrdersService : IOrdersService
 
     public Order GetOrder(string id, out Statuses status, out string error)
     {
+        _logger.LogInformation("Get order {id}", id);
         status = Statuses.OK;
         error = string.Empty;
         
@@ -28,6 +32,7 @@ public class OrdersService : IOrdersService
 
         if (order == null)
         {
+            _logger.LogError($"Order {id} not found");
             status = Statuses.NOT_FOUND;
             error = $"Order {id} not found";
         }
@@ -37,6 +42,7 @@ public class OrdersService : IOrdersService
 
     public List<Order> GetOrdersByCustomer(string customerId, out Statuses status, out string error)
     {
+        _logger.LogInformation("Get orders by customer {customerId}", customerId);
         status = Statuses.OK;
         error = string.Empty;
 
@@ -44,6 +50,7 @@ public class OrdersService : IOrdersService
 
         if (user == null)
         {
+            _logger.LogError($"User {customerId} not found");
             status = Statuses.NOT_FOUND;
             error = $"User {customerId} not found";
             return null;
@@ -53,6 +60,7 @@ public class OrdersService : IOrdersService
 
         if (orders.Count == 0)
         {
+            _logger.LogError($"User {customerId} doesn't have any orders");
             status = Statuses.NOT_FOUND;
             error = $"{customerId} does not have any orders";
             return null;
@@ -63,12 +71,14 @@ public class OrdersService : IOrdersService
 
     public List<Order> GetOrdersByProduct(string productId, out Statuses status, out string error)
     {
+        _logger.LogInformation("Get orders by product {productId}", productId);
         status = Statuses.OK;
         error = string.Empty;
         
         var product = _productsRepository.GetProduct(productId);
         if (product == null)
         {
+            _logger.LogError($"Product {productId} not found");
             status = Statuses.NOT_FOUND;
             error = $"Product {productId} not found";
             return null;
@@ -78,6 +88,7 @@ public class OrdersService : IOrdersService
 
         if (orders.Count == 0)
         {
+            _logger.LogError($"Product {productId} doesn't have any orders");
             status = Statuses.NOT_FOUND;
             error = $"Product {productId} does not have any orders";
             return null;
@@ -88,11 +99,13 @@ public class OrdersService : IOrdersService
 
     public Order CreateOrder(Order order, out Statuses status, out string error)
     {
+        _logger.LogInformation("Create order {order}", order);
         status = Statuses.OK;
         error = string.Empty;
 
         if (!IsOrderValid(order, out error))
         {
+            _logger.LogError($"Order {order} is not valid", error);
             status = Statuses.INVALID;
             return null;
         }
@@ -101,6 +114,7 @@ public class OrdersService : IOrdersService
 
         if (customer == null)
         {
+            _logger.LogError($"User {order.CustomerID} doesn't exist");
             status = Statuses.NOT_FOUND;
             error = $"User {order.CustomerID} not found";
         }
@@ -113,6 +127,7 @@ public class OrdersService : IOrdersService
             var product = _productsRepository.GetProduct(productId);
             if (product == null)
             {
+                _logger.LogError($"Product {productId} not found");
                 status = Statuses.NOT_FOUND;
                 error = $"Product {productId} not found";
                 return null;
@@ -120,6 +135,7 @@ public class OrdersService : IOrdersService
 
             if (product.OwnerId == order.CustomerID)
             {
+                _logger.LogError($"User {order.CustomerID} can't buy his own products");
                 status = Statuses.INVALID;
                 error = $"User {product.OwnerId} can't order his own product";
                 return null;
@@ -127,6 +143,7 @@ public class OrdersService : IOrdersService
 
             if (product.Quantity == 0)
             {
+                _logger.LogError($"Product {product.ProductId} is out of stock");
                 status = Statuses.INVALID;
                 error = $"Product {productId} is out of stock";
                 return null;
@@ -136,6 +153,7 @@ public class OrdersService : IOrdersService
 
             if (discount != null)
             {
+                _logger.LogInformation($"Product {productId} is on  discount");
                 order.DiscountApplied = true;
                 order.TotalAmount += product.Price * (1 - discount.Percentage / 100);
             }
@@ -157,6 +175,7 @@ public class OrdersService : IOrdersService
             _productsRepository.UpdateProduct(product);
         });
         
+        _logger.LogInformation($"Order created successfully. OrderId: {newOrder.OrderId}");
         return newOrder!;
     }
 

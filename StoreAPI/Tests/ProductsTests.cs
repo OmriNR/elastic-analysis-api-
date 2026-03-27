@@ -1,4 +1,6 @@
 ﻿using Domain;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 using Moq;
 using Repositories.Interfaces;
 using Services.Interfaces;
@@ -105,8 +107,9 @@ public class ProductsTests
         
         _userRepositoryMock.Setup(repo => repo.GetUser(It.Is<string>(id => id == USER_ID_EXIST))).Returns(new User());
         _userRepositoryMock.Setup(repo => repo.GetUser(It.Is<string>(id => id == USER_ID_NOT_FOUND))).Returns((User)null);
-        
-        _service = new ProductsService(_productsRepositoryMock.Object,  _userRepositoryMock.Object);
+
+        ILogger<IProductsService> _logger = new NullLogger<IProductsService>();
+        _service = new ProductsService(_logger, _productsRepositoryMock.Object,  _userRepositoryMock.Object);
 
     }
 
