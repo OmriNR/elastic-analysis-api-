@@ -1,4 +1,5 @@
 ﻿using Domain;
+using Microsoft.Extensions.Logging;
 using Repositories.Interfaces;
 using Services.Interfaces;
 
@@ -6,17 +7,20 @@ namespace Services.Services;
 
 public class ProductsService : IProductsService
 {
+    private readonly ILogger<IProductsService> _logger;
     private readonly IProductsRepository _productsRepository;
     private readonly IUserRepository _userRepository;
 
-    public ProductsService(IProductsRepository productsRepository, IUserRepository userRepository)
+    public ProductsService(ILogger<IProductsService> logger, IProductsRepository productsRepository, IUserRepository userRepository)
     {
+        _logger = logger;
         _productsRepository = productsRepository;
         _userRepository = userRepository;
     }
 
     public Product GetProductById(string id, out Statuses status, out string error)
     {
+        _logger.LogInformation("Get Product by id {id}", id);
         error = string.Empty;
         status = Statuses.OK;
         
@@ -24,6 +28,7 @@ public class ProductsService : IProductsService
 
         if (product == null)
         {
+            _logger.LogError("Get Product by id {id} not found", id);
             status = Statuses.NOT_FOUND;
             error = $"Product {id} not found";
             return null;
@@ -41,6 +46,7 @@ public class ProductsService : IProductsService
 
         if (products == null)
         {
+            _logger.LogError("Get Products by ids {ids} not found", ids);
             status = Statuses.NOT_FOUND;
             error = $"Products {ids} not found";
             return null;
@@ -51,6 +57,7 @@ public class ProductsService : IProductsService
 
     public Product UpdateProduct(Product product, out Statuses status, out string error)
     {
+        _logger.LogInformation("Updating products {id}", product.ProductId);
         error = string.Empty;
         status = Statuses.OK;
         
@@ -58,6 +65,7 @@ public class ProductsService : IProductsService
 
         if (check == null)
         {
+            _logger.LogError("Product does not exist {id}",  product.ProductId);
             status = Statuses.NOT_FOUND;
             error = $"Product {product.ProductId} not found";
             return null;
@@ -70,15 +78,15 @@ public class ProductsService : IProductsService
             var updatedProduct = _productsRepository.GetProduct(product.ProductId);
             return updatedProduct!;
         }
-        else
-        {
-            status = Statuses.INVALID;
-            return null;
-        }
+        
+        _logger.LogError("Product is not valid. Error {error}", error);
+        status = Statuses.INVALID;
+        return null;
     }
 
     public void DeleteProduct(string id, out Statuses status, out string error)
     {
+        _logger.LogInformation("Deleting products {id}", id);
         status = Statuses.OK;
         error = string.Empty;
         
@@ -86,6 +94,7 @@ public class ProductsService : IProductsService
 
         if (product == null)
         {
+            _logger.LogError("Product does not exist {id}", id);
             status = Statuses.NOT_FOUND;
             error = $"Product {id} not found";
         }
@@ -97,28 +106,31 @@ public class ProductsService : IProductsService
 
     public Product CreateProduct(Product product, out Statuses status, out string error)
     {
+        _logger.LogInformation("Creating product");
         error = string.Empty;
         status = Statuses.OK;
 
         if (isProductValid(product, out error))
         {
+            _logger.LogInformation("Product is valid, let's create it");
             Guid productId = Guid.NewGuid();
             product.ProductId = productId.ToString();
             
             _productsRepository.CreateProduct(product);
             var newProduct = _productsRepository.GetProduct(productId.ToString());
             
+            _logger.LogInformation("Product is created {id}", productId);
             return newProduct!;
         }
-        else
-        {
-            status = Statuses.INVALID;
-            return null;
-        }
+        
+        _logger.LogError("Product is not valid. Error {error}", error);
+        status = Statuses.INVALID;
+        return null;
     }
 
     public List<Product> GetProductsByCategory(string category, out Statuses status, out string error)
     {
+        _logger.LogInformation("Getting products by category {category}", category);
         error = string.Empty;
         status = Statuses.OK;
         
@@ -126,6 +138,7 @@ public class ProductsService : IProductsService
 
         if (products.Count == 0)
         {
+            _logger.LogError("Category {category} does not have any products",  category);
             status = Statuses.NOT_FOUND;
             error = $"Products from {category} not found";
         }
@@ -135,6 +148,7 @@ public class ProductsService : IProductsService
 
     public List<Product> GetProductsByUser(string user, out Statuses status, out string error)
     {
+        _logger.LogInformation("Getting products by user {user}", user);
         error = string.Empty;
         status = Statuses.OK;
         List<Product> products = new List<Product>();
@@ -143,6 +157,7 @@ public class ProductsService : IProductsService
 
         if (check == null)
         {
+            _logger.LogError("User {user} does not exist", user);
             status = Statuses.NOT_FOUND;
             error = $"User {user} not found";
             
@@ -153,6 +168,7 @@ public class ProductsService : IProductsService
 
             if (products.Count == 0)
             {
+                _logger.LogError("User {user} does not have any products", user);
                 status = Statuses.NOT_FOUND;
                 error = $"Products by {user} not found";
             }

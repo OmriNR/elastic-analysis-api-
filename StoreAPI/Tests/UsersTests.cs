@@ -1,4 +1,6 @@
 ﻿using Domain;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 using Moq;
 using Repositories.Interfaces;
 using Services.Interfaces;
@@ -53,7 +55,8 @@ public class UsersTests
         _userRepoMock.Setup(repo =>
             repo.GetUser(It.Is<string>(id => id == USER_ID_NOT_FOUND))).Returns((User)null);
         
-        _service = new UsersService(_userRepoMock.Object);
+        ILogger<IUsersService> _logger = new NullLogger<IUsersService>();
+        _service = new UsersService(_logger, _userRepoMock.Object);
     }
 
     [Test]

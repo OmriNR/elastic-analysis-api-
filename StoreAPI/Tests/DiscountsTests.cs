@@ -1,5 +1,8 @@
 ﻿using Domain;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 using Moq;
+using NUnit.Framework.Internal;
 using Repositories.Interfaces;
 using Services.Interfaces;
 using Services.Services;
@@ -116,10 +119,10 @@ public class DiscountsTests
         _productsRepositoryMock = new Mock<IProductsRepository>();
 
         _discountsRepositoryMock.Setup(repo =>
-            repo.GetDiscount(It.Is<string>(p => p == DISCOUT_ID_EXISTS))).Returns(valid_discount);
+            repo.GetDiscount(It.Is<string>(p => p != DISCOUT_ID_NOT_EXISTS))).Returns(valid_discount);
         
         _discountsRepositoryMock.Setup(repo =>
-            repo.GetDiscount(It.Is<string>(p => p != DISCOUT_ID_EXISTS))).Returns((Discount)null);
+            repo.GetDiscount(It.Is<string>(p => p == DISCOUT_ID_NOT_EXISTS))).Returns((Discount)null);
         
         _discountsRepositoryMock.Setup(repo => 
             repo.GetDiscountByProduct(It.Is<string>(p => p == PRODUCT_ID_ON_DISCOUT))).Returns(valid_discount);
@@ -162,8 +165,9 @@ public class DiscountsTests
         
         _userRepositoryMock.Setup(repo =>
             repo.GetUser(It.Is<string>(id => id == NOT_EXISTS_USER))).Returns((User)null);
-        
-        _service = new DiscountService(_discountsRepositoryMock.Object, _userRepositoryMock.Object, _productsRepositoryMock.Object);
+
+        ILogger<IDiscountsService> _logger = new NullLogger<IDiscountsService>();
+        _service = new DiscountService(_logger, _discountsRepositoryMock.Object, _userRepositoryMock.Object, _productsRepositoryMock.Object);
     }
 
     [TestCase(DISCOUT_ID_EXISTS, Statuses.OK, "")]

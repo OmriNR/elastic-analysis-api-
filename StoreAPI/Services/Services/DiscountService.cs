@@ -1,4 +1,5 @@
 ﻿using Domain;
+using Microsoft.Extensions.Logging;
 using Repositories.Interfaces;
 using Services.Interfaces;
 
@@ -6,12 +7,14 @@ namespace Services.Services;
 
 public class DiscountService : IDiscountsService
 {
+    private readonly ILogger<IDiscountsService> _logger;
     private readonly IDiscountsRepository _discountsRepository;
     private readonly IUserRepository _userRepository;
     private readonly IProductsRepository _productsRepository;
 
-    public DiscountService(IDiscountsRepository discountsRepository, IUserRepository userRepository, IProductsRepository productsRepository)
+    public DiscountService(ILogger<IDiscountsService> logger, IDiscountsRepository discountsRepository, IUserRepository userRepository, IProductsRepository productsRepository)
     {
+        _logger = logger;
         _discountsRepository = discountsRepository;
         _userRepository = userRepository;
         _productsRepository = productsRepository;
@@ -19,6 +22,7 @@ public class DiscountService : IDiscountsService
 
     public Discount GetDiscountById(string id, out Statuses status, out string error)
     {
+        _logger.LogInformation($"Getting discount by {id}", DateTime.Now);
         error = string.Empty;
         status = Statuses.OK;
 
@@ -26,6 +30,7 @@ public class DiscountService : IDiscountsService
 
         if (discount == null)
         {
+            _logger.LogError($"Discount {id} not found");
             status = Statuses.NOT_FOUND;
             error = $"Discount {id} not found";
 
@@ -37,12 +42,14 @@ public class DiscountService : IDiscountsService
 
     public Discount GetDiscountByProduct(string productId, out Statuses status, out string error)
     {
+        _logger.LogInformation($"Getting discount by product {productId}", DateTime.Now);
         error = string.Empty;
         status = Statuses.OK;
         
         var product = _productsRepository.GetProduct(productId);
         if (product == null)
         {
+            _logger.LogError($"Product {productId} not found");
             status = Statuses.NOT_FOUND;
             error = $"Product {productId} not found";
             return null;
@@ -52,6 +59,7 @@ public class DiscountService : IDiscountsService
 
         if (discount == null)
         {
+            _logger.LogError($"Porudct {productId} doesn't have active discounts");
             status = Statuses.NOT_FOUND;
             error = $"Active discount of product {productId} not found";
             return null;
@@ -62,11 +70,13 @@ public class DiscountService : IDiscountsService
 
     public Discount CreateDiscount(Discount discount, out Statuses status, out string error)
     {
+        _logger.LogInformation($"Creating discount {discount}", DateTime.Now);
         error = string.Empty;
         status = Statuses.OK;
 
         if (IsDiscountValid(discount, out error, out var productsNotOnDiscount))
         {
+            _logger.LogInformation($"{discount} is valid, let's create it");
             Guid discountId = Guid.NewGuid();
             discount.DiscountId = discountId.ToString();
             discount.Products =  productsNotOnDiscount;
@@ -74,15 +84,18 @@ public class DiscountService : IDiscountsService
             _discountsRepository.CreateDiscount(discount);
             var newDiscount = _discountsRepository.GetDiscount(discount.DiscountId);
 
+            _logger.LogInformation($"Discount created successfully, new Discount Id: {newDiscount!.DiscountId}");
             return newDiscount!;
         }
         
+        _logger.LogError($"Discount {discount} is not valid. Error: {error}");
         status = Statuses.INVALID;
         return null;
     }
 
     public Discount CreateDiscountByCategory(Discount discount, string category,  out Statuses status, out string error)
     {
+        _logger.LogInformation($"Creating a discount for all products of category {category}",  DateTime.Now);
         error = string.Empty;
         status =  Statuses.OK;
         
@@ -90,6 +103,7 @@ public class DiscountService : IDiscountsService
 
         if (productsByCategory.Count == 0)
         {
+            _logger.LogError($"Category {category} not found");
             status = Statuses.NOT_FOUND;
             error =  $"Category {category} not found";
             return null;
@@ -99,6 +113,7 @@ public class DiscountService : IDiscountsService
 
         if (IsDiscountValid(discount, out error, out var productsNotOnDiscount))
         {
+            _logger.LogInformation($"{discount} is valid, let's create it");
             string discountId = Guid.NewGuid().ToString();
             discount.DiscountId = discountId;
             discount.Products =  productsNotOnDiscount;
@@ -106,15 +121,18 @@ public class DiscountService : IDiscountsService
             _discountsRepository.CreateDiscount(discount);
             var newDiscount = _discountsRepository.GetDiscount(discountId);
 
+            _logger.LogInformation($"Discount created successfully, new Discount Id: {newDiscount!.DiscountId}");
             return newDiscount!;
         }
         
+        _logger.LogError($"Discount {discount} is not valid. Error: {error}");
         status = Statuses.INVALID;
         return null;
     }
 
     public Discount CreateDiscountByUser(Discount discount, string userId, out Statuses status, out string error)
     {
+        _logger.LogInformation($"Creating a discount for all products of user {userId}",  DateTime.Now);
         error = string.Empty;
         status = Statuses.OK;
         
@@ -122,6 +140,7 @@ public class DiscountService : IDiscountsService
 
         if (user == null)
         {
+            _logger.LogError($"User {userId} not found");
             status = Statuses.NOT_FOUND;
             error = $"User {userId} not found";
             return null;
@@ -131,6 +150,7 @@ public class DiscountService : IDiscountsService
 
         if (productsByUser.Count == 0)
         {
+            _logger.LogError($"User {userId} does not have any products");
             status = Statuses.NOT_FOUND;
             error =  $"User {userId} does not have any products";
             return null;
@@ -140,6 +160,7 @@ public class DiscountService : IDiscountsService
 
         if (IsDiscountValid(discount, out error, out var productsNotOnDiscount))
         {
+            _logger.LogInformation($"{discount} is valid, let's create it");
             string discountId = Guid.NewGuid().ToString();
             discount.DiscountId = discountId;
             discount.Products =  productsNotOnDiscount;
@@ -147,9 +168,11 @@ public class DiscountService : IDiscountsService
             _discountsRepository.CreateDiscount(discount);
             var newDiscount = _discountsRepository.GetDiscount(discountId);
             
+            _logger.LogInformation($"Discount created successfully, new Discount Id: {newDiscount!.DiscountId}");
             return newDiscount!;
         }
         
+        _logger.LogError($"Discount {discount} is not valid. Error: {error}");
         status = Statuses.INVALID;
         return null;
     }
