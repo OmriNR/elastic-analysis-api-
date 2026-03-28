@@ -43,6 +43,13 @@ builder.Services.AddScoped<IOrdersRepository, OrdersRepository>();
 
 var app = builder.Build();
 
+// Database tables are created automatically via PostgreSQL init script
+// No need for runtime migrations when using init-db.sql approach
+using (var scope = app.Services.CreateScope())
+{
+    scope.ServiceProvider.GetRequiredService<AppDBContext>().Database.Migrate();
+}
+
 app.UseSwagger();
 app.UseSwaggerUI();
 
