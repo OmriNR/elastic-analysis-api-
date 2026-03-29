@@ -7,19 +7,22 @@ namespace Services.Services;
 
 public class OrdersService : IOrdersService
 {
+    private const string queue = "orders_queue";
     private readonly ILogger<IOrdersService> _logger;
     private readonly IOrdersRepository _ordersRepository;
     private readonly IUserRepository _userRepository;
     private readonly IProductsRepository _productsRepository;
     private readonly IDiscountsRepository _discountsRepository;
+    private readonly IMessageProducer _messageProducer;
 
-    public OrdersService(ILogger<IOrdersService> logger, IOrdersRepository ordersRepository, IUserRepository userRepository, IProductsRepository productsRepository, IDiscountsRepository discountsRepository)
+    public OrdersService(ILogger<IOrdersService> logger, IOrdersRepository ordersRepository, IUserRepository userRepository, IProductsRepository productsRepository, IDiscountsRepository discountsRepository, IMessageProducer messageProducer)
     {
         _logger = logger;
         _ordersRepository = ordersRepository;
         _userRepository = userRepository;
         _productsRepository = productsRepository;
         _discountsRepository = discountsRepository;
+        _messageProducer = messageProducer;
     }
 
     public Order GetOrder(string id, out Statuses status, out string error)
@@ -165,6 +168,7 @@ public class OrdersService : IOrdersService
         order.OrderId = orderId;
         
         _ordersRepository.CreateOrder(order);
+        PublishOrder(order).Wait();
         
         var newOrder = _ordersRepository.GetOrder(order.OrderId);
         
@@ -202,5 +206,31 @@ public class OrdersService : IOrdersService
         }
         
         return true;
+    }
+
+    private async Task PublishOrder(Order order)
+    {
+        _logger.LogInformation("Publish order {order}", order.OrderId);
+        
+        OrderPublish publish = new OrderPublish();
+        
+        publish.OrderId = order.OrderId;
+        publish.Timestamp = order.Timestamp;
+        publish.TotalAmount = order.TotalAmount;
+        publish.DiscountApplied = order.DiscountApplied;
+        
+        var customer = _userRepository.GetUser(order.CustomerID);
+        publish.Customer = customer;
+
+        publish.Items = new List<Product>();
+        
+        order.Items.ForEach(orderId =>
+        {
+            var product =  _productsRepository.GetProduct(orderId);
+            if (product != null)
+                publish.Items.Add(product);
+        });
+
+        await _messageProducer.SendMessageAsync(publish, queue);
     }
 }

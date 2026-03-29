@@ -4,7 +4,9 @@ using Repositories.Interfaces;
 using Repositories.Repositories;
 using Serilog;
 using Serilog.Sinks.Elasticsearch;
+using Services;
 using Services.Interfaces;
+using Services.Rabbit;
 using Services.Services;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -41,10 +43,11 @@ builder.Services.AddScoped<IDiscountsRepository, DiscountsRepository>();
 builder.Services.AddScoped<IOrdersService, OrdersService>();
 builder.Services.AddScoped<IOrdersRepository, OrdersRepository>();
 
+builder.Services.AddScoped<IMessageProducer, MessageProducer>();
+builder.Services.AddScoped<IRabbitMQConnectionManager, RabbitMQConnection>();
+
 var app = builder.Build();
 
-// Database tables are created automatically via PostgreSQL init script
-// No need for runtime migrations when using init-db.sql approach
 using (var scope = app.Services.CreateScope())
 {
     scope.ServiceProvider.GetRequiredService<AppDBContext>().Database.Migrate();
@@ -57,7 +60,6 @@ app.UseSwaggerUI();
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
 
