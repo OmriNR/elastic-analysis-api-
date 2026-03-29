@@ -10,6 +10,7 @@ services:
       - "5433:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
 
   rabbitmq:
     image: rabbitmq:3-management
@@ -18,8 +19,10 @@ services:
       - "5672:5672"
       - "15672:15672"
     environment:
-      RABBITMQ_DEFAULT_USER: admin
-      RABBITMQ_DEFAULT_PASS: admin123
+      Rabbit__Host: localhost
+      Rabbit__Port: 15672
+      Rabbit__User: admin
+      Rabbit__Password: admin123
     volumes:
       - rabbitmq_data:/var/lib/rabbitmq
 

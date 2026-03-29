@@ -130,6 +130,7 @@ public class OrdersTests
     private Mock<IUserRepository> _userRepositoryMock;
     private Mock<IOrdersRepository> _ordersRepositoryMock;
     private Mock<IDiscountsRepository> _discountsRepositoryMock;
+    private Mock<IMessageProducer> _producerMock;
 
     private IOrdersService _service;
     [SetUp]
@@ -186,7 +187,7 @@ public class OrdersTests
             repo.GetProduct(PRODUCT_ID_NOT_FOUND)).Returns((Product)null);
 
         ILogger<IOrdersService> _logger = new NullLogger<IOrdersService>();
-        _service = new OrdersService(_logger, _ordersRepositoryMock.Object,_userRepositoryMock.Object, _productsRepositoryMock.Object, _discountsRepositoryMock.Object);
+        _service = new OrdersService(_logger, _ordersRepositoryMock.Object,_userRepositoryMock.Object, _productsRepositoryMock.Object, _discountsRepositoryMock.Object, _producerMock.Object);
     }
 
     [Test, TestCaseSource(nameof(GetTestCases))]
