@@ -37,12 +37,6 @@ builder.Services.AddScoped<IProductsService, ProductsService>();
 builder.Services.AddScoped<IUsersService, UsersService>();
 builder.Services.AddScoped<IUserRepository, UsersRepository>();
 
-builder.Services.AddScoped<IDiscountsService, DiscountService>();
-builder.Services.AddScoped<IDiscountsRepository, DiscountsRepository>();
-
-builder.Services.AddScoped<IOrdersService, OrdersService>();
-builder.Services.AddScoped<IOrdersRepository, OrdersRepository>();
-
 builder.Services.AddScoped<IMessageProducer, MessageProducer>();
 builder.Services.AddScoped<IRabbitMQConnectionManager, RabbitMQConnection>();
 

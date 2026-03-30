@@ -11,5 +11,4 @@ public interface IProductsService
     Product CreateProduct(Product product, out Statuses status, out string error);
     
     List<Product> GetProductsByCategory(string category, out Statuses status, out string error);
-    List<Product> GetProductsByUser(string user, out Statuses status, out string error);
 }

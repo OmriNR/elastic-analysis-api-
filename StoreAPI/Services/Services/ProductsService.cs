@@ -9,13 +9,11 @@ public class ProductsService : IProductsService
 {
     private readonly ILogger<IProductsService> _logger;
     private readonly IProductsRepository _productsRepository;
-    private readonly IUserRepository _userRepository;
 
-    public ProductsService(ILogger<IProductsService> logger, IProductsRepository productsRepository, IUserRepository userRepository)
+    public ProductsService(ILogger<IProductsService> logger, IProductsRepository productsRepository)
     {
         _logger = logger;
         _productsRepository = productsRepository;
-        _userRepository = userRepository;
     }
 
     public Product GetProductById(string id, out Statuses status, out string error)
@@ -146,37 +144,6 @@ public class ProductsService : IProductsService
         return products;
     }
 
-    public List<Product> GetProductsByUser(string user, out Statuses status, out string error)
-    {
-        _logger.LogInformation("Getting products by user {user}", user);
-        error = string.Empty;
-        status = Statuses.OK;
-        List<Product> products = new List<Product>();
-        
-        var check = _userRepository.GetUser(user);
-
-        if (check == null)
-        {
-            _logger.LogError("User {user} does not exist", user);
-            status = Statuses.NOT_FOUND;
-            error = $"User {user} not found";
-            
-        }
-        else
-        {
-            products =  _productsRepository.GetProductsByUser(user);
-
-            if (products.Count == 0)
-            {
-                _logger.LogError("User {user} does not have any products", user);
-                status = Statuses.NOT_FOUND;
-                error = $"Products by {user} not found";
-            }
-        }
-        
-        return products;
-    }
-
     private bool isProductValid(Product product, out string error)
     {
         error = string.Empty;
@@ -196,22 +163,6 @@ public class ProductsService : IProductsService
         {
             error = "Quantity is required and must be greater than 0";
             return false;
-        }
-
-        if (product.OwnerId == null || product.OwnerId == string.Empty)
-        {
-            error = "OwnerId is required";
-            return false;
-        }
-        else
-        {
-            var owner = _userRepository.GetUser(product.OwnerId);
-
-            if (owner == null)
-            {
-                error = $"user {product.OwnerId} does not exist";
-                return false;
-            }
         }
 
         return true;

@@ -5,7 +5,7 @@ public class Consts
     public const string USERS_TABLE = "Users";
     public const string DISCOUNTS_TABLE = "Discounts";
     public const string PRODUCTS_TABLE = "Products";
-    public const string ORDERS_TABLE = "Orders";
+    public const string RELATIONS_TABLE = "Relations";
     
     public const string ID = "ID";
     public const string AGE = "AGE";
@@ -25,11 +25,19 @@ public class Consts
     public const string PRODUCTS =  "PRODUCTS";
     public const string PERCENTAGE = "PERCENTAGE";
     public const string EXPIRED_AT = "EXPIRED_AT";
-    
-    public const string TIMESTAMP = "TIMESTAMP";
-    public const string CUSTOMER_ID = "CUSTOMER_ID";
-    public const string TOTAL_AMOUNT = "TOTAL_AMOUNT";
-    public const string PAYMENT_METHOD = "PAYMENT_METHOD";
-    public const string DISCOUNT_APPLIED =  "DISCOUNT_APPLIED";
-    public const string ITEMS =  "ITEMS";
+}
+
+public enum RelationTypes
+{
+    Seller = 1,
+    Buyer = 2
+}
+
+public enum RelationStatuses
+{
+    Active = 1,
+    Inactive = 2,
+    InProgress = 3,
+    Completed = 4,
+    Canceled = 5
 }

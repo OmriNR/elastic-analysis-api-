@@ -10,5 +10,4 @@ public interface IProductsRepository
     Product? GetProduct(string id);
     List<Product> GetProducts(List<string> ids);
     List<Product> GetProductsByCategory(string category);
-    List<Product> GetProductsByUser(string user);
 }

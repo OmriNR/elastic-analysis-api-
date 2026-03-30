@@ -13,9 +13,6 @@ public class ProductsTests
     private const string PRODUCT_ID_EXIST = "1";
     private const string PRODUCT_ID_NOT_FOUND = "2";
     
-    private const string USER_ID_EXIST = "3";
-    private const string USER_ID_NOT_FOUND = "4";
-    
     private const string PRODUCT_NAME = "Product";
     private const string NO_FOUND_PRODUCT_CATEGORY = "NoCategory";
     private const string PRODUCT_CATEGORY = "Category";
@@ -28,7 +25,6 @@ public class ProductsTests
         Category = PRODUCT_CATEGORY,
         SubCategory = "TestSubCategory",
         Description = "TestDescription",
-        OwnerId = USER_ID_EXIST,
         Price = 100,
         Quantity = PRODUCT_QUANTITY
     };
@@ -58,34 +54,14 @@ public class ProductsTests
         Category = PRODUCT_CATEGORY,
         Quantity = 0
     };
-
-    private static Product productNoOwner = new Product()
-    {
-        ProductId = PRODUCT_ID_EXIST,
-        Name = PRODUCT_NAME,
-        Category = PRODUCT_CATEGORY,
-        Quantity = PRODUCT_QUANTITY,
-        OwnerId = ""
-    };
-
-    private static Product productOwnerNoExist = new Product()
-    {
-        ProductId = PRODUCT_ID_EXIST,
-        Name = PRODUCT_NAME,
-        Category = PRODUCT_CATEGORY,
-        Quantity = PRODUCT_QUANTITY,
-        OwnerId = USER_ID_NOT_FOUND
-    };
     
     private Mock<IProductsRepository> _productsRepositoryMock;
-    private Mock<IUserRepository> _userRepositoryMock;
     private IProductsService _service;
     
     [SetUp]
     public void Setup()
     {
         _productsRepositoryMock = new Mock<IProductsRepository>();
-        _userRepositoryMock = new Mock<IUserRepository>();
         //Set productRepo
         _productsRepositoryMock.Setup(repo =>
             repo.GetProduct(It.Is<string>(id => id != PRODUCT_ID_NOT_FOUND))).Returns(validProduct);
@@ -98,18 +74,9 @@ public class ProductsTests
         
         _productsRepositoryMock.Setup(repo => 
             repo.GetProductsByCategory(It.Is<string>(id  => id == NO_FOUND_PRODUCT_CATEGORY))).Returns(new List<Product>());
-        
-        _productsRepositoryMock.Setup(repo => 
-            repo.GetProductsByUser(It.Is<string>(id => id == USER_ID_EXIST))).Returns(new List<Product>() { validProduct });
-        
-        _productsRepositoryMock.Setup(repo => 
-            repo.GetProductsByUser(It.Is<string>(id => id == USER_ID_NOT_FOUND))).Returns(new List<Product>());
-        
-        _userRepositoryMock.Setup(repo => repo.GetUser(It.Is<string>(id => id == USER_ID_EXIST))).Returns(new User());
-        _userRepositoryMock.Setup(repo => repo.GetUser(It.Is<string>(id => id == USER_ID_NOT_FOUND))).Returns((User)null);
 
         ILogger<IProductsService> _logger = new NullLogger<IProductsService>();
-        _service = new ProductsService(_logger, _productsRepositoryMock.Object,  _userRepositoryMock.Object);
+        _service = new ProductsService(_logger, _productsRepositoryMock.Object);
 
     }
 
@@ -164,32 +131,6 @@ public class ProductsTests
         Assert.That(status, Is.EqualTo(expectedStatus));
         Assert.That(error,  Is.EqualTo(expectedError));
     }
-    
-    [Test]
-    public void Get_User_success()
-    {
-        var expectedStatus = Statuses.OK;
-        var expectedError = string.Empty;
-
-        var products = _service.GetProductsByUser(USER_ID_EXIST, out var status, out var error);
-        
-        Assert.That(products.Count, Is.EqualTo(1));
-        Assert.That(status, Is.EqualTo(expectedStatus));
-        Assert.That(error,  Is.EqualTo(expectedError));
-    }
-
-    [Test]
-    public void Get_User_not_found()
-    {
-        var expectedStatus = Statuses.NOT_FOUND;
-        var expectedError = $"User {USER_ID_NOT_FOUND} not found";
-        
-        var products = _service.GetProductsByUser(USER_ID_NOT_FOUND, out var status, out var error);
-        
-        Assert.That(products.Count, Is.EqualTo(0));
-        Assert.That(status, Is.EqualTo(expectedStatus));
-        Assert.That(error,  Is.EqualTo(expectedError));
-    }
 
     [Test, TestCaseSource(nameof(EditProductTestCases))]
     public void Create_Product(Product product, Statuses expectedStatus, string expectedError)
@@ -215,21 +156,6 @@ public class ProductsTests
             validProduct,
             Statuses.OK,
             "");
-
-        yield return new TestCaseData(
-            productOwnerNoExist,
-            Statuses.INVALID,
-            $"user {USER_ID_NOT_FOUND} does not exist");
-        
-        yield return new TestCaseData(
-            productNoOwner,
-            Statuses.INVALID,
-            "OwnerId is required");
-        
-        yield return new TestCaseData(
-            productOwnerNoExist,
-            Statuses.INVALID,
-            $"user {USER_ID_NOT_FOUND} does not exist");
         
         yield return new TestCaseData(
             productNoQuantity,

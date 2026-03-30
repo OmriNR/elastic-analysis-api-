@@ -56,29 +56,7 @@ public class ProductsController : ControllerBase
             return Problem(ex.Message);
         }
     }
-
-    [HttpGet("users/{userId}")]
-    public IActionResult GetUsers(string userId)
-    {
-        try
-        {
-            var products = _productsService.GetProductsByUser(userId,  out var status, out var error);
-            
-            switch (status)
-            {
-                case Statuses.NOT_FOUND:
-                    return NotFound(error);
-                case Statuses.INVALID:
-                    return BadRequest(error);
-                default:
-                    return Ok(products);
-            }
-        }
-        catch (Exception ex)
-        {
-            return Problem(ex.Message);
-        }
-    }
+    
     [HttpPost("multi")]
     public IActionResult GetMulti([FromBody] List<string> ids)
     {

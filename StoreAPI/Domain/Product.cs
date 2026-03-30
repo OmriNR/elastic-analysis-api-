@@ -11,10 +11,6 @@ public class Product
     [JsonPropertyName("product_id")]
     public string ProductId { get; set; }
     
-    [DataMember(Name = "owner_id")]
-    [JsonPropertyName("owner_id")]
-    public string OwnerId { get; set; }
-    
     [DataMember(Name = "name")]
     [JsonPropertyName("name")]
     public string Name { get; set; }
