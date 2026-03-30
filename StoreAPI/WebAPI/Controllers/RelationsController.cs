@@ -36,4 +36,10 @@ public class RelationsController : ControllerBase
     {
         return Ok();
     }
+
+    [HttpPut()]
+    public IActionResult Put([FromBody] Relation relation)
+    {
+        return Ok();
+    }
 }
