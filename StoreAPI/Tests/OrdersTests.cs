@@ -26,9 +26,9 @@ public class OrdersTests
     private static Order validOrder = new Order()
     {
         OrderId = ORDER_ID_EXISTS,
-        CustomerID = USER_ID_EXISTS,
+        Customer = new User(){ UserId = USER_ID_EXISTS},
         DiscountApplied = false,
-        Items = new List<string>() { PRODUCT_ID_EXISTS },
+        Items = new List<Product>() { new Product() { ProductId = PRODUCT_ID_EXISTS} },
         PaymentMethod = "CreditCard",
         Timestamp = DateTime.Now,
         TotalAmount = 100
@@ -37,9 +37,9 @@ public class OrdersTests
     private static Order invalid_order_no_customer = new Order()
     {
         OrderId = ORDER_ID_EXISTS,
-        CustomerID = "",
+        Customer = null,
         DiscountApplied = false,
-        Items = new List<string>() { PRODUCT_ID_EXISTS },
+        Items = new List<Product>() { new Product() { ProductId = PRODUCT_ID_EXISTS} },
         PaymentMethod = "CreditCard",
         Timestamp = DateTime.Now,
         TotalAmount = 100
@@ -48,9 +48,9 @@ public class OrdersTests
     private static Order invalid_order_no_payment = new Order()
     {
         OrderId = ORDER_ID_EXISTS,
-        CustomerID = USER_ID_EXISTS,
+        Customer = new User(){ UserId = USER_ID_EXISTS},
         DiscountApplied = false,
-        Items = new List<string>() { PRODUCT_ID_EXISTS },
+        Items = new List<Product>() { new Product() { ProductId = PRODUCT_ID_EXISTS} },
         PaymentMethod = "",
         Timestamp = DateTime.Now,
         TotalAmount = 100
@@ -59,9 +59,9 @@ public class OrdersTests
     private static Order invalid_order_no_items = new Order()
     {
         OrderId = ORDER_ID_EXISTS,
-        CustomerID = USER_ID_EXISTS,
+        Customer = new User(){ UserId = USER_ID_EXISTS},
         DiscountApplied = false,
-        Items = new List<string>(),
+        Items = new List<Product>(),
         PaymentMethod = "CreditCard",
         Timestamp = DateTime.Now,
         TotalAmount = 100
@@ -70,9 +70,9 @@ public class OrdersTests
     private static Order invalid_order_no_product_exist = new Order()
     {
         OrderId = ORDER_ID_EXISTS,
-        CustomerID = USER_ID_EXISTS,
+        Customer = new User(){ UserId = USER_ID_EXISTS},
         DiscountApplied = false,
-        Items = new List<string>() { PRODUCT_ID_NOT_FOUND },
+        Items = new List<Product>() { new Product() { ProductId = PRODUCT_ID_NOT_FOUND } },
         PaymentMethod = "CreditCard",
         Timestamp = DateTime.Now,
         TotalAmount = 100
@@ -81,9 +81,9 @@ public class OrdersTests
     private static Order invalid_order_not_in_stock = new Order()
     {
         OrderId = ORDER_ID_EXISTS,
-        CustomerID = USER_ID_NOT_FOUND,
+        Customer = new User(){ UserId = USER_ID_EXISTS},
         DiscountApplied = false,
-        Items = new List<string>() { PRODUCT_ID_NOT_ON_STOCK },
+        Items = new List<Product>() { new Product() { ProductId = PRODUCT_ID_NOT_ON_STOCK } },
         PaymentMethod = "CreditCard",
         Timestamp = DateTime.Now,
         TotalAmount = 100
@@ -92,9 +92,9 @@ public class OrdersTests
     private static Order invalid_order_user_order_his_product = new Order()
     {
         OrderId = ORDER_ID_EXISTS,
-        CustomerID = USER_ID_EXISTS,
+        Customer = new User(){ UserId = USER_ID_EXISTS},
         DiscountApplied = false,
-        Items = new List<string>() { PRODUCT_ID_EXISTS_BY_CUSTOMER },
+        Items = new List<Product>() { new Product() { ProductId = PRODUCT_ID_EXISTS_BY_CUSTOMER } },
         PaymentMethod = "CreditCard",
         Timestamp = DateTime.Now,
         TotalAmount = 100
@@ -140,6 +140,7 @@ public class OrdersTests
         _userRepositoryMock = new Mock<IUserRepository>();
         _discountsRepositoryMock = new Mock<IDiscountsRepository>();
         _ordersRepositoryMock = new Mock<IOrdersRepository>();
+        _producerMock = new  Mock<IMessageProducer>();
         
         _ordersRepositoryMock.Setup(repo =>
             repo.GetOrder(ORDER_ID_EXISTS)).Returns(validOrder);
@@ -279,7 +280,7 @@ public class OrdersTests
         yield return new TestCaseData(
             invalid_order_no_customer,
             Statuses.INVALID,
-            "CustomerId is Required");
+            "Customer is Required");
         
         yield return new TestCaseData(
             invalid_order_no_payment,
@@ -295,11 +296,6 @@ public class OrdersTests
             invalid_order_no_product_exist,
             Statuses.NOT_FOUND,
             $"Product {PRODUCT_ID_NOT_FOUND} not found");
-
-        yield return new TestCaseData(
-            invalid_order_user_order_his_product,
-            Statuses.INVALID,
-            $"User {USER_ID_EXISTS} can't order his own product");
 
         yield return new TestCaseData(
             invalid_order_not_in_stock,

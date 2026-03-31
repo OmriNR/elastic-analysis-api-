@@ -34,11 +34,11 @@ public class AppDBContext : DbContext
         {
             entity.Property(e => e.OrderId).HasColumnName(Consts.ID).IsRequired();
             entity.Property(e => e.Timestamp).HasColumnName(Consts.TIMESTAMP).IsRequired();
-            entity.Property(e => e.CustomerID).HasColumnName(Consts.CUSTOMER_ID).IsRequired();
+            entity.Property(e => e.Customer).HasColumnName(Consts.CUSTOMER_ID).HasColumnType("jsonb").IsRequired();
             entity.Property(e => e.TotalAmount).HasColumnName(Consts.TOTAL_AMOUNT);
             entity.Property(e => e.PaymentMethod).HasColumnName(Consts.PAYMENT_METHOD).IsRequired();
             entity.Property(e => e.DiscountApplied).HasColumnName(Consts.DISCOUNT_APPLIED).IsRequired();
-            entity.Property(e => e.Items).HasColumnName(Consts.ITEMS).HasColumnType("text[]");
+            entity.Property(e => e.Items).HasColumnName(Consts.ITEMS).HasColumnType("jsonb");
         });
         
         modelBuilder.Entity<User>().ToTable(Consts.USERS_TABLE);
@@ -57,7 +57,7 @@ public class AppDBContext : DbContext
         modelBuilder.Entity<Discount>(entity =>
         {
             entity.Property(e => e.DiscountId).HasColumnName(Consts.ID).IsRequired();
-            entity.Property(e => e.Products).HasColumnName(Consts.PRODUCTS).IsRequired().HasColumnType("text[]");
+            entity.Property(e => e.Products).HasColumnName(Consts.PRODUCTS).HasColumnType("jsonb");
             entity.Property(e => e.Percentage).HasColumnName(Consts.PERCENTAGE).IsRequired();
             entity.Property(e => e.ExpiredAt).HasColumnName(Consts.EXPIRED_AT).IsRequired();
         });

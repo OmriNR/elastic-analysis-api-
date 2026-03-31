@@ -15,9 +15,9 @@ public class Order
     [JsonPropertyName("timestamp")]
     public DateTime Timestamp { get; set; }
     
-    [DataMember(Name = "customer_id")]
-    [JsonPropertyName("customer_id")]
-    public string CustomerID { get; set; }
+    [DataMember(Name = "customer")]
+    [JsonPropertyName("customer")]
+    public User Customer { get; set; }
     
     [DataMember(Name = "total_amount")]
     [JsonPropertyName("total_amount")]
@@ -33,5 +33,5 @@ public class Order
     
     [DataMember(Name = "items")]
     [JsonPropertyName("items")]
-    public List<string> Items { get; set; }
+    public List<Product> Items { get; set; }
 }

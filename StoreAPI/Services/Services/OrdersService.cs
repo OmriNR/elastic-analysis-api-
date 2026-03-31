@@ -113,50 +113,50 @@ public class OrdersService : IOrdersService
             return null;
         }
 
-        var customer = _userRepository.GetUser(order.CustomerID);
+        var customer = _userRepository.GetUser(order.Customer.UserId);
 
         if (customer == null)
         {
-            _logger.LogError($"User {order.CustomerID} doesn't exist");
+            _logger.LogError($"User {order.Customer.UserId} doesn't exist");
             status = Statuses.NOT_FOUND;
-            error = $"User {order.CustomerID} not found";
+            error = $"User {order.Customer.UserId} not found";
         }
 
         order.TotalAmount = 0;
         order.DiscountApplied = false;
         
-        foreach (var productId in order.Items)
+        foreach (var product in order.Items)
         {
-            var product = _productsRepository.GetProduct(productId);
-            if (product == null)
+            var check = _productsRepository.GetProduct(product.ProductId);
+            if (check == null)
             {
-                _logger.LogError($"Product {productId} not found");
+                _logger.LogError($"Product {product.ProductId} not found");
                 status = Statuses.NOT_FOUND;
-                error = $"Product {productId} not found";
+                error = $"Product {product.ProductId} not found";
                 return null;
             }
 
-            if (product.OwnerId == order.CustomerID)
+            if (product.OwnerId == order.Customer.UserId)
             {
-                _logger.LogError($"User {order.CustomerID} can't buy his own products");
+                _logger.LogError($"User {order.Customer.UserId} can't buy his own products");
                 status = Statuses.INVALID;
                 error = $"User {product.OwnerId} can't order his own product";
                 return null;
             }
 
-            if (product.Quantity == 0)
+            if (check.Quantity == 0)
             {
                 _logger.LogError($"Product {product.ProductId} is out of stock");
                 status = Statuses.INVALID;
-                error = $"Product {productId} is out of stock";
+                error = $"Product {product.ProductId} is out of stock";
                 return null;
             }
             
-            var discount =  _discountsRepository.GetDiscountByProduct(productId);
+            var discount =  _discountsRepository.GetDiscountByProduct(product.ProductId);
 
             if (discount != null)
             {
-                _logger.LogInformation($"Product {productId} is on  discount");
+                _logger.LogInformation($"Product {product.ProductId} is on  discount");
                 order.DiscountApplied = true;
                 order.TotalAmount += product.Price * (1 - discount.Percentage / 100);
             }
@@ -170,14 +170,13 @@ public class OrdersService : IOrdersService
         _ordersRepository.CreateOrder(order);
         PublishOrder(order).Wait();
         
-        var newOrder = _ordersRepository.GetOrder(order.OrderId);
-        
-        newOrder!.Items.ForEach(productId =>
+        order!.Items.ForEach(product =>
         {
-            var product = _productsRepository.GetProduct(productId);
             product!.Quantity--;
             _productsRepository.UpdateProduct(product);
         });
+        
+        var newOrder = _ordersRepository.GetOrder(order.OrderId);
         
         _logger.LogInformation($"Order created successfully. OrderId: {newOrder.OrderId}");
         return newOrder!;
@@ -187,9 +186,9 @@ public class OrdersService : IOrdersService
     {
         error = string.Empty;
         
-        if (order.CustomerID == null || order.CustomerID.Length == 0)
+        if (order.Customer == null)
         {
-            error = "CustomerId is Required";
+            error = "Customer is Required";
             return false;
         }
 
@@ -211,26 +210,7 @@ public class OrdersService : IOrdersService
     private async Task PublishOrder(Order order)
     {
         _logger.LogInformation("Publish order {order}", order.OrderId);
-        
-        OrderPublish publish = new OrderPublish();
-        
-        publish.OrderId = order.OrderId;
-        publish.Timestamp = order.Timestamp;
-        publish.TotalAmount = order.TotalAmount;
-        publish.DiscountApplied = order.DiscountApplied;
-        
-        var customer = _userRepository.GetUser(order.CustomerID);
-        publish.Customer = customer;
 
-        publish.Items = new List<Product>();
-        
-        order.Items.ForEach(orderId =>
-        {
-            var product =  _productsRepository.GetProduct(orderId);
-            if (product != null)
-                publish.Items.Add(product);
-        });
-
-        await _messageProducer.SendMessageAsync(publish, queue);
+        await _messageProducer.SendMessageAsync(order, queue);
     }
 }

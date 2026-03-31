@@ -26,13 +26,13 @@ public class OrdersRepository : IOrdersRepository
 
     public List<Order> GetOrdersByCustomer(string customerId)
     {
-        var orders = _context.Orders.Where(o => o.CustomerID.Equals(customerId)).ToList();
+        var orders = _context.Orders.Where(o => o.Customer.UserId.Equals(customerId)).ToList();
         return orders;
     }
 
     public List<Order> GetOrdersByProduct(string productId)
     {
-        var orders = _context.Orders.Where(o => o.Items.Contains(productId)).ToList();
+        var orders = _context.Orders.Where(o => o.Items.Any(x => x.ProductId == productId)).ToList();
         return orders;
     }
 }
