@@ -61,5 +61,15 @@ public class AppDBContext : DbContext
             entity.Property(e => e.Percentage).HasColumnName(Consts.PERCENTAGE).IsRequired();
             entity.Property(e => e.ExpiredAt).HasColumnName(Consts.EXPIRED_AT).IsRequired();
         });
+
+        foreach (var entity in modelBuilder.Model.GetEntityTypes())
+        {
+            entity.SetTableName(entity.GetTableName().ToLower());
+
+            foreach (var property in entity.GetProperties())
+            {
+                property.SetColumnName(property.GetColumnName().ToLower());
+            }
+        }
     }
 }
