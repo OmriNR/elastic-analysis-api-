@@ -34,11 +34,11 @@ public class AppDBContext : DbContext
         {
             entity.Property(e => e.OrderId).HasColumnName(Consts.ID).IsRequired();
             entity.Property(e => e.Timestamp).HasColumnName(Consts.TIMESTAMP).IsRequired();
-            entity.Property(e => e.Customer).HasColumnName(Consts.CUSTOMER_ID).HasColumnType("jsonb").IsRequired();
+            entity.ComplexProperty(e => e.Customer, b => b.ToJson(Consts.CUSTOMER_ID));
             entity.Property(e => e.TotalAmount).HasColumnName(Consts.TOTAL_AMOUNT);
             entity.Property(e => e.PaymentMethod).HasColumnName(Consts.PAYMENT_METHOD).IsRequired();
             entity.Property(e => e.DiscountApplied).HasColumnName(Consts.DISCOUNT_APPLIED).IsRequired();
-            entity.Property(e => e.Items).HasColumnName(Consts.ITEMS).HasColumnType("jsonb");
+            entity.ComplexProperty(e => e.Items, b => b.ToJson(Consts.ITEMS));
         });
         
         modelBuilder.Entity<User>().ToTable(Consts.USERS_TABLE);

@@ -112,7 +112,8 @@ public class OrdersService : IOrdersService
             status = Statuses.INVALID;
             return null;
         }
-
+        
+        _logger.LogInformation("Order passed validation");
         var customer = _userRepository.GetUser(order.Customer.UserId);
 
         if (customer == null)
@@ -120,8 +121,10 @@ public class OrdersService : IOrdersService
             _logger.LogError($"User {order.Customer.UserId} doesn't exist");
             status = Statuses.NOT_FOUND;
             error = $"User {order.Customer.UserId} not found";
+            return null;
         }
 
+        _logger.LogInformation("Order has valid customer");
         order.TotalAmount = 0;
         order.DiscountApplied = false;
         
@@ -135,7 +138,7 @@ public class OrdersService : IOrdersService
                 error = $"Product {product.ProductId} not found";
                 return null;
             }
-
+            
             if (product.OwnerId == order.Customer.UserId)
             {
                 _logger.LogError($"User {order.Customer.UserId} can't buy his own products");
@@ -152,24 +155,18 @@ public class OrdersService : IOrdersService
                 return null;
             }
             
-            var discount =  _discountsRepository.GetDiscountByProduct(product.ProductId);
-
-            if (discount != null)
-            {
-                _logger.LogInformation($"Product {product.ProductId} is on  discount");
-                order.DiscountApplied = true;
-                order.TotalAmount += product.Price * (1 - discount.Percentage / 100);
-            }
-            else
-                order.TotalAmount += product.Price;
+            _logger.LogInformation($"{product.ProductId} passed and can be ordered");
         }
         
         var orderId = Guid.NewGuid().ToString();
         order.OrderId = orderId;
         
         _ordersRepository.CreateOrder(order);
+        
+        _logger.LogInformation($"Order {orderId} created, publishing it.");
         PublishOrder(order).Wait();
         
+        _logger.LogInformation("Updating stock of products");
         order!.Items.ForEach(product =>
         {
             product!.Quantity--;
