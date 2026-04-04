@@ -20,7 +20,6 @@ public class DiscountsTests
 
     private const string EXISTS_USER = "6";
     private const string EXISTS_USER_NO_PRODUCTS = "7";
-    private const string EXISTS_USER_WITH_PRODUCT_ON_DISCOUT = "8";
     private const string NOT_EXISTS_USER = "9";
     
     private const string EXISTS_CATEGORY = "CATEGORY";
@@ -35,11 +34,6 @@ public class DiscountsTests
     private User _validUser = new User()
     {
         UserId = EXISTS_USER
-    };
-
-    private User _userWithProductsOnDiscount = new User()
-    {
-        UserId = EXISTS_USER_WITH_PRODUCT_ON_DISCOUT
     };
     
     private User _emptyUser = new User()
@@ -66,7 +60,7 @@ public class DiscountsTests
         DiscountId = DISCOUT_ID_EXISTS,
         Percentage = VALID_PERCENTAGE,
         ExpiredAt = NOT_EXPIRED_DATE,
-        Products = new List<string>() { PRODUCT_ID_NOT_ON_DISCOUT }
+        ProdcutId = PRODUCT_ID_NOT_ON_DISCOUT
     };
     
     private static Discount invalid_discount_product_not_exist = new Discount()
@@ -74,7 +68,7 @@ public class DiscountsTests
         DiscountId = DISCOUT_ID_EXISTS,
         Percentage = VALID_PERCENTAGE,
         ExpiredAt = NOT_EXPIRED_DATE,
-        Products = new List<string>() { PRODUCT_ID_NOT_EXISTS }
+        ProdcutId = PRODUCT_ID_NOT_EXISTS 
     };
 
     private static Discount invalid_discount_percentage = new Discount()
@@ -95,15 +89,7 @@ public class DiscountsTests
         DiscountId = DISCOUT_ID_EXISTS,
         Percentage = VALID_PERCENTAGE,
         ExpiredAt = NOT_EXPIRED_DATE,
-        Products = new List<string>()
-    };
-    
-    private static Discount invalid_discount_already_on_discount = new Discount()
-    {
-        DiscountId = DISCOUT_ID_EXISTS,
-        Percentage = VALID_PERCENTAGE,
-        ExpiredAt = NOT_EXPIRED_DATE,
-        Products = new List<string>() { PRODUCT_ID_ON_DISCOUT }
+        ProdcutId = ""
     };
     
     private Mock<IDiscountsRepository> _discountsRepositoryMock;
@@ -130,6 +116,8 @@ public class DiscountsTests
         _discountsRepositoryMock.Setup(repo => 
             repo.GetDiscountByProduct(It.Is<string>(p => p != PRODUCT_ID_ON_DISCOUT))).Returns((Discount)null);
 
+        _productsRepositoryMock.Setup(repo => 
+            repo.GetProduct(It.Is<string>(p => p == PRODUCT_ID_NOT_EXISTS))).Returns((Product)null);
         _productsRepositoryMock.Setup(repo =>
             repo.GetProduct(It.Is<string>(p => p == PRODUCT_ID_ON_DISCOUT))).Returns(product_on_discount);
         
@@ -145,9 +133,6 @@ public class DiscountsTests
         _productsRepositoryMock.Setup(repo => 
             repo.GetProductsByUser(EXISTS_USER)).Returns(new List<Product>() { product_not_on_discount });
         
-        _productsRepositoryMock.Setup(repo => 
-            repo.GetProductsByUser(EXISTS_USER_WITH_PRODUCT_ON_DISCOUT)).Returns(new List<Product>() { product_on_discount });
-        
         _productsRepositoryMock.Setup(repo =>
             repo.GetProductsByCategory(EXISTS_CATEGORY)).Returns(new List<Product>(){ product_not_on_discount });
         
@@ -159,9 +144,6 @@ public class DiscountsTests
         
         _userRepositoryMock.Setup(repo =>
             repo.GetUser(It.Is<string>(id => id == EXISTS_USER_NO_PRODUCTS))).Returns(_emptyUser);
-
-        _userRepositoryMock.Setup(repo =>
-                repo.GetUser(It.Is<string>(id => id == EXISTS_USER_WITH_PRODUCT_ON_DISCOUT))).Returns(_userWithProductsOnDiscount);
         
         _userRepositoryMock.Setup(repo =>
             repo.GetUser(It.Is<string>(id => id == NOT_EXISTS_USER))).Returns((User)null);
@@ -203,7 +185,7 @@ public class DiscountsTests
     [Test, TestCaseSource(nameof(CreateDiscountCategoryTestCases))]
     public void Create_discount_by_category(Discount discount, string category, Statuses expectedStatus, string expectedError)
     {
-        _service.CreateDiscountByCategory(discount, category, out var status, out var error);
+        _service.CreateDiscountsByCategory(discount, category, out var status, out var error);
         
         Assert.That(status, Is.EqualTo(expectedStatus));
         Assert.That(error, Is.EqualTo(expectedError));
@@ -212,7 +194,7 @@ public class DiscountsTests
     [Test, TestCaseSource(nameof(CreateDiscountUserTestCases))]
     public void Create_discount_user(Discount discount, string user, Statuses expectedStatus, string expectedError)
     {
-        _service.CreateDiscountByUser(discount, user, out var status, out var error);
+        _service.CreateDiscountsByUser(discount, user, out var status, out var error);
         
         Assert.That(status, Is.EqualTo(expectedStatus));
         Assert.That(error, Is.EqualTo(expectedError));
@@ -240,16 +222,6 @@ public class DiscountsTests
             invalid_discount_product_not_exist,
             Statuses.INVALID,
             "Discount product must be non-null");
-        
-        yield return new TestCaseData(
-            invalid_discount_empty,
-            Statuses.INVALID,
-            "Discount must connect to products");
-        
-        yield return new TestCaseData(
-            invalid_discount_already_on_discount,
-            Statuses.INVALID,
-            "All products are already on discount");
     }
 
     public static IEnumerable<TestCaseData> CreateDiscountCategoryTestCases()
@@ -298,12 +270,6 @@ public class DiscountsTests
             EXISTS_USER_NO_PRODUCTS,
             Statuses.NOT_FOUND,
             $"User {EXISTS_USER_NO_PRODUCTS} does not have any products");
-
-        yield return new TestCaseData(
-            valid_discount,
-            EXISTS_USER_WITH_PRODUCT_ON_DISCOUT,
-            Statuses.INVALID,
-            "All products are already on discount");
         
         yield return new TestCaseData(
             invalid_discount_percentage,

@@ -86,7 +86,7 @@ public class DiscountsController : ControllerBase
     {
         try
         {
-            var newDiscount = _discountsService.CreateDiscountByCategory(discount, category, out var status, out var error);
+            var newDiscount = _discountsService.CreateDiscountsByCategory(discount, category, out var status, out var error);
 
             switch (status)
             {
@@ -109,7 +109,7 @@ public class DiscountsController : ControllerBase
     {
         try
         {
-            var newDiscount = _discountsService.CreateDiscountByUser(discount, userId, out var status, out var error);
+            var newDiscounts = _discountsService.CreateDiscountsByUser(discount, userId, out var status, out var error);
 
             switch (status)
             {
@@ -118,7 +118,7 @@ public class DiscountsController : ControllerBase
                 case Statuses.INVALID:
                     return BadRequest(error);
                 default:
-                    return Ok(newDiscount);
+                    return Ok(newDiscounts);
             }
         }
         catch (Exception ex)

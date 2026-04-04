@@ -48,7 +48,7 @@ public class DiscountsRepository : IDiscountsRepository
     public Discount? GetDiscountByProduct(string productId)
     {
         var discount = _context.Discounts
-            .Where(d => d.Products.Any(p => p == productId))
+            .Where(d => d.ProdcutId == productId)
             .Where(d => d.ExpiredAt >=  DateTime.Now)
             .OrderByDescending(d => d.ExpiredAt)
             .FirstOrDefault();

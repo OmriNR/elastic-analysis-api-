@@ -10,9 +10,9 @@ public interface IDiscountsService
     
     Discount CreateDiscount(Discount discount, out Statuses status, out string error);
     
-    Discount CreateDiscountByCategory(Discount discount, string category,  out Statuses status, out string error);
+    List<Discount> CreateDiscountsByCategory(Discount discount, string category,  out Statuses status, out string error);
     
-    Discount CreateDiscountByUser(Discount discount, string userId,  out Statuses status, out string error);
+    List<Discount> CreateDiscountsByUser(Discount discount, string userId,  out Statuses status, out string error);
     
-    //Discount UpdateDiscount(Discount discount,  out Statuses status, out string error);
+    Discount UpdateDiscount(Discount discount,  out Statuses status, out string error);
 }

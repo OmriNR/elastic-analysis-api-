@@ -57,7 +57,7 @@ public class AppDBContext : DbContext
         modelBuilder.Entity<Discount>(entity =>
         {
             entity.Property(e => e.DiscountId).HasColumnName(Consts.ID).IsRequired();
-            entity.Property(e => e.Products).HasColumnName(Consts.PRODUCTS).HasColumnType("jsonb");
+            entity.Property(e => e.ProdcutId).HasColumnName(Consts.PRODUCT_ID);
             entity.Property(e => e.Percentage).HasColumnName(Consts.PERCENTAGE).IsRequired();
             entity.Property(e => e.ExpiredAt).HasColumnName(Consts.EXPIRED_AT).IsRequired();
         });

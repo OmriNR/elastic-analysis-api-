@@ -74,12 +74,11 @@ public class DiscountService : IDiscountsService
         error = string.Empty;
         status = Statuses.OK;
 
-        if (IsDiscountValid(discount, out error, out var productsNotOnDiscount))
+        if (IsDiscountValid(discount, out error))
         {
             _logger.LogInformation($"{discount} is valid, let's create it");
             Guid discountId = Guid.NewGuid();
             discount.DiscountId = discountId.ToString();
-            discount.Products =  productsNotOnDiscount;
             
             _discountsRepository.CreateDiscount(discount);
             var newDiscount = _discountsRepository.GetDiscount(discount.DiscountId);
@@ -93,8 +92,9 @@ public class DiscountService : IDiscountsService
         return null;
     }
 
-    public Discount CreateDiscountByCategory(Discount discount, string category,  out Statuses status, out string error)
+    public List<Discount> CreateDiscountsByCategory(Discount discount, string category,  out Statuses status, out string error)
     {
+        List<Discount> newDiscounts = new List<Discount>();
         _logger.LogInformation($"Creating a discount for all products of category {category}",  DateTime.Now);
         error = string.Empty;
         status =  Statuses.OK;
@@ -108,30 +108,37 @@ public class DiscountService : IDiscountsService
             error =  $"Category {category} not found";
             return null;
         }
-        
-        discount.Products = productsByCategory;
 
-        if (IsDiscountValid(discount, out error, out var productsNotOnDiscount))
+        foreach (var productId in productsByCategory)
         {
-            _logger.LogInformation($"{discount} is valid, let's create it");
-            string discountId = Guid.NewGuid().ToString();
-            discount.DiscountId = discountId;
-            discount.Products =  productsNotOnDiscount;
+            discount.ProdcutId = productId;
             
-            _discountsRepository.CreateDiscount(discount);
-            var newDiscount = _discountsRepository.GetDiscount(discountId);
+            if (IsDiscountValid(discount, out error))
+            {
+                _logger.LogInformation($"{discount} is valid, let's create it");
+                string discountId = Guid.NewGuid().ToString();
+                discount.DiscountId = discountId;
+            
+                _discountsRepository.CreateDiscount(discount);
+                var newDiscount = _discountsRepository.GetDiscount(discountId);
 
-            _logger.LogInformation($"Discount created successfully, new Discount Id: {newDiscount!.DiscountId}");
-            return newDiscount!;
+                _logger.LogInformation($"Discount created successfully, new Discount Id: {newDiscount!.DiscountId}");
+                newDiscounts.Add(newDiscount);
+            }
+            else
+            {
+                _logger.LogError($"Discount {discount} is not valid. Error: {error}");
+                status = Statuses.INVALID;
+                return null;
+            }
         }
         
-        _logger.LogError($"Discount {discount} is not valid. Error: {error}");
-        status = Statuses.INVALID;
-        return null;
+        return newDiscounts;
     }
 
-    public Discount CreateDiscountByUser(Discount discount, string userId, out Statuses status, out string error)
+    public List<Discount> CreateDiscountsByUser(Discount discount, string userId, out Statuses status, out string error)
     {
+        List<Discount> newDiscounts = new List<Discount>();
         _logger.LogInformation($"Creating a discount for all products of user {userId}",  DateTime.Now);
         error = string.Empty;
         status = Statuses.OK;
@@ -155,29 +162,35 @@ public class DiscountService : IDiscountsService
             error =  $"User {userId} does not have any products";
             return null;
         }
-        
-        discount.Products = productsByUser;
 
-        if (IsDiscountValid(discount, out error, out var productsNotOnDiscount))
+        foreach (var prodcutId in productsByUser)
         {
-            _logger.LogInformation($"{discount} is valid, let's create it");
-            string discountId = Guid.NewGuid().ToString();
-            discount.DiscountId = discountId;
-            discount.Products =  productsNotOnDiscount;
+            discount.ProdcutId = prodcutId;
             
-            _discountsRepository.CreateDiscount(discount);
-            var newDiscount = _discountsRepository.GetDiscount(discountId);
+            if (IsDiscountValid(discount, out error))
+            {
+                _logger.LogInformation($"{discount} is valid, let's create it");
+                string discountId = Guid.NewGuid().ToString();
+                discount.DiscountId = discountId;
             
-            _logger.LogInformation($"Discount created successfully, new Discount Id: {newDiscount!.DiscountId}");
-            return newDiscount!;
+                _discountsRepository.CreateDiscount(discount);
+                var newDiscount = _discountsRepository.GetDiscount(discountId);
+            
+                _logger.LogInformation($"Discount created successfully, new Discount Id: {newDiscount!.DiscountId}");
+                newDiscounts.Add(newDiscount);
+            }
+            else
+            {
+                _logger.LogError($"Discount {discount} is not valid. Error: {error}");
+                status = Statuses.INVALID;
+                return null;
+            }
         }
         
-        _logger.LogError($"Discount {discount} is not valid. Error: {error}");
-        status = Statuses.INVALID;
-        return null;
+        return  newDiscounts;
     }
 
-    /*public Discount UpdateDiscount(Discount discount, out Statuses status, out string error)
+    public Discount UpdateDiscount(Discount discount, out Statuses status, out string error)
     {
         error = string.Empty;
         status = Statuses.OK;
@@ -191,7 +204,7 @@ public class DiscountService : IDiscountsService
             return null;
         }
 
-        if (IsDiscountValid(discount, out error,  out var productsNotOnDiscount))
+        if (IsDiscountValid(discount, out error))
         {
             _discountsRepository.UpdateDiscount(discount);
             
@@ -201,12 +214,11 @@ public class DiscountService : IDiscountsService
         
         status = Statuses.INVALID;
         return null;
-    }*/
+    }
 
-    private bool IsDiscountValid(Discount discount, out string error, out List<string> productsNotOnDiscount)
+    private bool IsDiscountValid(Discount discount, out string error)
     {
         error = string.Empty;
-        productsNotOnDiscount = new List<string>();
         
         if (discount.Percentage <= 0 || discount.Percentage >= 100)
         {
@@ -219,24 +231,16 @@ public class DiscountService : IDiscountsService
             error = "Can't create expired discount";
             return false;
         }
-        
-        if (discount.Products.Count == 0)
+
+        if (discount.ProdcutId == "" || discount.ProdcutId == null)
         {
-            error = "Discount must connect to products";
+            error = "Prodcut id can't be empty";
             return false;
         }
-        
-        if (discount.Products.Any(p => _productsRepository.GetProduct(p) == null))
+
+        if (_productsRepository.GetProduct(discount.ProdcutId) == null)
         {
             error = "Discount product must be non-null";
-            return false;
-        }
-        
-        productsNotOnDiscount = discount.Products.Where(p => _discountsRepository.GetDiscountByProduct(p) == null).ToList();
-
-        if (productsNotOnDiscount.Count == 0)
-        {
-            error = "All products are already on discount";
             return false;
         }
 
