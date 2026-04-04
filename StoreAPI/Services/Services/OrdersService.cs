@@ -156,6 +156,21 @@ public class OrdersService : IOrdersService
             }
             
             _logger.LogInformation($"{product.ProductId} passed and can be ordered");
+            
+            var discount = _discountsRepository.GetDiscountByProduct(product.ProductId);
+
+            if (discount != null)
+            {
+                _logger.LogInformation($"Product {product.ProductId} is on discount");
+                
+                order.TotalAmount += product.Price * (discount.Percentage / 100);
+                order.DiscountApplied = true;
+            }
+            else
+            {
+                _logger.LogInformation($"Product {product.ProductId} is not on discount");
+                order.TotalAmount += product.Price;
+            }
         }
         
         var orderId = Guid.NewGuid().ToString();

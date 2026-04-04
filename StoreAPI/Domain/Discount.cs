@@ -11,9 +11,9 @@ public class Discount
     [JsonPropertyName("discount_id")]
     public string DiscountId { get; set; }
     
-    [DataMember(Name = "products")]
-    [JsonPropertyName("products")]
-    public List<string> Products { get; set; }
+    [DataMember(Name = "product_id")]
+    [JsonPropertyName("product_id")]
+    public string ProdcutId { get; set; }
     
     [DataMember(Name = "percentage")]
     [JsonPropertyName("percentage")]

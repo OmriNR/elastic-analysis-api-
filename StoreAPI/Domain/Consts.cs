@@ -22,7 +22,7 @@ public class Consts
     public const string PRICE =  "PRICE";
     public const string QUANTITY = "QUANTITY";
     
-    public const string PRODUCTS =  "PRODUCTS";
+    public const string PRODUCT_ID =  "PRODUCT_ID";
     public const string PERCENTAGE = "PERCENTAGE";
     public const string EXPIRED_AT = "EXPIRED_AT";
     
