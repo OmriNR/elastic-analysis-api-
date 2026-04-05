@@ -44,7 +44,6 @@ builder.Services.AddScoped<IOrdersService, OrdersService>();
 builder.Services.AddScoped<IOrdersRepository, OrdersRepository>();
 
 builder.Services.AddScoped<IMessageProducer, MessageProducer>();
-builder.Services.AddScoped<IRabbitMQConnectionManager, RabbitMQConnection>();
 
 var app = builder.Build();
 

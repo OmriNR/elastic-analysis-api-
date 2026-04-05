@@ -19,10 +19,13 @@ services:
       - "5672:5672"
       - "15672:15672"
     environment:
-      Rabbit__Host: localhost
-      Rabbit__Port: 15672
-      Rabbit__User: admin
-      Rabbit__Password: admin123
+      # These set the actual RabbitMQ credentials
+      - RABBITMQ_DEFAULT_USER=admin
+      - RABBITMQ_DEFAULT_PASS=admin123
+      # You can keep your custom ones if your C# code reads them, 
+      # but RabbitMQ itself ignores them.
+      - Rabbit__Host=rabbitmq 
+      - Rabbit__Port=5672
     volumes:
       - rabbitmq_data:/var/lib/rabbitmq
 

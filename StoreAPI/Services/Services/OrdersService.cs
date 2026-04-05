@@ -179,7 +179,7 @@ public class OrdersService : IOrdersService
         _ordersRepository.CreateOrder(order);
         
         _logger.LogInformation($"Order {orderId} created, publishing it.");
-        PublishOrder(order).Wait();
+        PublishOrder(order);
         
         _logger.LogInformation("Updating stock of products");
         order!.Items.ForEach(product =>
@@ -219,10 +219,10 @@ public class OrdersService : IOrdersService
         return true;
     }
 
-    private async Task PublishOrder(Order order)
+    private void PublishOrder(Order order)
     {
         _logger.LogInformation("Publish order {order}", order.OrderId);
 
-        await _messageProducer.SendMessageAsync(order, queue);
+        _messageProducer.SendMessageAsync(order, queue);
     }
 }
