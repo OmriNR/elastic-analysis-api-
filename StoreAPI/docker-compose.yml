@@ -26,8 +26,15 @@ services:
       # but RabbitMQ itself ignores them.
       - Rabbit__Host=rabbitmq 
       - Rabbit__Port=5672
+      - Rabbit__UserName=store_admin
+      - Rabbit__Password=supersecretpassword123
     volumes:
       - rabbitmq_data:/var/lib/rabbitmq
+    healthcheck:
+      test: rabbitmq-diagnostics -q ping
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
   storeapi:
     build:

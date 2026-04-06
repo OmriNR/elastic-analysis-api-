@@ -2,5 +2,6 @@
 
 public interface IMessageProducer
 {
-    Task SendMessageAsync<T>(T message, string queueName);
+    void PublishMessage<T>(T message, string routingKey);
+    
 }

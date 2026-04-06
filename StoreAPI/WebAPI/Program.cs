@@ -43,10 +43,11 @@ builder.Services.AddScoped<IDiscountsRepository, DiscountsRepository>();
 builder.Services.AddScoped<IOrdersService, OrdersService>();
 builder.Services.AddScoped<IOrdersRepository, OrdersRepository>();
 
-builder.Services.AddScoped<IMessageProducer, MessageProducer>();
+builder.Services.AddSingleton<IMessageProducer, MessageProducer>();
 
 var app = builder.Build();
 
+app.Services.GetRequiredService<IMessageProducer>();
 using (var scope = app.Services.CreateScope())
 {
     scope.ServiceProvider.GetRequiredService<AppDBContext>().Database.EnsureCreated();
