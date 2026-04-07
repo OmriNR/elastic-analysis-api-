@@ -19,20 +19,14 @@ services:
       - "5672:5672"
       - "15672:15672"
     environment:
-      # These set the actual RabbitMQ credentials
+      # Use these for both RabbitMQ and your App config for consistency
       - RABBITMQ_DEFAULT_USER=admin
       - RABBITMQ_DEFAULT_PASS=admin123
-      # You can keep your custom ones if your C# code reads them, 
-      # but RabbitMQ itself ignores them.
-      - Rabbit__Host=rabbitmq 
-      - Rabbit__Port=5672
-      - Rabbit__UserName=store_admin
-      - Rabbit__Password=supersecretpassword123
     volumes:
       - rabbitmq_data:/var/lib/rabbitmq
     healthcheck:
-      test: rabbitmq-diagnostics -q ping
-      interval: 5s
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 10s
       timeout: 5s
       retries: 5
 
@@ -41,12 +35,20 @@ services:
       context: .
       dockerfile: Dockerfile
     depends_on:
-      - db
+      db:
+        condition: service_started
+      rabbitmq:
+        condition: service_healthy # Wait for RabbitMQ to be fully ready
     ports:
       - "5000:80"
     environment:
-      ASPNETCORE_ENVIRONMENT: "Development"
-      ConnectionStrings__PostgresDb: "Host=db;Database=storeapi_db;Username=storeapi_user;Password=storeapi_pass"
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings__PostgresDb=Host=db;Database=storeapi_db;Username=storeapi_user;Password=storeapi_pass
+      # Updated to match the credentials above
+      - Rabbit__Host=rabbitmq 
+      - Rabbit__Port=5672
+      - Rabbit__UserName=admin
+      - Rabbit__Password=admin123
 
 volumes:
   postgres_data:
