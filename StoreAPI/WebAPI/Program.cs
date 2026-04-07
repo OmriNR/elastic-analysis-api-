@@ -47,7 +47,7 @@ builder.Services.AddSingleton<IMessageProducer, MessageProducer>();
 
 var app = builder.Build();
 
-app.Services.GetRequiredService<IMessageProducer>();
+//app.Services.GetRequiredService<IMessageProducer>();
 using (var scope = app.Services.CreateScope())
 {
     scope.ServiceProvider.GetRequiredService<AppDBContext>().Database.EnsureCreated();

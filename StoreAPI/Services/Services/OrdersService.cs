@@ -179,7 +179,7 @@ public class OrdersService : IOrdersService
         _ordersRepository.CreateOrder(order);
         
         _logger.LogInformation($"Order {orderId} created, publishing it.");
-        _messageProducer.PublishMessage(orderId, "order.created");
+        //_messageProducer.PublishMessage(orderId, "order.created");
         
         _logger.LogInformation("Updating stock of products");
         order!.Items.ForEach(product =>
