@@ -1,4 +1,4 @@
-﻿using Domain;
+﻿using Shared.Models;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Services.Interfaces;

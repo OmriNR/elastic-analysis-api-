@@ -1,4 +1,4 @@
-﻿using Domain;
+﻿using Shared.Models;
 using Microsoft.Extensions.Logging;
 using Repositories.Interfaces;
 using Services.Interfaces;
