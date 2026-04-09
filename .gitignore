@@ -37,6 +37,13 @@ packages/
 # Restore symbol files
 *.pdb
 
+*.cshtml
+
+*.css
+*.map
+*.js
+*.ico
+
 ## --- OS specific ---
 .DS_Store
 Thumbs.db
