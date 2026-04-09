@@ -1,4 +1,4 @@
-﻿using Domain;
+﻿using Shared.Models;
 
 namespace Services.Interfaces;
 

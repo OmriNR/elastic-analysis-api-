@@ -1,4 +1,4 @@
-﻿using Domain;
+﻿using Shared.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 

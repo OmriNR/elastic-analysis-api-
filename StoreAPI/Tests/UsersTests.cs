@@ -1,4 +1,4 @@
-﻿using Domain;
+﻿using Shared.Models;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using Moq;

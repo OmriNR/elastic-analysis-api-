@@ -1,4 +1,4 @@
-﻿namespace Models;
+﻿namespace Shared.Models;
 
 public class Consts
 {
