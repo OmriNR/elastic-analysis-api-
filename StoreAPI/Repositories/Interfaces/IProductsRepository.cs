@@ -8,6 +8,7 @@ public interface IProductsRepository
     void CreateProduct(Product product);
     void DeleteProduct(Product product);
     Product? GetProduct(string id);
+    List<Product> GetAllProducts();
     List<Product> GetProducts(List<string> ids);
     List<Product> GetProductsByCategory(string category);
     List<Product> GetProductsByUser(string user);
