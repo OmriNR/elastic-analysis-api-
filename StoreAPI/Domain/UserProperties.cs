@@ -3,9 +3,9 @@ using System.ComponentModel.DataAnnotations.Schema;
 using System.Runtime.Serialization;
 using System.Text.Json.Serialization;
 
-namespace Shared.Models;
+namespace Domain;
 
-public class User
+public class UserProperties
 {
     [DataMember(Name = "user_id")]
     [JsonPropertyName("user_id")]
@@ -23,6 +23,17 @@ public class User
     [JsonPropertyName("gender")]
     public string Gender { get; set; }
     
+    [DataMember(Name = "location")]
+    [JsonPropertyName("location")]
+    public GeoProperties Location { get; set; }
+    
+    [DataMember(Name = "created_at")]
+    [JsonPropertyName("created_at")]
+    public DateTime CreatedAt { get; set; }
+}
+
+public class GeoProperties
+{
     [DataMember(Name = "city")]
     [JsonPropertyName("city")]
     public string City { get; set; }
@@ -31,7 +42,11 @@ public class User
     [JsonPropertyName("country")]
     public string Country { get; set; }
     
-    [DataMember(Name = "created_at")]
-    [JsonPropertyName("created_at")]
-    public DateTime CreatedAt { get; set; }
+    [DataMember(Name = "address")]
+    [JsonPropertyName("address")]
+    public string Address { get; set; }
+    
+    [DataMember(Name = "zip_code")]
+    [JsonPropertyName("zip_code")]
+    public string ZipCode { get; set; }
 }

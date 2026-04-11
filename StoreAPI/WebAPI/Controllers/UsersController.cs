@@ -1,4 +1,4 @@
-﻿using Shared.Models;
+﻿using Domain;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Services.Interfaces;
@@ -9,9 +9,9 @@ namespace WebAPI.Controllers;
 [Route("api/[controller]")]
 public class UsersController : ControllerBase
 {
-    private readonly IUsersService _usersService;
+    private readonly IUsersPropertiesService _usersService;
 
-    public UsersController(IUsersService usersService)
+    public UsersController(IUsersPropertiesService usersService)
     {
         _usersService = usersService;
     }
@@ -38,7 +38,7 @@ public class UsersController : ControllerBase
     }
 
     [HttpPost]
-    public IActionResult PostUser([FromBody] User user)
+    public IActionResult PostUser([FromBody] UserProperties user)
     {
         try
         {
@@ -61,7 +61,7 @@ public class UsersController : ControllerBase
     }
 
     [HttpPut]
-    public IActionResult PutUser([FromBody] User user)
+    public IActionResult PutUser([FromBody] UserProperties user)
     {
         try
         {

@@ -1,4 +1,4 @@
-﻿namespace Shared.Models;
+﻿namespace Domain;
 
 public enum Statuses
 {

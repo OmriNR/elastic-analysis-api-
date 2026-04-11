@@ -1,4 +1,4 @@
-﻿using Shared.Models;
+﻿using Domain;
 using Microsoft.Extensions.Logging;
 using Repositories.Interfaces;
 using Services.Interfaces;
@@ -9,9 +9,9 @@ public class ProductsService : IProductsService
 {
     private readonly ILogger<IProductsService> _logger;
     private readonly IProductsRepository _productsRepository;
-    private readonly IUserRepository _userRepository;
+    private readonly IUsersPropertiesRepository _userRepository;
 
-    public ProductsService(ILogger<IProductsService> logger, IProductsRepository productsRepository, IUserRepository userRepository)
+    public ProductsService(ILogger<IProductsService> logger, IProductsRepository productsRepository, IUsersPropertiesRepository userRepository)
     {
         _logger = logger;
         _productsRepository = productsRepository;

@@ -1,4 +1,4 @@
-﻿using Shared.Models;
+﻿using Domain;
 using Repositories.Interfaces;
 
 namespace Repositories.Repositories;

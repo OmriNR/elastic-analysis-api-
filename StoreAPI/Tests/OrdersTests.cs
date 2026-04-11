@@ -1,4 +1,4 @@
-﻿using Shared.Models;
+﻿using Domain;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using Moq;
@@ -26,7 +26,7 @@ public class OrdersTests
     private static Order validOrder = new Order()
     {
         OrderId = ORDER_ID_EXISTS,
-        Customer = new User(){ UserId = USER_ID_EXISTS},
+        Customer = new UserProperties(){ UserId = USER_ID_EXISTS},
         DiscountApplied = false,
         Items = new List<Product>() { new Product() { ProductId = PRODUCT_ID_EXISTS} },
         PaymentMethod = "CreditCard",
@@ -48,7 +48,7 @@ public class OrdersTests
     private static Order invalid_order_no_payment = new Order()
     {
         OrderId = ORDER_ID_EXISTS,
-        Customer = new User(){ UserId = USER_ID_EXISTS},
+        Customer = new UserProperties(){ UserId = USER_ID_EXISTS},
         DiscountApplied = false,
         Items = new List<Product>() { new Product() { ProductId = PRODUCT_ID_EXISTS} },
         PaymentMethod = "",
@@ -59,7 +59,7 @@ public class OrdersTests
     private static Order invalid_order_no_items = new Order()
     {
         OrderId = ORDER_ID_EXISTS,
-        Customer = new User(){ UserId = USER_ID_EXISTS},
+        Customer = new UserProperties(){ UserId = USER_ID_EXISTS},
         DiscountApplied = false,
         Items = new List<Product>(),
         PaymentMethod = "CreditCard",
@@ -70,7 +70,7 @@ public class OrdersTests
     private static Order invalid_order_no_product_exist = new Order()
     {
         OrderId = ORDER_ID_EXISTS,
-        Customer = new User(){ UserId = USER_ID_EXISTS},
+        Customer = new UserProperties(){ UserId = USER_ID_EXISTS},
         DiscountApplied = false,
         Items = new List<Product>() { new Product() { ProductId = PRODUCT_ID_NOT_FOUND } },
         PaymentMethod = "CreditCard",
@@ -81,7 +81,7 @@ public class OrdersTests
     private static Order invalid_order_not_in_stock = new Order()
     {
         OrderId = ORDER_ID_EXISTS,
-        Customer = new User(){ UserId = USER_ID_EXISTS},
+        Customer = new UserProperties(){ UserId = USER_ID_EXISTS},
         DiscountApplied = false,
         Items = new List<Product>() { new Product() { ProductId = PRODUCT_ID_NOT_ON_STOCK } },
         PaymentMethod = "CreditCard",
@@ -92,7 +92,7 @@ public class OrdersTests
     private static Order invalid_order_user_order_his_product = new Order()
     {
         OrderId = ORDER_ID_EXISTS,
-        Customer = new User(){ UserId = USER_ID_EXISTS},
+        Customer = new UserProperties(){ UserId = USER_ID_EXISTS},
         DiscountApplied = false,
         Items = new List<Product>() { new Product() { ProductId = PRODUCT_ID_EXISTS_BY_CUSTOMER } },
         PaymentMethod = "CreditCard",
@@ -100,7 +100,7 @@ public class OrdersTests
         TotalAmount = 100
     };
 
-    private static User validUser = new User()
+    private static UserProperties validUser = new UserProperties()
     {
         UserId = USER_ID_EXISTS
     };
@@ -127,7 +127,7 @@ public class OrdersTests
     };
     
     private Mock<IProductsRepository> _productsRepositoryMock;
-    private Mock<IUserRepository> _userRepositoryMock;
+    private Mock<IUsersPropertiesRepository> _userRepositoryMock;
     private Mock<IOrdersRepository> _ordersRepositoryMock;
     private Mock<IDiscountsRepository> _discountsRepositoryMock;
     private Mock<IMessageProducer> _producerMock;
@@ -137,7 +137,7 @@ public class OrdersTests
     public void Setup()
     {
         _productsRepositoryMock = new Mock<IProductsRepository>();
-        _userRepositoryMock = new Mock<IUserRepository>();
+        _userRepositoryMock = new Mock<IUsersPropertiesRepository>();
         _discountsRepositoryMock = new Mock<IDiscountsRepository>();
         _ordersRepositoryMock = new Mock<IOrdersRepository>();
         _producerMock = new  Mock<IMessageProducer>();
@@ -167,7 +167,7 @@ public class OrdersTests
             repo.GetUser(USER_ID_NO_ORDERS)).Returns(validUser);
         
         _userRepositoryMock.Setup(repo =>
-            repo.GetUser(USER_ID_NOT_FOUND)).Returns((User)null);
+            repo.GetUser(USER_ID_NOT_FOUND)).Returns((UserProperties)null);
         
         _productsRepositoryMock.Setup(repo =>
             repo.GetProduct(PRODUCT_ID_EXISTS)).Returns(validProduct);

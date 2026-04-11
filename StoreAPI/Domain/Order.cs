@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 using System.Runtime.Serialization;
 using System.Text.Json.Serialization;
 
-namespace Shared.Models;
+namespace Domain;
 
 public class Order
 {
@@ -17,7 +17,7 @@ public class Order
     
     [DataMember(Name = "customer")]
     [JsonPropertyName("customer")]
-    public User Customer { get; set; }
+    public UserProperties Customer { get; set; }
     
     [DataMember(Name = "total_amount")]
     [JsonPropertyName("total_amount")]

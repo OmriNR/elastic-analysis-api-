@@ -1,4 +1,4 @@
-﻿using Shared.Models;
+﻿using Domain;
 using Microsoft.EntityFrameworkCore;
 using Repositories.Interfaces;
 

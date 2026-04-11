@@ -7,11 +7,10 @@ COPY ["StoreAPI/StoreAPI.sln", "./"]
 
 # 2. Copy project files using the correct folder paths
 # Assuming your projects are inside the 'StoreAPI' folder based on your screenshot
+COPY ["StoreAPI/Domain/Domain.csproj", "StoreAPI/Domain/"]
 COPY ["StoreAPI/Repositories/Repositories.csproj", "StoreAPI/Repositories/"]
 COPY ["StoreAPI/Services/Services.csproj", "StoreAPI/Services/"]
 COPY ["StoreAPI/WebAPI/WebAPI.csproj", "StoreAPI/WebAPI/"]
-
-COPY ["Shared.Models/Shared.Models.csproj", "Shared.Models/"]
 # Also copy the Common library if WebAPI depends on it
 
 # 3. Restore based on the WebAPI path
