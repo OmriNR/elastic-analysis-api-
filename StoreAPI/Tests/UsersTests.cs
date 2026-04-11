@@ -1,4 +1,4 @@
-﻿using Shared.Models;
+﻿using Domain;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using Moq;
@@ -16,47 +16,47 @@ public class UsersTests
     private const string USER_NAME = "USERNAME";
     private const int USER_AGE = 1;
 
-    private static User validUser = new User
+    private static UserProperties validUser = new UserProperties
     {
         UserId = USER_ID_EXIST,
         UserName = USER_NAME,
         Age = USER_AGE
     };
 
-    private static User user_no_name = new User
+    private static UserProperties user_no_name = new UserProperties
     {
         UserId = USER_ID_EXIST,
         UserName = ""
     };
 
-    private static User user_no_age = new User
+    private static UserProperties user_no_age = new UserProperties
     {
         UserId = USER_ID_EXIST,
         UserName = USER_NAME,
         Age = 0
     };
 
-    private static User no_exist = new User
+    private static UserProperties no_exist = new UserProperties
     {
         UserId = USER_ID_NOT_FOUND,
     };
     
-    private Mock<IUserRepository> _userRepoMock;
-    private IUsersService _service;
+    private Mock<IUsersPropertiesRepository> _userRepoMock;
+    private IUsersPropertiesService _service;
     
     [SetUp]
     public void Setup()
     {
-        _userRepoMock = new Mock<IUserRepository>();
+        _userRepoMock = new Mock<IUsersPropertiesRepository>();
         
         _userRepoMock.Setup(repo =>
             repo.GetUser(It.Is<string>(id => id != USER_ID_NOT_FOUND))).Returns(validUser);
         
         _userRepoMock.Setup(repo =>
-            repo.GetUser(It.Is<string>(id => id == USER_ID_NOT_FOUND))).Returns((User)null);
+            repo.GetUser(It.Is<string>(id => id == USER_ID_NOT_FOUND))).Returns((UserProperties)null);
         
-        ILogger<IUsersService> _logger = new NullLogger<IUsersService>();
-        _service = new UsersService(_logger, _userRepoMock.Object);
+        ILogger<IUsersPropertiesService> _logger = new NullLogger<IUsersPropertiesService>();
+        _service = new UsersPropertiesService(_logger, _userRepoMock.Object);
     }
 
     [Test]
@@ -110,7 +110,7 @@ public class UsersTests
     }
 
     [Test, TestCaseSource(nameof(CreateUserTestCases))]
-    public void Create_User(User user, Statuses expectedStatus, string expectedError)
+    public void Create_User(UserProperties user, Statuses expectedStatus, string expectedError)
     {
         _service.CreateUser(user, out var status, out var error);
         
@@ -119,7 +119,7 @@ public class UsersTests
     }
     
     [Test, TestCaseSource(nameof(UpdateUserTestCases))]
-    public void Update_User(User user, Statuses expectedStatus, string expectedError)
+    public void Update_User(UserProperties user, Statuses expectedStatus, string expectedError)
     {
         _service.UpdeateUser(user, out var status, out var error);
         

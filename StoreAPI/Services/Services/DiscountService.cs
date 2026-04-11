@@ -1,4 +1,4 @@
-﻿using Shared.Models;
+﻿using Domain;
 using Microsoft.Extensions.Logging;
 using Repositories.Interfaces;
 using Services.Interfaces;
@@ -9,10 +9,10 @@ public class DiscountService : IDiscountsService
 {
     private readonly ILogger<IDiscountsService> _logger;
     private readonly IDiscountsRepository _discountsRepository;
-    private readonly IUserRepository _userRepository;
+    private readonly IUsersPropertiesRepository _userRepository;
     private readonly IProductsRepository _productsRepository;
 
-    public DiscountService(ILogger<IDiscountsService> logger, IDiscountsRepository discountsRepository, IUserRepository userRepository, IProductsRepository productsRepository)
+    public DiscountService(ILogger<IDiscountsService> logger, IDiscountsRepository discountsRepository, IUsersPropertiesRepository userRepository, IProductsRepository productsRepository)
     {
         _logger = logger;
         _discountsRepository = discountsRepository;

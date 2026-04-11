@@ -1,4 +1,4 @@
-﻿using Shared.Models;
+﻿using Domain;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using Moq;
@@ -31,12 +31,12 @@ public class DiscountsTests
     private static readonly DateTime EXPIRED_DATE = DateTime.MinValue;
     private static readonly DateTime NOT_EXPIRED_DATE = DateTime.MaxValue;
 
-    private User _validUser = new User()
+    private UserProperties _validUser = new UserProperties()
     {
         UserId = EXISTS_USER
     };
     
-    private User _emptyUser = new User()
+    private UserProperties _emptyUser = new UserProperties()
     {
         UserId = EXISTS_USER_NO_PRODUCTS
     };
@@ -94,14 +94,14 @@ public class DiscountsTests
     
     private Mock<IDiscountsRepository> _discountsRepositoryMock;
     private Mock<IProductsRepository> _productsRepositoryMock;
-    private Mock<IUserRepository> _userRepositoryMock;
+    private Mock<IUsersPropertiesRepository> _userRepositoryMock;
     private IDiscountsService _service;
     
     [SetUp]
     public void Setup()
     {
         _discountsRepositoryMock = new Mock<IDiscountsRepository>();
-        _userRepositoryMock = new Mock<IUserRepository>();
+        _userRepositoryMock = new Mock<IUsersPropertiesRepository>();
         _productsRepositoryMock = new Mock<IProductsRepository>();
 
         _discountsRepositoryMock.Setup(repo =>
@@ -146,7 +146,7 @@ public class DiscountsTests
             repo.GetUser(It.Is<string>(id => id == EXISTS_USER_NO_PRODUCTS))).Returns(_emptyUser);
         
         _userRepositoryMock.Setup(repo =>
-            repo.GetUser(It.Is<string>(id => id == NOT_EXISTS_USER))).Returns((User)null);
+            repo.GetUser(It.Is<string>(id => id == NOT_EXISTS_USER))).Returns((UserProperties)null);
 
         ILogger<IDiscountsService> _logger = new NullLogger<IDiscountsService>();
         _service = new DiscountService(_logger, _discountsRepositoryMock.Object, _userRepositoryMock.Object, _productsRepositoryMock.Object);

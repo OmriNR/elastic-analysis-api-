@@ -1,5 +1,4 @@
-﻿using Shared.Models;
-
+﻿using Domain;
 namespace Repositories.Interfaces;
 
 public interface IDiscountsRepository

@@ -1,4 +1,4 @@
-﻿using Shared.Models;
+﻿using Domain;
 using Microsoft.Extensions.Logging;
 using Repositories.Interfaces;
 using Services.Interfaces;
@@ -10,12 +10,12 @@ public class OrdersService : IOrdersService
     private const string queue = "orders_queue";
     private readonly ILogger<IOrdersService> _logger;
     private readonly IOrdersRepository _ordersRepository;
-    private readonly IUserRepository _userRepository;
+    private readonly IUsersPropertiesRepository _userRepository;
     private readonly IProductsRepository _productsRepository;
     private readonly IDiscountsRepository _discountsRepository;
     private readonly IMessageProducer _messageProducer;
 
-    public OrdersService(ILogger<IOrdersService> logger, IOrdersRepository ordersRepository, IUserRepository userRepository, IProductsRepository productsRepository, IDiscountsRepository discountsRepository, IMessageProducer messageProducer)
+    public OrdersService(ILogger<IOrdersService> logger, IOrdersRepository ordersRepository, IUsersPropertiesRepository userRepository, IProductsRepository productsRepository, IDiscountsRepository discountsRepository, IMessageProducer messageProducer)
     {
         _logger = logger;
         _ordersRepository = ordersRepository;

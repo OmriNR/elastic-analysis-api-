@@ -1,22 +1,22 @@
-﻿using Shared.Models;
+﻿using Domain;
 using Microsoft.Extensions.Logging;
 using Repositories.Interfaces;
 using Services.Interfaces;
 
 namespace Services.Services;
 
-public class UsersService : IUsersService
+public class UsersPropertiesService : IUsersPropertiesService
 {
-    private readonly ILogger<IUsersService> _logger;
-    private readonly IUserRepository _userRepository;
+    private readonly ILogger<IUsersPropertiesService> _logger;
+    private readonly IUsersPropertiesRepository _userRepository;
 
-    public UsersService(ILogger<IUsersService> logger, IUserRepository userRepository)
+    public UsersPropertiesService(ILogger<IUsersPropertiesService> logger, IUsersPropertiesRepository userRepository)
     {
         _logger = logger;
         _userRepository = userRepository;
     }
 
-    public User GetUser(string userId, out Statuses status, out string error)
+    public UserProperties GetUser(string userId, out Statuses status, out string error)
     {
         _logger.LogInformation("Getting user {userId}", userId);
         error = string.Empty;
@@ -35,7 +35,7 @@ public class UsersService : IUsersService
         return user;
     }
 
-    public User CreateUser(User user, out Statuses status, out string error)
+    public UserProperties CreateUser(UserProperties user, out Statuses status, out string error)
     {
         _logger.LogInformation("Creating user {userId}", user.UserId);
         error = string.Empty;
@@ -60,7 +60,7 @@ public class UsersService : IUsersService
         return null;
     }
 
-    public User UpdeateUser(User user, out Statuses status, out string error)
+    public UserProperties UpdeateUser(UserProperties user, out Statuses status, out string error)
     {
         _logger.LogInformation("Updating user {userId}", user.UserId);
         error = string.Empty;
@@ -110,7 +110,7 @@ public class UsersService : IUsersService
         }
     }
     
-    private bool IsUserValid(User user, out string error)
+    private bool IsUserValid(UserProperties user, out string error)
     {
         error = string.Empty;
         

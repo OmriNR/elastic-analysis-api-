@@ -34,8 +34,8 @@ builder.Services.AddDbContext<AppDBContext>(options => options.UseNpgsql(connect
 builder.Services.AddScoped<IProductsRepository, ProductsRepository>();
 builder.Services.AddScoped<IProductsService, ProductsService>();
 
-builder.Services.AddScoped<IUsersService, UsersService>();
-builder.Services.AddScoped<IUserRepository, UsersRepository>();
+builder.Services.AddScoped<IUsersPropertiesService, UsersPropertiesService>();
+builder.Services.AddScoped<IUsersPropertiesRepository, UsersPropertiesRepository>();
 
 builder.Services.AddScoped<IDiscountsService, DiscountService>();
 builder.Services.AddScoped<IDiscountsRepository, DiscountsRepository>();
