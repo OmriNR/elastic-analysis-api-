@@ -36,6 +36,35 @@ public class ProductsController : ControllerBase
         }
     }
 
+    [HttpGet("all")]
+    public IActionResult GetAll()
+    {
+        try
+        {
+            var products = _productsService.GetAllProducts(out var status, out var error);
+
+            switch (status)
+            {
+                case Statuses.NOT_FOUND:
+                    return  NotFound(error);
+                default:
+                    return Ok(products);
+            }
+        }
+        catch (Exception ex)
+        {
+            return Problem(ex.Message);
+        }
+    }
+
+    [HttpGet("categories/all")]
+    public IActionResult GetAllCategories()
+    {
+        var categories = _productsService.GetAllCategories();
+        
+        return  Ok(categories);
+    }
+    
     [HttpGet("categories/{catgory}")]
     public IActionResult GetByCategory(string catgory)
     {

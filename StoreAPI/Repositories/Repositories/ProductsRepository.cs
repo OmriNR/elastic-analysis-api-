@@ -44,6 +44,13 @@ public class ProductsRepository : IProductsRepository
         return product;
     }
 
+    public List<Product> GetAllProducts()
+    {
+        var products = _context.Products.ToList();
+
+        return products;
+    }
+
     public List<Product> GetProducts(List<string> ids)
     {
         var prodcuts = _context.Products.Where(p => ids.Contains(p.ProductId.ToString())).ToList<Product>();

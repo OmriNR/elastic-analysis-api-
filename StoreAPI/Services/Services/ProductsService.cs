@@ -55,6 +55,32 @@ public class ProductsService : IProductsService
         return products;
     }
 
+    public List<Product> GetAllProducts(out Statuses status, out string error)
+    {
+        _logger.LogInformation("Get all products");
+        
+        var products = _productsRepository.GetAllProducts();
+
+        if (products.Count == 0)
+        {
+            status = Statuses.NOT_FOUND;
+            error = "The store does not have any products";
+        }
+        else
+        {
+            status = Statuses.OK;
+            error = string.Empty;
+        }
+
+        return products;
+    }
+
+    public List<string> GetAllCategories()
+    {
+        var categories = _productsRepository.GetAllProducts().DistinctBy(p => p.Category).Select(p => p.Category).ToList();
+        return categories;
+    }
+
     public Product UpdateProduct(Product product, out Statuses status, out string error)
     {
         _logger.LogInformation("Updating products {id}", product.ProductId);
