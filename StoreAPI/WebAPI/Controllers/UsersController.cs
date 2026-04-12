@@ -1,5 +1,4 @@
 ﻿using Domain;
-using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Services.Interfaces;
 
@@ -9,24 +8,26 @@ namespace WebAPI.Controllers;
 [Route("api/[controller]")]
 public class UsersController : ControllerBase
 {
-    private readonly IUsersPropertiesService _usersService;
+    private readonly IUsersService _service;
 
-    public UsersController(IUsersPropertiesService usersService)
+    public UsersController(IUsersService service)
     {
-        _usersService = usersService;
+        this._service = service;
     }
 
-    [HttpGet("{userId}")]
-    public IActionResult GetUser(string userId)
+    [HttpPost("GetUser")]
+    public IActionResult GetUser([FromBody] User request)
     {
         try
         {
-            var user = _usersService.GetUser(userId, out var status, out var error);
+            var user = _service.GetUser(request.Email, request.Password, out var status, out var error);
 
             switch (status)
             {
                 case Statuses.NOT_FOUND:
                     return NotFound(error);
+                case Statuses.INVALID:
+                    return BadRequest(error);
                 default:
                     return Ok(user);
             }
@@ -37,19 +38,17 @@ public class UsersController : ControllerBase
         }
     }
 
-    [HttpPost]
-    public IActionResult PostUser([FromBody] UserProperties user)
+    [HttpPost("create")]
+    public IActionResult CreateUser([FromBody] User user)
     {
         try
         {
-            var newUser = _usersService.CreateUser(user, out var status, out var error);
+            var newUser = _service.CreateUser(user, out var status, out var error);
 
             switch (status)
             {
-                case Statuses.NOT_FOUND:
-                    return NotFound(error);
                 case Statuses.INVALID:
-                    return BadRequest(error);
+                    return  BadRequest(error);
                 default:
                     return Ok(newUser);
             }
@@ -60,12 +59,12 @@ public class UsersController : ControllerBase
         }
     }
 
-    [HttpPut]
-    public IActionResult PutUser([FromBody] UserProperties user)
+    [HttpPut("update")]
+    public IActionResult UpdateUser([FromBody] User user)
     {
         try
         {
-            var updated = _usersService.UpdeateUser(user, out var status, out var error);
+            var udapted = _service.UpdateUser(user, out var status, out var error);
 
             switch (status)
             {
@@ -74,30 +73,7 @@ public class UsersController : ControllerBase
                 case Statuses.INVALID:
                     return BadRequest(error);
                 default:
-                    return Ok(updated);
-            }
-        }
-        catch (Exception ex)
-        {
-            return Problem(ex.Message);
-        }
-    }
-
-    [HttpDelete("{userId}")]
-    public IActionResult DeleteUser(string userId)
-    {
-        try
-        {
-            _usersService.DeleteUser(userId, out var status, out var error);
-
-            switch (status)
-            {
-                case Statuses.NOT_FOUND:
-                    return NotFound(error);
-                case Statuses.INVALID:
-                    return BadRequest(error);
-                default:
-                    return Ok($"Item {userId} was deleted");
+                    return Ok(udapted);
             }
         }
         catch (Exception ex)

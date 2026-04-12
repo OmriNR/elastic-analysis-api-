@@ -2,10 +2,9 @@
 
 namespace Services.Interfaces;
 
-public interface IUsersPropertiesService
+public interface IUsersService
 {
-    UserProperties GetUser(string userId, out Statuses status, out string error);
-    UserProperties CreateUser(UserProperties user, out Statuses status, out string error);
-    UserProperties UpdeateUser(UserProperties user, out Statuses status, out string error);
-    void DeleteUser(string userId, out Statuses status, out string error);
+    User GetUser(string email, string password, out Statuses status, out string error);
+    User UpdateUser(User user, out Statuses status, out string error);
+    User CreateUser(User user, out Statuses status, out string error);
 }

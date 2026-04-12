@@ -3,9 +3,15 @@
 public class Consts
 {
     public const string USERS_TABLE = "Users";
+    public const string USERS_PROPERTIES =  "UserProperties";
     public const string DISCOUNTS_TABLE = "Discounts";
     public const string PRODUCTS_TABLE = "Products";
     public const string ORDERS_TABLE = "Orders";
+    
+    public const string EMAIL = "EMAIL";
+    public const string PASSWORD =  "PASSWORD";
+    public const string IS_ACTIVE = "IS_ACTIVE";
+    public const string IS_ADMIN = "IS_ADMIN";
     
     public const string ID = "ID";
     public const string AGE = "AGE";

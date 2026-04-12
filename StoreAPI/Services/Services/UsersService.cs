@@ -5,127 +5,92 @@ using Services.Interfaces;
 
 namespace Services.Services;
 
-public class UsersPropertiesService : IUsersPropertiesService
+public class UsersService : IUsersService
 {
-    private readonly ILogger<IUsersPropertiesService> _logger;
-    private readonly IUsersPropertiesRepository _userRepository;
+    private readonly IUsersRepository _repository;
+    private readonly ILogger<UsersService> _logger;
 
-    public UsersPropertiesService(ILogger<IUsersPropertiesService> logger, IUsersPropertiesRepository userRepository)
+    public UsersService(IUsersRepository repository, ILogger<UsersService> logger)
     {
+        _repository = repository;
         _logger = logger;
-        _userRepository = userRepository;
     }
 
-    public UserProperties GetUser(string userId, out Statuses status, out string error)
+    public User GetUser(string email, string password, out Statuses status, out string error)
     {
-        _logger.LogInformation("Getting user {userId}", userId);
-        error = string.Empty;
         status = Statuses.OK;
-
-        var user = _userRepository.GetUser(userId);
+        error = string.Empty;
+        
+        _logger.LogInformation($"Getting user by email {email}");
+        var user = _repository.GetUserByEmail(email);
 
         if (user == null)
         {
-            _logger.LogError("User {userId} not found", userId);
+            _logger.LogError($"User {email} not found");
             status = Statuses.NOT_FOUND;
-            error = $"User {userId} not found";
+            error = "User not found";
+            return null;
+        }
+
+        if (password != user.Password)
+        {
+            _logger.LogError("Passwords do not match");
+            status = Statuses.INVALID;
+            error = "Passwords do not match";
             return null;
         }
 
         return user;
     }
 
-    public UserProperties CreateUser(UserProperties user, out Statuses status, out string error)
+    public User UpdateUser(User user, out Statuses status, out string error)
     {
-        _logger.LogInformation("Creating user {userId}", user.UserId);
-        error = string.Empty;
         status = Statuses.OK;
+        error = string.Empty;
+        _logger.LogInformation($"Updating user by email {user.Email}");
+        
+        var exists = _repository.GetUserByEmail(user.Email);
 
-        if (IsUserValid(user, out error))
+        if (exists == null)
         {
-            _logger.LogInformation("User is valid, let's create a new user");
-            Guid userId = Guid.NewGuid();
-            user.UserId = userId.ToString();
-            user.CreatedAt = DateTime.UtcNow.ToUniversalTime();
-            
-            _userRepository.CreateUser(user);
-            var newUser = _userRepository.GetUser(userId.ToString());
-            
-            _logger.LogInformation($"User created successfully. User Id: {newUser!.UserId}");
-            return newUser!;
+            _logger.LogError($"User {user.Email} not found");
+            status = Statuses.NOT_FOUND;
+            error = "User not found";
+            return null;
         }
         
-        _logger.LogError("User is invalid. {error}", error);
-        status = Statuses.INVALID;
-        return null;
+        _repository.UpdateUser(user);
+        
+        var updatedUser = _repository.GetUserByEmail(user.Email);
+        
+        return updatedUser;
     }
 
-    public UserProperties UpdeateUser(UserProperties user, out Statuses status, out string error)
+    public User CreateUser(User user, out Statuses status, out string error)
     {
-        _logger.LogInformation("Updating user {userId}", user.UserId);
-        error = string.Empty;
         status = Statuses.OK;
+        error = string.Empty;
         
-        var check = _userRepository.GetUser(user.UserId);
+        _logger.LogInformation("Creating user");
 
-        if (check == null)
+        var check = _repository.GetUserByEmail(user.Email);
+
+        if (check != null)
         {
-            _logger.LogError("User {userId} not found", user.UserId);
-            status = Statuses.NOT_FOUND;
-            error = $"User {user.UserId} not found";
+            _logger.LogError("User already exists");
+            status = Statuses.INVALID;
+            error = "User  already exists";
             return null;
         }
 
-        if (IsUserValid(user, out error))
-        {
-            _logger.LogInformation("User is valid, let's update a user");
-            _userRepository.UpdateUser(user);
-            
-            var updatedUser = _userRepository.GetUser(user.UserId);
-            return updatedUser!;
-        }
-        
-        _logger.LogError("User is invalid. {error}", error);
-        status = Statuses.INVALID;
-        return null;
-    }
+        string id = Guid.NewGuid().ToString();
 
-    public void DeleteUser(string userId, out Statuses status, out string error)
-    {
-        _logger.LogInformation("Deleting user {userId}", userId);
-        status = Statuses.OK;
-        error = string.Empty;
+        user.UserId = id;
         
-        var user = _userRepository.GetUser(userId);
+        _repository.CreateUser(user);
 
-        if (user == null)
-        {
-            _logger.LogError("User {userId} not found", userId);
-            status = Statuses.NOT_FOUND;
-            error = $"User {userId} not found";
-        }
-        else
-        {
-            _userRepository.DeleteUser(user);
-        }
-    }
-    
-    private bool IsUserValid(UserProperties user, out string error)
-    {
-        error = string.Empty;
-        
-        if (user.UserName == string.Empty || user.UserName == null)
-        {
-            error = "USERNAME is required";
-            return false;
-        }
-        
-        if (user.Age <= 0)
-        {
-            error = "Age must be greater than zero";
-            return false;
-        }
-        
-        return true;
+        var newUser = _repository.GetUserById(id);
+
+        return newUser;
     }
 }
