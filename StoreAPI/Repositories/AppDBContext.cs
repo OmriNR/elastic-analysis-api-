@@ -10,6 +10,7 @@ public class AppDBContext : DbContext
     
     public DbSet<Product> Products { get; set; }
     public DbSet<Order> Orders { get; set; }
+    public DbSet<User> Users { get; set; }
     public DbSet<UserProperties> UsersProperties { get; set; }
     public DbSet<Discount> Discounts { get; set; }
 
@@ -41,7 +42,18 @@ public class AppDBContext : DbContext
             entity.ComplexProperty(e => e.Items, b => b.ToJson(Consts.ITEMS));
         });
         
-        modelBuilder.Entity<UserProperties>().ToTable(Consts.USERS_TABLE);
+        modelBuilder.Entity<User>().ToTable(Consts.USERS_TABLE);
+        modelBuilder.Entity<User>(entity =>
+        {
+            entity.Property(e => e.UserId).HasColumnName(Consts.ID).IsRequired();
+            entity.Property(e => e.Email).HasColumnName(Consts.EMAIL);
+            entity.Property(e => e.Password).HasColumnName(Consts.PASSWORD);
+            entity.Property(e => e.CreatedAt).HasColumnName(Consts.CREATED_AT);
+            entity.Property(e => e.IsActive).HasColumnName(Consts.IS_ACTIVE);
+            entity.Property(e => e.IsAdmin).HasColumnName(Consts.IS_ADMIN);
+        });
+        
+        modelBuilder.Entity<UserProperties>().ToTable(Consts.USERS_PROPERTIES);
         modelBuilder.Entity<UserProperties>(entity =>
         {
             entity.Property(e => e.UserId).HasColumnName(Consts.ID).IsRequired();

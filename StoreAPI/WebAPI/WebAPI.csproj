@@ -86,6 +86,7 @@
     </ItemGroup>
 
     <ItemGroup>
+      <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="11.0.0-preview.2.26159.112" />
       <PackageReference Include="Serilog.AspNetCore" Version="10.0.0" />
       <PackageReference Include="Serilog.Sinks.Elasticsearch" Version="10.0.0" />
       <PackageReference Include="Swashbuckle.AspNetCore.SwaggerGen" Version="10.1.5" />

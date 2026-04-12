@@ -16,4 +16,16 @@ public class User
     [DataMember(Name = "password")]
     [JsonPropertyName("password")]
     public string Password { get; set; }
+    
+    [DataMember(Name = "is_active")]
+    [JsonPropertyName("is_active")]
+    public bool IsActive { get; set; }
+    
+    [DataMember(Name = "is_admin")]
+    [JsonPropertyName("is_admin")]
+    public bool IsAdmin { get; set; }
+    
+    [DataMember(Name = "created_at")]
+    [JsonPropertyName("created_at")]
+    public DateTime CreatedAt { get; set; }
 }

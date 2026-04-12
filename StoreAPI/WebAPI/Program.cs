@@ -37,6 +37,9 @@ builder.Services.AddScoped<IProductsService, ProductsService>();
 builder.Services.AddScoped<IUsersPropertiesService, UsersPropertiesService>();
 builder.Services.AddScoped<IUsersPropertiesRepository, UsersPropertiesRepository>();
 
+builder.Services.AddScoped<IUsersRepository, UsersRepository>();
+builder.Services.AddScoped<IUsersService, UsersService>();
+
 builder.Services.AddScoped<IDiscountsService, DiscountService>();
 builder.Services.AddScoped<IDiscountsRepository, DiscountsRepository>();
 
