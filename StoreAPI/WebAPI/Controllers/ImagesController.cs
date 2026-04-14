@@ -65,7 +65,7 @@ public class ImagesController : ControllerBase
         try
         {
             var stream = file.OpenReadStream();
-            _imagesService.UploadUserImage(userId, stream, file.ContentType, out Statuses status, out string error);
+            _imagesService.UploadUserImage(userId, stream, file.FileName, out Statuses status, out string error);
 
             switch (status)
             {
@@ -89,7 +89,7 @@ public class ImagesController : ControllerBase
         try
         {
             var stream = file.OpenReadStream();
-            _imagesService.UploadProductImage(productId, stream, file.ContentType, out Statuses status, out string error);
+            _imagesService.UploadProductImage(productId, stream, file.FileName, out Statuses status, out string error);
 
             switch (status)
             {
