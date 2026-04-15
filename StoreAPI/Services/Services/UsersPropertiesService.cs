@@ -37,19 +37,17 @@ public class UsersPropertiesService : IUsersPropertiesService
 
     public UserProperties CreateUser(UserProperties user, out Statuses status, out string error)
     {
-        _logger.LogInformation("Creating user {userId}", user.UserId);
+        _logger.LogInformation("Creating user properties object for {userId}", user.UserId);
         error = string.Empty;
         status = Statuses.OK;
 
         if (IsUserValid(user, out error))
         {
             _logger.LogInformation("User is valid, let's create a new user");
-            Guid userId = Guid.NewGuid();
-            user.UserId = userId.ToString();
             user.CreatedAt = DateTime.UtcNow.ToUniversalTime();
             
             _userRepository.CreateUser(user);
-            var newUser = _userRepository.GetUser(userId.ToString());
+            var newUser = _userRepository.GetUser(user.UserId);
             
             _logger.LogInformation($"User created successfully. User Id: {newUser!.UserId}");
             return newUser!;
@@ -62,7 +60,7 @@ public class UsersPropertiesService : IUsersPropertiesService
 
     public UserProperties UpdeateUser(UserProperties user, out Statuses status, out string error)
     {
-        _logger.LogInformation("Updating user {userId}", user.UserId);
+        _logger.LogInformation("Updating user properties {userId}", user.UserId);
         error = string.Empty;
         status = Statuses.OK;
         
@@ -92,7 +90,7 @@ public class UsersPropertiesService : IUsersPropertiesService
 
     public void DeleteUser(string userId, out Statuses status, out string error)
     {
-        _logger.LogInformation("Deleting user {userId}", userId);
+        _logger.LogInformation("Deleting user properties {userId}", userId);
         status = Statuses.OK;
         error = string.Empty;
         
