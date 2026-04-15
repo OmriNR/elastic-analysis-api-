@@ -60,7 +60,8 @@ public class ImagesController : ControllerBase
     }
 
     [HttpPost("UploadUserImage/{userId}")]
-    public IActionResult UploadUserImage(string userId, [FromBody] IFormFile file)
+    [Consumes("multipart/form-data")]
+    public IActionResult UploadUserImage(string userId, IFormFile file)
     {
         try
         {
@@ -84,7 +85,8 @@ public class ImagesController : ControllerBase
     }
     
     [HttpPost("UploadProductImage/{productId}")]
-    public IActionResult UploadProductImage(string productId, [FromBody] IFormFile file)
+    [Consumes("multipart/form-data")]
+    public IActionResult UploadProductImage(string productId, IFormFile file)
     {
         try
         {

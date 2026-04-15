@@ -53,7 +53,7 @@ public class AppDBContext : DbContext
             entity.Property(e => e.IsAdmin).HasColumnName(Consts.IS_ADMIN);
         });
         
-        modelBuilder.Entity<UserProperties>().ToTable(Consts.USERS_PROPERTIES);
+        modelBuilder.Entity<UserProperties>().ToTable(Consts.USERS_PROPERTIES).HasNoKey();
         modelBuilder.Entity<UserProperties>(entity =>
         {
             entity.Property(e => e.UserId).HasColumnName(Consts.ID).IsRequired();

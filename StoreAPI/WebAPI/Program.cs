@@ -1,3 +1,4 @@
+using Amazon.S3;
 using Microsoft.EntityFrameworkCore;
 using Repositories;
 using Repositories.Interfaces;
@@ -31,6 +32,18 @@ AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
 var connectionString = builder.Configuration.GetConnectionString("PostgresDb");
 builder.Services.AddDbContext<AppDBContext>(options => options.UseNpgsql(connectionString));
 
+var minioConfig = builder.Configuration.GetSection("Minio");
+
+builder.Services.AddSingleton<IAmazonS3>(sp =>
+{
+    var config = new AmazonS3Config
+    {
+        ServiceURL = minioConfig["ServiceUrl"],
+        ForcePathStyle = true
+    };
+    return new AmazonS3Client(minioConfig["AccessKey"], minioConfig["SecretKey"], config);
+});
+
 builder.Services.AddScoped<IProductsRepository, ProductsRepository>();
 builder.Services.AddScoped<IProductsService, ProductsService>();
 
@@ -45,6 +58,9 @@ builder.Services.AddScoped<IDiscountsRepository, DiscountsRepository>();
 
 builder.Services.AddScoped<IOrdersService, OrdersService>();
 builder.Services.AddScoped<IOrdersRepository, OrdersRepository>();
+
+builder.Services.AddScoped<IImagesRepository, ImagesRepository>();
+builder.Services.AddScoped<IImagesService, ImagesService>();
 
 builder.Services.AddSingleton<IMessageProducer, MessageProducer>();
 
