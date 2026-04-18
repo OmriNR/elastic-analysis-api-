@@ -1,8 +1,21 @@
+using Microsoft.EntityFrameworkCore;
+using Repositories;
+using Repositories.Repositories;
+using Services;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllers();
 builder.Services.AddSwaggerGen();
+
+AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
+var connectionString = builder.Configuration.GetConnectionString("PostgresDb");
+builder.Services.AddDbContext<AppDBContext>(options => options.UseNpgsql(connectionString));
+
+builder.Services.AddSingleton<OrdersRepository>();
+builder.Services.AddSingleton<OrdersService>();
+builder.Services.AddSingleton<WorkerControlService>();
 
 var app = builder.Build();
 
