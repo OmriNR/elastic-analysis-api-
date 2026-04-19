@@ -11,6 +11,11 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U storeapi_user -d storeapi_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   rabbitmq:
     image: rabbitmq:3-management
@@ -42,22 +47,42 @@ services:
     volumes:
       - minio_data:/data
 
-  storeapi:
+  orderspublisherapi:
     build:
-      context: .
+      context: ./OrdersPublisherAPI
       dockerfile: Dockerfile
+    container_name: orderspublisherapi
     depends_on:
       db:
-        condition: service_started
+        condition: service_healthy
       rabbitmq:
-        condition: service_healthy # Wait for RabbitMQ to be fully ready
+        condition: service_healthy
     ports:
-      - "5000:80"
+      - "8081:80"
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ConnectionStrings__PostgresDb=Host=db;Database=storeapi_db;Username=storeapi_user;Password=storeapi_pass
-      # Updated to match the credentials above
-      - Rabbit__Host=rabbitmq 
+      - Rabbit__Host=rabbitmq
+      - Rabbit__Port=5672
+      - Rabbit__UserName=admin
+      - Rabbit__Password=admin123
+
+  storeapi:
+    build:
+      context: ./StoreAPI
+      dockerfile: Dockerfile
+    container_name: storeapi
+    depends_on:
+      db:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    ports:
+      - "8082:80"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings__PostgresDb=Host=db;Database=storeapi_db;Username=storeapi_user;Password=storeapi_pass
+      - Rabbit__Host=rabbitmq
       - Rabbit__Port=5672
       - Rabbit__UserName=admin
       - Rabbit__Password=admin123
