@@ -14,8 +14,8 @@ var connectionString = builder.Configuration.GetConnectionString("PostgresDb");
 builder.Services.AddDbContext<AppDBContext>(options => options.UseNpgsql(connectionString));
 
 builder.Services.AddSingleton<OrdersRepository>();
-builder.Services.AddSingleton<OrdersService>();
 builder.Services.AddSingleton<WorkerControlService>();
+builder.Services.AddHostedService<DailyService>();
 
 var app = builder.Build();
 
