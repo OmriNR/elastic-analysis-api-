@@ -2,6 +2,9 @@
 FROM mcr.microsoft.com/dotnet/sdk:11.0-preview AS build
 WORKDIR /src
 
+# 1. Copy the solution file if it's in the root
+COPY ["OrdersPublisherAPI.slnx", "./"]
+
 # Copy project files
 COPY ["Domain/Domain.csproj", "Domain/"]
 COPY ["Repositories/Repositories.csproj", "Repositories/"]

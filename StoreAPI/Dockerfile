@@ -20,7 +20,7 @@ RUN dotnet restore "WebAPI/WebAPI.csproj"
 COPY . .
 
 # 5. Move to the directory where the WebAPI project lives to publish
-WORKDIR "/src/StoreAPI/WebAPI"
+WORKDIR "/src/WebAPI"
 RUN dotnet publish "WebAPI.csproj" -c Release -o /app/publish
 
 # Stage 2: runtime image

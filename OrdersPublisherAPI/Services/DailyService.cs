@@ -1,4 +1,6 @@
 using System.ComponentModel;
+using Elastic.Clients.Elasticsearch;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Repositories.Repositories;
@@ -10,12 +12,16 @@ public class DailyService : BackgroundService
     private readonly ILogger<DailyService> _logger;
     private readonly WorkerControlService _control;
     private readonly OrdersRepository _repository;
-
-    public DailyService(ILogger<DailyService> logger, WorkerControlService control, OrdersRepository repository)
+    private readonly ElasticsearchClient _elasticsearch;
+    
+    public DailyService(ILogger<DailyService> logger, WorkerControlService control, OrdersRepository repository, IConfiguration config)
     {
         _logger = logger;
         _control = control;
         _repository = repository;
+        
+        string elasticUrl = config.GetSection("Elasticsearch:url").Value!;
+        _elasticsearch = new ElasticsearchClient(new Uri(elasticUrl));
     }
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -59,6 +65,17 @@ public class DailyService : BackgroundService
 
     private async Task SendOrders()
     {
-        throw new NotImplementedException();
+        var orders = await _repository.GetRecentOrders();
+
+        var bulkResponse = await _elasticsearch.BulkAsync(b => b
+            .Index("my-orders-index").IndexMany(orders));
+
+        if (!bulkResponse.IsValidResponse)
+        {
+            foreach (var itemWithError in bulkResponse.ItemsWithErrors)
+            {
+                _logger.LogError($"Failed to index document {itemWithError.Id}: {itemWithError.Error}");
+            }
+        }
     }
 }
