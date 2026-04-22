@@ -9,7 +9,7 @@ public class UserProperties
 {
     [DataMember(Name = "user_id")]
     [JsonPropertyName("user_id")]
-    public string UserId { get; set; }
+    public string? UserId { get; set; }
     
     [DataMember(Name = "user_name")]
     [JsonPropertyName("user_name")]

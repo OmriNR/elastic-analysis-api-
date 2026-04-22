@@ -9,7 +9,7 @@ public class Product
 {
     [DataMember(Name = "product_id")]
     [JsonPropertyName("product_id")]
-    public string ProductId { get; set; }
+    public string? ProductId { get; set; }
     
     [DataMember(Name = "owner_id")]
     [JsonPropertyName("owner_id")]

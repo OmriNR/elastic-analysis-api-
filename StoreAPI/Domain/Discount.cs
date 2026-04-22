@@ -9,7 +9,7 @@ public class Discount
 {
     [DataMember(Name = "discount_id")]
     [JsonPropertyName("discount_id")]
-    public string DiscountId { get; set; }
+    public string? DiscountId { get; set; }
     
     [DataMember(Name = "product_id")]
     [JsonPropertyName("product_id")]
