@@ -26,7 +26,7 @@ public class OrdersRepository : IOrdersRepository
 
     public List<Order> GetOrdersByCustomer(string customerId)
     {
-        var orders = _context.Orders.Where(o => o.Customer.UserId.Equals(customerId)).ToList();
+        var orders = _context.Orders.Where(o => o.Customer.Equals(customerId)).ToList();
         return orders;
     }
 

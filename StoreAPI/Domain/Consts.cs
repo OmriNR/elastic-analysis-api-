@@ -14,9 +14,7 @@ public class Consts
     public const string IS_ADMIN = "IS_ADMIN";
     
     public const string ID = "ID";
-    public const string AGE = "AGE";
-    public const string GENDER = "GENDER";
-    public const string LOCATION = "LOCATION";
+    public const string PROPERTIES = "PROPERTIES";
     public const string CREATED_AT = "CREATED_AT";
     
     public const string OWNER_ID = "OWNER_ID";
