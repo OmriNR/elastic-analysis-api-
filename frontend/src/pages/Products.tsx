@@ -159,7 +159,7 @@ export function Products() {
             ) : (
               <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-3">
                 {filtered.map(product => (
-                  <ProductCard key={product.productId} product={product} />
+                  <ProductCard key={product.product_id} product={product} />
                 ))}
               </div>
             )}

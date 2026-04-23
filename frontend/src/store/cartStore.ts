@@ -21,11 +21,11 @@ export const useCartStore = create<CartState>()(
 
       addItem: (product, discount) =>
         set((state) => {
-          const existing = state.items.find(i => i.product.productId === product.productId);
+          const existing = state.items.find(i => i.product.product_id === product.product_id);
           if (existing) {
             return {
               items: state.items.map(i =>
-                i.product.productId === product.productId
+                i.product.product_id === product.product_id
                   ? { ...i, quantity: Math.min(i.quantity + 1, product.quantity) }
                   : i
               ),
@@ -35,14 +35,14 @@ export const useCartStore = create<CartState>()(
         }),
 
       removeItem: (productId) =>
-        set((state) => ({ items: state.items.filter(i => i.product.productId !== productId) })),
+        set((state) => ({ items: state.items.filter(i => i.product.product_id !== productId) })),
 
       updateQty: (productId, quantity) =>
         set((state) => ({
           items: quantity <= 0
-            ? state.items.filter(i => i.product.productId !== productId)
+            ? state.items.filter(i => i.product.product_id !== productId)
             : state.items.map(i =>
-                i.product.productId === productId ? { ...i, quantity } : i
+                i.product.product_id === productId ? { ...i, quantity } : i
               ),
         })),
 
@@ -56,7 +56,7 @@ export const useCartStore = create<CartState>()(
       totalDiscount: () =>
         get().items.reduce((sum, i) => {
           if (!i.discount) return sum;
-          const expires = new Date(i.discount.expiredAt);
+          const expires = new Date(i.discount.expired_at);
           if (expires < new Date()) return sum;
           return sum + i.product.price * i.quantity * (i.discount.percentage / 100);
         }, 0),

@@ -11,13 +11,13 @@ export function Profile() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
 
-  const [userName, setUserName] = useState(userProps?.userName ?? '');
+  const [userName, setUserName] = useState(userProps?.user_name ?? '');
   const [age, setAge] = useState(String(userProps?.age ?? ''));
   const [gender, setGender] = useState(userProps?.gender ?? '');
   const [city, setCity] = useState(userProps?.location?.city ?? '');
   const [country, setCountry] = useState(userProps?.location?.country ?? '');
   const [address, setAddress] = useState(userProps?.location?.address ?? '');
-  const [zipCode, setZipCode] = useState(userProps?.location?.zipCode ?? '');
+  const [zipCode, setZipCode] = useState(userProps?.location?.zip_code ?? '');
   const [saved, setSaved] = useState(false);
 
   if (!user) {
@@ -28,16 +28,16 @@ export function Profile() {
   const { mutate, isPending } = useMutation({
     mutationFn: () =>
       updateUserProperties({
-        userId: user.userId,
-        userName,
+        user_id: user.user_id,
+        user_name: userName,
         age: parseInt(age, 10),
         gender,
-        location: { city, country, address, zipCode },
-        createdAt: userProps?.createdAt ?? new Date().toISOString(),
+        location: { city, country, address, zip_code: zipCode },
+        created_at: userProps?.created_at ?? new Date().toISOString(),
       }),
     onSuccess: (props) => {
       setUserProps(props);
-      queryClient.invalidateQueries({ queryKey: ['userProps', user.userId] });
+      queryClient.invalidateQueries({ queryKey: ['userProps', user.user_id] });
       setSaved(true);
       setTimeout(() => setSaved(false), 2500);
     },
@@ -60,14 +60,14 @@ export function Profile() {
               <User className="h-8 w-8 text-indigo-600" />
             </div>
             <div>
-              <p className="text-lg font-semibold text-slate-800">{userProps?.userName || 'User'}</p>
+              <p className="text-lg font-semibold text-slate-800">{userProps?.user_name || 'User'}</p>
               <p className="text-sm text-slate-500">{user.email}</p>
               <div className="mt-1 flex gap-1.5">
-                {user.isAdmin && (
+                {user.is_admin && (
                   <span className="rounded-full bg-purple-100 px-2.5 py-0.5 text-xs font-medium text-purple-700">Admin</span>
                 )}
-                <span className={`rounded-full px-2.5 py-0.5 text-xs font-medium ${user.isActive ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
-                  {user.isActive ? 'Active' : 'Inactive'}
+                <span className={`rounded-full px-2.5 py-0.5 text-xs font-medium ${user.is_active ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
+                  {user.is_active ? 'Active' : 'Inactive'}
                 </span>
               </div>
             </div>

@@ -19,7 +19,7 @@ export const getProductsByUser = (userId: string) =>
 export const getProductsByIds = (ids: string[]) =>
   apiClient.post<Product[]>('/api/products/multi', ids).then(r => r.data);
 
-export const createProduct = (product: Omit<Product, 'productId'>) =>
+export const createProduct = (product: Omit<Product, 'product_id'>) =>
   apiClient.post<Product>('/api/products', product).then(r => r.data);
 
 export const updateProduct = (product: Product) =>

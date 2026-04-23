@@ -47,22 +47,19 @@ export function Cart() {
           {/* Items */}
           <div className="lg:col-span-2 space-y-4">
             {items.map(({ product, quantity, discount }) => {
-              const isDiscountValid = discount && new Date(discount.expiredAt) > new Date();
+              const isDiscountValid = discount && new Date(discount.expired_at) > new Date();
               const itemPrice = isDiscountValid
                 ? product.price * (1 - discount.percentage / 100)
                 : product.price;
 
               return (
-                <div key={product.productId} className="flex gap-4 rounded-2xl bg-white p-4 shadow-sm">
+                <div key={product.product_id} className="flex gap-4 rounded-2xl bg-white p-4 shadow-sm">
                   <div className="h-24 w-24 shrink-0 overflow-hidden rounded-xl bg-slate-100">
                     <img
-                      src={productImageUrl(product.productId)}
+                      src={productImageUrl(product.product_id)}
                       alt={product.name}
                       className="h-full w-full object-cover"
-                      onError={e => {
-                        const el = e.currentTarget;
-                        el.style.display = 'none';
-                      }}
+                      onError={e => { e.currentTarget.style.display = 'none'; }}
                     />
                   </div>
 
@@ -71,7 +68,7 @@ export function Cart() {
                       <div className="flex items-start justify-between">
                         <div>
                           <Link
-                            to={`/products/${product.productId}`}
+                            to={`/products/${product.product_id}`}
                             className="font-semibold text-slate-800 hover:text-indigo-600 transition-colors"
                           >
                             {product.name}
@@ -84,7 +81,7 @@ export function Cart() {
                           </div>
                         </div>
                         <button
-                          onClick={() => removeItem(product.productId)}
+                          onClick={() => removeItem(product.product_id)}
                           className="text-slate-400 transition hover:text-red-500"
                         >
                           <Trash2 className="h-4 w-4" />
@@ -95,14 +92,14 @@ export function Cart() {
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2 rounded-xl border border-slate-200 p-1">
                         <button
-                          onClick={() => updateQty(product.productId, quantity - 1)}
+                          onClick={() => updateQty(product.product_id, quantity - 1)}
                           className="flex h-7 w-7 items-center justify-center rounded-lg text-slate-600 transition hover:bg-slate-100"
                         >
                           <Minus className="h-3.5 w-3.5" />
                         </button>
                         <span className="w-8 text-center text-sm font-semibold">{quantity}</span>
                         <button
-                          onClick={() => updateQty(product.productId, Math.min(product.quantity, quantity + 1))}
+                          onClick={() => updateQty(product.product_id, Math.min(product.quantity, quantity + 1))}
                           className="flex h-7 w-7 items-center justify-center rounded-lg text-slate-600 transition hover:bg-slate-100"
                         >
                           <Plus className="h-3.5 w-3.5" />

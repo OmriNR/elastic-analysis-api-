@@ -1,53 +1,53 @@
 export interface User {
-  userId: string;
+  user_id: string;
   email: string;
   password: string;
-  isActive: boolean;
-  isAdmin: boolean;
-  createdAt: string;
+  is_active: boolean;
+  is_admin: boolean;
+  created_at: string;
 }
 
 export interface GeoProperties {
   city: string;
   country: string;
   address: string;
-  zipCode: string;
+  zip_code: string;
 }
 
 export interface UserProperties {
-  userId: string;
-  userName: string;
+  user_id: string;
+  user_name: string;
   age: number;
   gender: string;
   location: GeoProperties;
-  createdAt: string;
+  created_at: string;
 }
 
 export interface Product {
-  productId: string;
-  ownerId: string;
+  product_id: string;
+  owner_id: string;
   name: string;
   description: string;
   category: string;
-  subCategory?: string;
+  sub_category?: string;
   price: number;
   quantity: number;
 }
 
 export interface Discount {
-  discountId: string;
-  prodcutId: string;
+  discount_id: string;
+  prodcut_id: string;
   percentage: number;
-  expiredAt: string;
+  expired_at: string;
 }
 
 export interface Order {
-  orderId: string;
+  order_id: string;
   timestamp: string;
   customer: UserProperties;
-  totalAmount: number;
-  paymentMethod: string;
-  discountApplied: boolean;
+  total_amount: number;
+  payment_method: string;
+  discount_applied: boolean;
   items: Product[];
 }
 

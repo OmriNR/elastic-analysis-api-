@@ -44,7 +44,7 @@ export function ProductDetail() {
     );
   }
 
-  const isDiscountValid = discount && new Date(discount.expiredAt) > new Date();
+  const isDiscountValid = discount && new Date(discount.expired_at) > new Date();
   const discountedPrice = isDiscountValid
     ? product.price * (1 - discount.percentage / 100)
     : null;
@@ -80,7 +80,7 @@ export function ProductDetail() {
           <div className="overflow-hidden rounded-3xl bg-white shadow-md">
             {!imgError ? (
               <img
-                src={productImageUrl(product.productId)}
+                src={productImageUrl(product.product_id)}
                 alt={product.name}
                 className="h-full min-h-[400px] w-full object-cover"
                 onError={() => setImgError(true)}
@@ -101,7 +101,7 @@ export function ProductDetail() {
           <div className="flex flex-col">
             <div className="mb-3 flex gap-2">
               <Badge variant="indigo">{product.category}</Badge>
-              {product.subCategory && <Badge variant="slate">{product.subCategory}</Badge>}
+              {product.sub_category && <Badge variant="slate">{product.sub_category}</Badge>}
               {isDiscountValid && (
                 <Badge variant="red">Sale -{discount.percentage}%</Badge>
               )}
@@ -125,7 +125,7 @@ export function ProductDetail() {
                     You save ${savings.toFixed(2)} ({isDiscountValid && discount.percentage}% off)
                   </p>
                   <p className="mt-0.5 text-xs text-slate-400">
-                    Offer expires: {isDiscountValid && new Date(discount.expiredAt).toLocaleDateString()}
+                    Offer expires: {isDiscountValid && new Date(discount.expired_at).toLocaleDateString()}
                   </p>
                 </>
               ) : (

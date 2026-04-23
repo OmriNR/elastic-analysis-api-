@@ -10,5 +10,5 @@ export const getOrdersByCustomer = (customerId: string) =>
 export const getOrdersByProduct = (productId: string) =>
   apiClient.get<Order[]>(`/api/orders/product/${productId}`).then(r => r.data);
 
-export const createOrder = (order: Omit<Order, 'orderId' | 'timestamp'>) =>
+export const createOrder = (order: Omit<Order, 'order_id' | 'timestamp'>) =>
   apiClient.post<Order>('/api/orders', order).then(r => r.data);
