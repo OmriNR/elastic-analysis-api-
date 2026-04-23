@@ -25,13 +25,13 @@ export function Register() {
 
   const { mutate, isPending } = useMutation({
     mutationFn: async () => {
-      const user = await createUser({ email, password, isActive: true, isAdmin: false });
-      const props: Omit<UserProperties, 'createdAt'> = {
-        userId: user.userId,
-        userName,
+      const user = await createUser({ email, password, is_active: true, is_admin: false });
+      const props: Omit<UserProperties, 'created_at'> = {
+        user_id: user.user_id,
+        user_name: userName,
         age: parseInt(age, 10),
         gender,
-        location: { city, country, address, zipCode },
+        location: { city, country, address, zip_code: zipCode },
       };
       const userProps = await createUserProperties(props);
       return { user, userProps };

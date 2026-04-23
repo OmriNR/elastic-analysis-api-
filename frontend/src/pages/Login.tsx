@@ -19,7 +19,7 @@ export function Login() {
     onSuccess: async (user) => {
       setUser(user);
       try {
-        const props = await getUserProperties(user.userId);
+        const props = await getUserProperties(user.user_id);
         setUserProps(props);
       } catch {
         // no user properties yet

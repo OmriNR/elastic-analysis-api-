@@ -15,7 +15,7 @@ export function ProductCard({ product, discount }: ProductCardProps) {
   const addItem = useCartStore(s => s.addItem);
   const [imgError, setImgError] = useState(false);
 
-  const isDiscountValid = discount && new Date(discount.expiredAt) > new Date();
+  const isDiscountValid = discount && new Date(discount.expired_at) > new Date();
   const discountedPrice = isDiscountValid
     ? product.price * (1 - discount.percentage / 100)
     : null;
@@ -26,12 +26,12 @@ export function ProductCard({ product, discount }: ProductCardProps) {
   };
 
   return (
-    <Link to={`/products/${product.productId}`} className="group block">
+    <Link to={`/products/${product.product_id}`} className="group block">
       <div className="relative overflow-hidden rounded-2xl bg-white shadow-md transition-all duration-300 hover:-translate-y-1 hover:shadow-xl">
         <div className="relative h-52 overflow-hidden bg-gradient-to-br from-slate-100 to-slate-200">
           {!imgError ? (
             <img
-              src={productImageUrl(product.productId)}
+              src={productImageUrl(product.product_id)}
               alt={product.name}
               className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
               onError={() => setImgError(true)}
@@ -60,8 +60,8 @@ export function ProductCard({ product, discount }: ProductCardProps) {
 
         <div className="p-4">
           <Badge variant="indigo" className="mb-2">{product.category}</Badge>
-          {product.subCategory && (
-            <Badge variant="slate" className="mb-2 ml-1">{product.subCategory}</Badge>
+          {product.sub_category && (
+            <Badge variant="slate" className="mb-2 ml-1">{product.sub_category}</Badge>
           )}
           <h3 className="mb-1 line-clamp-2 font-semibold text-slate-800 group-hover:text-indigo-600 transition-colors">
             {product.name}

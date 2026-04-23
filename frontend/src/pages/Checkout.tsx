@@ -78,9 +78,9 @@ export function Checkout() {
   const handleSubmit = () => {
     placeOrder({
       customer: userProps,
-      totalAmount: tot,
-      paymentMethod,
-      discountApplied: hasDiscount,
+      total_amount: tot,
+      payment_method: paymentMethod,
+      discount_applied: hasDiscount,
       items: items.map(i => i.product),
     });
   };
@@ -104,7 +104,7 @@ export function Checkout() {
               <div className="grid grid-cols-2 gap-4 text-sm">
                 <div>
                   <p className="text-xs text-slate-400 mb-0.5">Name</p>
-                  <p className="font-medium text-slate-700">{userProps.userName}</p>
+                  <p className="font-medium text-slate-700">{userProps.user_name}</p>
                 </div>
                 <div>
                   <p className="text-xs text-slate-400 mb-0.5">Email</p>
@@ -112,27 +112,19 @@ export function Checkout() {
                 </div>
                 <div>
                   <p className="text-xs text-slate-400 mb-0.5">Address</p>
-                  <p className="font-medium text-slate-700">
-                    {userProps.location?.address || '—'}
-                  </p>
+                  <p className="font-medium text-slate-700">{userProps.location?.address || '—'}</p>
                 </div>
                 <div>
                   <p className="text-xs text-slate-400 mb-0.5">City</p>
-                  <p className="font-medium text-slate-700">
-                    {userProps.location?.city || '—'}
-                  </p>
+                  <p className="font-medium text-slate-700">{userProps.location?.city || '—'}</p>
                 </div>
                 <div>
                   <p className="text-xs text-slate-400 mb-0.5">Country</p>
-                  <p className="font-medium text-slate-700">
-                    {userProps.location?.country || '—'}
-                  </p>
+                  <p className="font-medium text-slate-700">{userProps.location?.country || '—'}</p>
                 </div>
                 <div>
                   <p className="text-xs text-slate-400 mb-0.5">ZIP Code</p>
-                  <p className="font-medium text-slate-700">
-                    {userProps.location?.zipCode || '—'}
-                  </p>
+                  <p className="font-medium text-slate-700">{userProps.location?.zip_code || '—'}</p>
                 </div>
               </div>
               <Link to="/profile" className="mt-4 block text-xs text-indigo-600 hover:text-indigo-700">
@@ -177,7 +169,7 @@ export function Checkout() {
               <h2 className="mb-4 font-semibold text-slate-800">Order Summary</h2>
               <div className="mb-4 max-h-48 overflow-y-auto space-y-2">
                 {items.map(({ product, quantity }) => (
-                  <div key={product.productId} className="flex justify-between text-sm">
+                  <div key={product.product_id} className="flex justify-between text-sm">
                     <span className="text-slate-600 truncate pr-2">
                       {product.name} ×{quantity}
                     </span>

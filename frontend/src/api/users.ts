@@ -4,7 +4,7 @@ import type { User, UserProperties } from '../types';
 export const loginUser = (email: string, password: string) =>
   apiClient.post<User>('/api/users/GetUser', { email, password }).then(r => r.data);
 
-export const createUser = (user: Omit<User, 'userId' | 'createdAt'>) =>
+export const createUser = (user: Omit<User, 'user_id' | 'created_at'>) =>
   apiClient.post<User>('/api/users/create', user).then(r => r.data);
 
 export const updateUser = (user: User) =>
@@ -13,7 +13,7 @@ export const updateUser = (user: User) =>
 export const getUserProperties = (userId: string) =>
   apiClient.get<UserProperties>(`/api/usersproperties/${userId}`).then(r => r.data);
 
-export const createUserProperties = (props: Omit<UserProperties, 'createdAt'>) =>
+export const createUserProperties = (props: Omit<UserProperties, 'created_at'>) =>
   apiClient.post<UserProperties>('/api/usersproperties', props).then(r => r.data);
 
 export const updateUserProperties = (props: UserProperties) =>

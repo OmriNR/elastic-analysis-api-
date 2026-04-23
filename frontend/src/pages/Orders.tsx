@@ -16,8 +16,8 @@ export function Orders() {
   }
 
   const { data: orders = [], isLoading } = useQuery({
-    queryKey: ['orders', user.userId],
-    queryFn: () => getOrdersByCustomer(user.userId),
+    queryKey: ['orders', user.user_id],
+    queryFn: () => getOrdersByCustomer(user.user_id),
   });
 
   if (isLoading) return <PageLoader />;
@@ -41,10 +41,10 @@ export function Orders() {
         ) : (
           <div className="space-y-4">
             {orders.map(order => (
-              <div key={order.orderId} className="rounded-2xl bg-white p-5 shadow-sm">
+              <div key={order.order_id} className="rounded-2xl bg-white p-5 shadow-sm">
                 <div className="flex items-start justify-between">
                   <div>
-                    <p className="font-semibold text-slate-800">Order #{order.orderId.slice(0, 8)}</p>
+                    <p className="font-semibold text-slate-800">Order #{order.order_id.slice(0, 8)}</p>
                     <div className="mt-1 flex items-center gap-1.5 text-xs text-slate-400">
                       <Clock className="h-3.5 w-3.5" />
                       {new Date(order.timestamp).toLocaleDateString('en-US', {
@@ -53,8 +53,8 @@ export function Orders() {
                     </div>
                   </div>
                   <div className="text-right">
-                    <p className="text-lg font-bold text-slate-800">${order.totalAmount.toFixed(2)}</p>
-                    {order.discountApplied && <Badge variant="green">Discount applied</Badge>}
+                    <p className="text-lg font-bold text-slate-800">${order.total_amount.toFixed(2)}</p>
+                    {order.discount_applied && <Badge variant="green">Discount applied</Badge>}
                   </div>
                 </div>
 
@@ -62,9 +62,9 @@ export function Orders() {
                   <p className="mb-2 text-xs font-medium text-slate-500 uppercase tracking-wider">Items</p>
                   <div className="space-y-1.5">
                     {order.items.map(item => (
-                      <div key={item.productId} className="flex items-center justify-between text-sm">
+                      <div key={item.product_id} className="flex items-center justify-between text-sm">
                         <Link
-                          to={`/products/${item.productId}`}
+                          to={`/products/${item.product_id}`}
                           className="flex items-center gap-2 text-slate-700 hover:text-indigo-600 transition-colors"
                         >
                           <ChevronRight className="h-3.5 w-3.5 text-slate-300" />
@@ -77,7 +77,7 @@ export function Orders() {
                 </div>
 
                 <div className="mt-3 flex items-center justify-between text-xs text-slate-400">
-                  <span>Payment: {order.paymentMethod.replace(/_/g, ' ')}</span>
+                  <span>Payment: {order.payment_method.replace(/_/g, ' ')}</span>
                 </div>
               </div>
             ))}

@@ -137,7 +137,7 @@ export function Home() {
             {productsLoading
               ? Array.from({ length: 8 }).map((_, i) => <SkeletonCard key={i} />)
               : featured.map(product => (
-                  <ProductCard key={product.productId} product={product} />
+                  <ProductCard key={product.product_id} product={product} />
                 ))}
           </div>
           {!productsLoading && products.length > 8 && (
