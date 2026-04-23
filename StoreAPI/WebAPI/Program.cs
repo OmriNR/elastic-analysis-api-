@@ -47,9 +47,6 @@ builder.Services.AddSingleton<IAmazonS3>(sp =>
 builder.Services.AddScoped<IProductsRepository, ProductsRepository>();
 builder.Services.AddScoped<IProductsService, ProductsService>();
 
-builder.Services.AddScoped<IUsersPropertiesService, UsersPropertiesService>();
-builder.Services.AddScoped<IUsersPropertiesRepository, UsersPropertiesRepository>();
-
 builder.Services.AddScoped<IUsersRepository, UsersRepository>();
 builder.Services.AddScoped<IUsersService, UsersService>();
 

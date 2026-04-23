@@ -11,7 +11,6 @@ public class AppDBContext : DbContext
     public DbSet<Product> Products { get; set; }
     public DbSet<Order> Orders { get; set; }
     public DbSet<User> Users { get; set; }
-    public DbSet<UserProperties> UsersProperties { get; set; }
     public DbSet<Discount> Discounts { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -51,17 +50,7 @@ public class AppDBContext : DbContext
             entity.Property(e => e.CreatedAt).HasColumnName(Consts.CREATED_AT);
             entity.Property(e => e.IsActive).HasColumnName(Consts.IS_ACTIVE);
             entity.Property(e => e.IsAdmin).HasColumnName(Consts.IS_ADMIN);
-        });
-        
-        modelBuilder.Entity<UserProperties>().ToTable(Consts.USERS_PROPERTIES);
-        modelBuilder.Entity<UserProperties>(entity =>
-        {
-            entity.Property(e => e.UserId).HasColumnName(Consts.ID).IsRequired();
-            entity.Property(e => e.UserName).HasColumnName(Consts.NAME);
-            entity.Property(e => e.Age).HasColumnName(Consts.AGE);
-            entity.Property(e => e.Gender).HasColumnName(Consts.GENDER);
-            entity.Property(e => e.CreatedAt).HasColumnName(Consts.CREATED_AT).IsRequired();
-            entity.ComplexProperty(e => e.Location, b => b.ToJson(Consts.LOCATION));
+            entity.ComplexProperty(e => e.Properties, b => b.ToJson(Consts.PROPERTIES));
         });
         
         modelBuilder.Entity<Discount>().ToTable(Consts.DISCOUNTS_TABLE);

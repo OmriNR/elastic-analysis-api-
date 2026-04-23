@@ -10,12 +10,12 @@ public class OrdersService : IOrdersService
     private const string queue = "orders_queue";
     private readonly ILogger<IOrdersService> _logger;
     private readonly IOrdersRepository _ordersRepository;
-    private readonly IUsersPropertiesRepository _userRepository;
+    private readonly IUsersRepository _userRepository;
     private readonly IProductsRepository _productsRepository;
     private readonly IDiscountsRepository _discountsRepository;
     private readonly IMessageProducer _messageProducer;
 
-    public OrdersService(ILogger<IOrdersService> logger, IOrdersRepository ordersRepository, IUsersPropertiesRepository userRepository, IProductsRepository productsRepository, IDiscountsRepository discountsRepository, IMessageProducer messageProducer)
+    public OrdersService(ILogger<IOrdersService> logger, IOrdersRepository ordersRepository, IUsersRepository userRepository, IProductsRepository productsRepository, IDiscountsRepository discountsRepository, IMessageProducer messageProducer)
     {
         _logger = logger;
         _ordersRepository = ordersRepository;
@@ -49,7 +49,7 @@ public class OrdersService : IOrdersService
         status = Statuses.OK;
         error = string.Empty;
 
-        var user = _userRepository.GetUser(customerId);
+        var user = _userRepository.GetUserById(customerId);
 
         if (user == null)
         {
@@ -114,13 +114,13 @@ public class OrdersService : IOrdersService
         }
         
         _logger.LogInformation("Order passed validation");
-        var customer = _userRepository.GetUser(order.Customer.UserId);
+        var customer = _userRepository.GetUserById(order.Customer);
 
         if (customer == null)
         {
-            _logger.LogError($"User {order.Customer.UserId} doesn't exist");
+            _logger.LogError($"User {order.Customer} doesn't exist");
             status = Statuses.NOT_FOUND;
-            error = $"User {order.Customer.UserId} not found";
+            error = $"User {order.Customer} not found";
             return null;
         }
 
@@ -139,9 +139,9 @@ public class OrdersService : IOrdersService
                 return null;
             }
             
-            if (product.OwnerId == order.Customer.UserId)
+            if (product.OwnerId == order.Customer)
             {
-                _logger.LogError($"User {order.Customer.UserId} can't buy his own products");
+                _logger.LogError($"User {order.Customer} can't buy his own products");
                 status = Statuses.INVALID;
                 error = $"User {product.OwnerId} can't order his own product";
                 return null;

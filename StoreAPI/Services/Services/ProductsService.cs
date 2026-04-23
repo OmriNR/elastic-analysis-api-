@@ -9,9 +9,9 @@ public class ProductsService : IProductsService
 {
     private readonly ILogger<IProductsService> _logger;
     private readonly IProductsRepository _productsRepository;
-    private readonly IUsersPropertiesRepository _userRepository;
+    private readonly IUsersRepository _userRepository;
 
-    public ProductsService(ILogger<IProductsService> logger, IProductsRepository productsRepository, IUsersPropertiesRepository userRepository)
+    public ProductsService(ILogger<IProductsService> logger, IProductsRepository productsRepository, IUsersRepository userRepository)
     {
         _logger = logger;
         _productsRepository = productsRepository;
@@ -179,7 +179,7 @@ public class ProductsService : IProductsService
         status = Statuses.OK;
         List<Product> products = new List<Product>();
         
-        var check = _userRepository.GetUser(user);
+        var check = _userRepository.GetUserById(user);
 
         if (check == null)
         {
@@ -231,7 +231,7 @@ public class ProductsService : IProductsService
         }
         else
         {
-            var owner = _userRepository.GetUser(product.OwnerId);
+            var owner = _userRepository.GetUserById(product.OwnerId);
 
             if (owner == null)
             {

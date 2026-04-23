@@ -17,7 +17,7 @@ public class Order
     
     [DataMember(Name = "customer")]
     [JsonPropertyName("customer")]
-    public UserProperties Customer { get; set; }
+    public string Customer { get; set; }
     
     [DataMember(Name = "total_amount")]
     [JsonPropertyName("total_amount")]

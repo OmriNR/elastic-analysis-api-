@@ -6,13 +6,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Domain;
 
+[Owned]
 public class UserProperties
 {
-    [Key]
-    [DataMember(Name = "user_id")]
-    [JsonPropertyName("user_id")]
-    public string UserId { get; set; }
-    
     [DataMember(Name = "user_name")]
     [JsonPropertyName("user_name")]
     public string UserName { get; set; }
@@ -34,7 +30,6 @@ public class UserProperties
     public DateTime CreatedAt { get; set; }
 }
 
-[Owned]
 public class GeoProperties
 {
     [DataMember(Name = "city")]

@@ -31,12 +31,12 @@ public class DiscountsTests
     private static readonly DateTime EXPIRED_DATE = DateTime.MinValue;
     private static readonly DateTime NOT_EXPIRED_DATE = DateTime.MaxValue;
 
-    private UserProperties _validUser = new UserProperties()
+    private User _validUser = new User()
     {
         UserId = EXISTS_USER
     };
     
-    private UserProperties _emptyUser = new UserProperties()
+    private User _emptyUser = new User()
     {
         UserId = EXISTS_USER_NO_PRODUCTS
     };
@@ -94,14 +94,14 @@ public class DiscountsTests
     
     private Mock<IDiscountsRepository> _discountsRepositoryMock;
     private Mock<IProductsRepository> _productsRepositoryMock;
-    private Mock<IUsersPropertiesRepository> _userRepositoryMock;
+    private Mock<IUsersRepository> _userRepositoryMock;
     private IDiscountsService _service;
     
     [SetUp]
     public void Setup()
     {
         _discountsRepositoryMock = new Mock<IDiscountsRepository>();
-        _userRepositoryMock = new Mock<IUsersPropertiesRepository>();
+        _userRepositoryMock = new Mock<IUsersRepository>();
         _productsRepositoryMock = new Mock<IProductsRepository>();
 
         _discountsRepositoryMock.Setup(repo =>
@@ -140,13 +140,13 @@ public class DiscountsTests
             repo.GetProductsByCategory(NOT_EXISTS_CATEGORY)).Returns(new List<Product>());
         
         _userRepositoryMock.Setup(repo =>
-            repo.GetUser(It.Is<string>(id => id == EXISTS_USER))).Returns(_validUser);
+            repo.GetUserById(It.Is<string>(id => id == EXISTS_USER))).Returns(_validUser);
         
         _userRepositoryMock.Setup(repo =>
-            repo.GetUser(It.Is<string>(id => id == EXISTS_USER_NO_PRODUCTS))).Returns(_emptyUser);
+            repo.GetUserById(It.Is<string>(id => id == EXISTS_USER_NO_PRODUCTS))).Returns(_emptyUser);
         
         _userRepositoryMock.Setup(repo =>
-            repo.GetUser(It.Is<string>(id => id == NOT_EXISTS_USER))).Returns((UserProperties)null);
+            repo.GetUserById(It.Is<string>(id => id == NOT_EXISTS_USER))).Returns((User)null);
 
         ILogger<IDiscountsService> _logger = new NullLogger<IDiscountsService>();
         _service = new DiscountService(_logger, _discountsRepositoryMock.Object, _userRepositoryMock.Object, _productsRepositoryMock.Object);

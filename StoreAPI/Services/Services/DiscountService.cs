@@ -9,10 +9,10 @@ public class DiscountService : IDiscountsService
 {
     private readonly ILogger<IDiscountsService> _logger;
     private readonly IDiscountsRepository _discountsRepository;
-    private readonly IUsersPropertiesRepository _userRepository;
+    private readonly IUsersRepository _userRepository;
     private readonly IProductsRepository _productsRepository;
 
-    public DiscountService(ILogger<IDiscountsService> logger, IDiscountsRepository discountsRepository, IUsersPropertiesRepository userRepository, IProductsRepository productsRepository)
+    public DiscountService(ILogger<IDiscountsService> logger, IDiscountsRepository discountsRepository, IUsersRepository userRepository, IProductsRepository productsRepository)
     {
         _logger = logger;
         _discountsRepository = discountsRepository;
@@ -143,7 +143,7 @@ public class DiscountService : IDiscountsService
         error = string.Empty;
         status = Statuses.OK;
         
-        var user = _userRepository.GetUser(userId);
+        var user = _userRepository.GetUserById(userId);
 
         if (user == null)
         {

@@ -28,4 +28,8 @@ public class User
     [DataMember(Name = "created_at")]
     [JsonPropertyName("created_at")]
     public DateTime CreatedAt { get; set; }
+    
+    [DataMember(Name = "properties")]
+    [JsonPropertyName("properties")]
+    public UserProperties Properties { get; set; }
 }

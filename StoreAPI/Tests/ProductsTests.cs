@@ -78,14 +78,14 @@ public class ProductsTests
     };
     
     private Mock<IProductsRepository> _productsRepositoryMock;
-    private Mock<IUsersPropertiesRepository> _userRepositoryMock;
+    private Mock<IUsersRepository> _userRepositoryMock;
     private IProductsService _service;
     
     [SetUp]
     public void Setup()
     {
         _productsRepositoryMock = new Mock<IProductsRepository>();
-        _userRepositoryMock = new Mock<IUsersPropertiesRepository>();
+        _userRepositoryMock = new Mock<IUsersRepository>();
         //Set productRepo
         _productsRepositoryMock.Setup(repo =>
             repo.GetProduct(It.Is<string>(id => id != PRODUCT_ID_NOT_FOUND))).Returns(validProduct);
@@ -105,8 +105,8 @@ public class ProductsTests
         _productsRepositoryMock.Setup(repo => 
             repo.GetProductsByUser(It.Is<string>(id => id == USER_ID_NOT_FOUND))).Returns(new List<Product>());
         
-        _userRepositoryMock.Setup(repo => repo.GetUser(It.Is<string>(id => id == USER_ID_EXIST))).Returns(new UserProperties());
-        _userRepositoryMock.Setup(repo => repo.GetUser(It.Is<string>(id => id == USER_ID_NOT_FOUND))).Returns((UserProperties)null);
+        _userRepositoryMock.Setup(repo => repo.GetUserById(It.Is<string>(id => id == USER_ID_EXIST))).Returns(new User());
+        _userRepositoryMock.Setup(repo => repo.GetUserById(It.Is<string>(id => id == USER_ID_NOT_FOUND))).Returns((User)null);
 
         ILogger<IProductsService> _logger = new NullLogger<IProductsService>();
         _service = new ProductsService(_logger, _productsRepositoryMock.Object,  _userRepositoryMock.Object);
