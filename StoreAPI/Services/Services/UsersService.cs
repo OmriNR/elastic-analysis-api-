@@ -48,7 +48,13 @@ public class UsersService : IUsersService
         status = Statuses.OK;
         error = string.Empty;
         _logger.LogInformation($"Updating user by email {user.Email}");
-        
+
+        if (!IsUserValid(user, out error))
+        {
+            status = Statuses.INVALID;
+            return null;
+        }
+
         var exists = _repository.GetUserByEmail(user.Email);
 
         if (exists == null)
@@ -73,6 +79,12 @@ public class UsersService : IUsersService
         
         _logger.LogInformation("Creating user");
 
+        if (!IsUserValid(user, out error))
+        {
+            status = Statuses.INVALID;
+            return null;
+        }
+
         var check = _repository.GetUserByEmail(user.Email);
 
         if (check != null)
@@ -92,5 +104,65 @@ public class UsersService : IUsersService
         var newUser = _repository.GetUserById(id);
 
         return newUser;
+    }
+
+    private bool IsUserValid(User user, out string error)
+    {
+        error = string.Empty;
+        if (user.Email == string.Empty)
+        {
+            error = "Email must be filled";
+            return false;
+        }
+        
+        if (user.Password == string.Empty)
+        {
+            error = "Password must be filled";
+            return false;
+        }
+        
+        if (user.Properties.Gender == string.Empty)
+        {
+            error = "Gender must be filled";
+            return false;
+        }
+        
+        if (user.Properties.Gender == string.Empty)
+        {
+            error = "Gender must be filled";
+            return false;
+        }
+        
+        if (user.Properties.UserName == string.Empty)
+        {
+            error = "UserName must be filled";
+            return false;
+        }
+
+        if (user.Properties.Location.Address == string.Empty)
+        {
+            error = "Address must be filled";
+            return false;
+        }
+        
+        if (user.Properties.Location.City == string.Empty)
+        {
+            error = "City must be filled";
+            return false;
+        }
+        
+        if (user.Properties.Location.Country == string.Empty)
+        {
+            error = "Country must be filled";
+            return false;
+        }
+        
+        if (user.Properties.Location.ZipCode == string.Empty)
+        {
+            error = "ZipCode must be filled";
+            return false;
+        }
+
+        return true;
     }
 }
