@@ -24,10 +24,6 @@ public class UserProperties
     [DataMember(Name = "location")]
     [JsonPropertyName("location")]
     public GeoProperties Location { get; set; }
-    
-    [DataMember(Name = "created_at")]
-    [JsonPropertyName("created_at")]
-    public DateTime CreatedAt { get; set; }
 }
 
 public class GeoProperties
