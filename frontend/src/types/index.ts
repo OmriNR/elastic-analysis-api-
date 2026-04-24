@@ -1,12 +1,3 @@
-export interface User {
-  user_id: string;
-  email: string;
-  password: string;
-  is_active: boolean;
-  is_admin: boolean;
-  created_at: string;
-}
-
 export interface GeoProperties {
   city: string;
   country: string;
@@ -15,12 +6,20 @@ export interface GeoProperties {
 }
 
 export interface UserProperties {
-  user_id: string;
   user_name: string;
   age: number;
   gender: string;
   location: GeoProperties;
+}
+
+export interface User {
+  user_id: string;
+  email: string;
+  password: string;
+  is_active: boolean;
+  is_admin: boolean;
   created_at: string;
+  properties: UserProperties;
 }
 
 export interface Product {
@@ -44,7 +43,7 @@ export interface Discount {
 export interface Order {
   order_id: string;
   timestamp: string;
-  customer: UserProperties;
+  customer: string;
   total_amount: number;
   payment_method: string;
   discount_applied: boolean;

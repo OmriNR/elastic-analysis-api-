@@ -2,22 +2,22 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { User, MapPin, Save, LogOut } from 'lucide-react';
-import { updateUserProperties } from '../api/users';
+import { updateUser } from '../api/users';
 import { useAuthStore } from '../store/authStore';
 import { Button } from '../components/ui/Button';
 
 export function Profile() {
-  const { user, userProps, setUserProps, logout } = useAuthStore();
+  const { user, setUser, logout } = useAuthStore();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
 
-  const [userName, setUserName] = useState(userProps?.user_name ?? '');
-  const [age, setAge] = useState(String(userProps?.age ?? ''));
-  const [gender, setGender] = useState(userProps?.gender ?? '');
-  const [city, setCity] = useState(userProps?.location?.city ?? '');
-  const [country, setCountry] = useState(userProps?.location?.country ?? '');
-  const [address, setAddress] = useState(userProps?.location?.address ?? '');
-  const [zipCode, setZipCode] = useState(userProps?.location?.zip_code ?? '');
+  const [userName, setUserName] = useState(user?.properties?.user_name ?? '');
+  const [age, setAge] = useState(String(user?.properties?.age ?? ''));
+  const [gender, setGender] = useState(user?.properties?.gender ?? '');
+  const [city, setCity] = useState(user?.properties?.location?.city ?? '');
+  const [country, setCountry] = useState(user?.properties?.location?.country ?? '');
+  const [address, setAddress] = useState(user?.properties?.location?.address ?? '');
+  const [zipCode, setZipCode] = useState(user?.properties?.location?.zip_code ?? '');
   const [saved, setSaved] = useState(false);
 
   if (!user) {
@@ -27,17 +27,18 @@ export function Profile() {
 
   const { mutate, isPending } = useMutation({
     mutationFn: () =>
-      updateUserProperties({
-        user_id: user.user_id,
-        user_name: userName,
-        age: parseInt(age, 10),
-        gender,
-        location: { city, country, address, zip_code: zipCode },
-        created_at: userProps?.created_at ?? new Date().toISOString(),
+      updateUser({
+        ...user,
+        properties: {
+          user_name: userName,
+          age: parseInt(age, 10),
+          gender,
+          location: { city, country, address, zip_code: zipCode },
+        },
       }),
-    onSuccess: (props) => {
-      setUserProps(props);
-      queryClient.invalidateQueries({ queryKey: ['userProps', user.user_id] });
+    onSuccess: (updated) => {
+      setUser(updated);
+      queryClient.invalidateQueries({ queryKey: ['user', user.user_id] });
       setSaved(true);
       setTimeout(() => setSaved(false), 2500);
     },
@@ -60,7 +61,7 @@ export function Profile() {
               <User className="h-8 w-8 text-indigo-600" />
             </div>
             <div>
-              <p className="text-lg font-semibold text-slate-800">{userProps?.user_name || 'User'}</p>
+              <p className="text-lg font-semibold text-slate-800">{user.properties?.user_name || 'User'}</p>
               <p className="text-sm text-slate-500">{user.email}</p>
               <div className="mt-1 flex gap-1.5">
                 {user.is_admin && (
