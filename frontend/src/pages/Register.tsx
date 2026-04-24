@@ -2,10 +2,9 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useMutation } from '@tanstack/react-query';
 import { Store, Eye, EyeOff } from 'lucide-react';
-import { createUser, createUserProperties } from '../api/users';
+import { createUser } from '../api/users';
 import { useAuthStore } from '../store/authStore';
 import { Button } from '../components/ui/Button';
-import type { UserProperties } from '../types';
 
 export function Register() {
   const [step, setStep] = useState<1 | 2>(1);
@@ -20,25 +19,25 @@ export function Register() {
   const [address, setAddress] = useState('');
   const [zipCode, setZipCode] = useState('');
   const [error, setError] = useState('');
-  const { setUser, setUserProps } = useAuthStore();
+  const { setUser } = useAuthStore();
   const navigate = useNavigate();
 
   const { mutate, isPending } = useMutation({
-    mutationFn: async () => {
-      const user = await createUser({ email, password, is_active: true, is_admin: false });
-      const props: Omit<UserProperties, 'created_at'> = {
-        user_id: user.user_id,
-        user_name: userName,
-        age: parseInt(age, 10),
-        gender,
-        location: { city, country, address, zip_code: zipCode },
-      };
-      const userProps = await createUserProperties(props);
-      return { user, userProps };
-    },
-    onSuccess: ({ user, userProps }) => {
+    mutationFn: () =>
+      createUser({
+        email,
+        password,
+        is_active: true,
+        is_admin: false,
+        properties: {
+          user_name: userName,
+          age: parseInt(age, 10),
+          gender,
+          location: { city, country, address, zip_code: zipCode },
+        },
+      }),
+    onSuccess: (user) => {
       setUser(user);
-      setUserProps(userProps);
       navigate('/');
     },
     onError: () => setError('Registration failed. Please try again.'),

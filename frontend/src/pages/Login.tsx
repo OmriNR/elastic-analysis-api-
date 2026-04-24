@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useMutation } from '@tanstack/react-query';
 import { Store, Eye, EyeOff } from 'lucide-react';
-import { loginUser, getUserProperties } from '../api/users';
+import { loginUser } from '../api/users';
 import { useAuthStore } from '../store/authStore';
 import { Button } from '../components/ui/Button';
 
@@ -11,19 +11,13 @@ export function Login() {
   const [password, setPassword] = useState('');
   const [showPass, setShowPass] = useState(false);
   const [error, setError] = useState('');
-  const { setUser, setUserProps } = useAuthStore();
+  const { setUser } = useAuthStore();
   const navigate = useNavigate();
 
   const { mutate, isPending } = useMutation({
     mutationFn: () => loginUser(email, password),
-    onSuccess: async (user) => {
+    onSuccess: (user) => {
       setUser(user);
-      try {
-        const props = await getUserProperties(user.user_id);
-        setUserProps(props);
-      } catch {
-        // no user properties yet
-      }
       navigate('/');
     },
     onError: () => setError('Invalid email or password. Please try again.'),

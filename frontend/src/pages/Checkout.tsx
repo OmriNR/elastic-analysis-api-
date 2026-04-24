@@ -16,7 +16,7 @@ const paymentMethods = [
 export function Checkout() {
   const navigate = useNavigate();
   const { items, subtotal, totalDiscount, total, clearCart } = useCartStore();
-  const { user, userProps } = useAuthStore();
+  const { user } = useAuthStore();
   const [paymentMethod, setPaymentMethod] = useState('credit_card');
   const [success, setSuccess] = useState(false);
 
@@ -28,7 +28,7 @@ export function Checkout() {
     },
   });
 
-  if (!user || !userProps) {
+  if (!user || !user.properties) {
     return (
       <div className="flex min-h-[60vh] flex-col items-center justify-center gap-4 text-center">
         <ShoppingBag className="h-16 w-16 text-indigo-200" />
@@ -77,7 +77,7 @@ export function Checkout() {
 
   const handleSubmit = () => {
     placeOrder({
-      customer: userProps,
+      customer: user.user_id,
       total_amount: tot,
       payment_method: paymentMethod,
       discount_applied: hasDiscount,
@@ -104,7 +104,7 @@ export function Checkout() {
               <div className="grid grid-cols-2 gap-4 text-sm">
                 <div>
                   <p className="text-xs text-slate-400 mb-0.5">Name</p>
-                  <p className="font-medium text-slate-700">{userProps.user_name}</p>
+                  <p className="font-medium text-slate-700">{user.properties.user_name}</p>
                 </div>
                 <div>
                   <p className="text-xs text-slate-400 mb-0.5">Email</p>
@@ -112,19 +112,19 @@ export function Checkout() {
                 </div>
                 <div>
                   <p className="text-xs text-slate-400 mb-0.5">Address</p>
-                  <p className="font-medium text-slate-700">{userProps.location?.address || '—'}</p>
+                  <p className="font-medium text-slate-700">{user.properties.location?.address || '—'}</p>
                 </div>
                 <div>
                   <p className="text-xs text-slate-400 mb-0.5">City</p>
-                  <p className="font-medium text-slate-700">{userProps.location?.city || '—'}</p>
+                  <p className="font-medium text-slate-700">{user.properties.location?.city || '—'}</p>
                 </div>
                 <div>
                   <p className="text-xs text-slate-400 mb-0.5">Country</p>
-                  <p className="font-medium text-slate-700">{userProps.location?.country || '—'}</p>
+                  <p className="font-medium text-slate-700">{user.properties.location?.country || '—'}</p>
                 </div>
                 <div>
                   <p className="text-xs text-slate-400 mb-0.5">ZIP Code</p>
-                  <p className="font-medium text-slate-700">{userProps.location?.zip_code || '—'}</p>
+                  <p className="font-medium text-slate-700">{user.properties.location?.zip_code || '—'}</p>
                 </div>
               </div>
               <Link to="/profile" className="mt-4 block text-xs text-indigo-600 hover:text-indigo-700">
