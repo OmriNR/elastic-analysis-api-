@@ -19,7 +19,7 @@ export function Register() {
   const [address, setAddress] = useState('');
   const [zipCode, setZipCode] = useState('');
   const [error, setError] = useState('');
-  const { setUser } = useAuthStore();
+  const { setAuth } = useAuthStore();
   const navigate = useNavigate();
 
   const { mutate, isPending } = useMutation({
@@ -36,8 +36,8 @@ export function Register() {
           location: { city, country, address, zip_code: zipCode },
         },
       }),
-    onSuccess: (user) => {
-      setUser(user);
+    onSuccess: ({ user, token }) => {
+      setAuth(user, token);
       navigate('/');
     },
     onError: () => setError('Registration failed. Please try again.'),

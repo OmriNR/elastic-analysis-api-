@@ -1,4 +1,5 @@
 ﻿using Domain;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Services.Interfaces;
 
@@ -86,6 +87,7 @@ public class ProductsController : ControllerBase
         }
     }
 
+    [Authorize]
     [HttpGet("users/{userId}")]
     public IActionResult GetUsers(string userId)
     {
@@ -129,6 +131,7 @@ public class ProductsController : ControllerBase
         }
     }
     
+    [Authorize]
     [HttpPost]
     public IActionResult Post([FromBody] Product product)
     {
@@ -152,6 +155,7 @@ public class ProductsController : ControllerBase
         }
     }
 
+    [Authorize]
     [HttpPut]
     public IActionResult Put([FromBody] Product product)
     {
@@ -175,6 +179,7 @@ public class ProductsController : ControllerBase
         }
     }
 
+    [Authorize]
     [HttpDelete("{id}")]
     public IActionResult Delete(string id)
     {

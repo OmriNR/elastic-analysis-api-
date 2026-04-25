@@ -1,4 +1,5 @@
 ﻿using Domain;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Services.Interfaces;
@@ -16,6 +17,7 @@ public class DiscountsController : ControllerBase
         _discountsService = discountsService;
     }
 
+    [AllowAnonymous]
     [HttpGet("{id}")]
     public IActionResult Get(string id)
     {
@@ -37,6 +39,7 @@ public class DiscountsController : ControllerBase
         }
     }
 
+    [AllowAnonymous]
     [HttpGet("productId/{id}")]
     public IActionResult GetProductId(string id)
     {
@@ -58,6 +61,7 @@ public class DiscountsController : ControllerBase
         }
     }
 
+    [Authorize]
     [HttpPost]
     public IActionResult Post([FromBody] Discount discount)
     {
@@ -81,6 +85,7 @@ public class DiscountsController : ControllerBase
         }
     }
     
+    [Authorize]
     [HttpPost("category/{category}")]
     public IActionResult CraeteForCategory(string category, [FromBody] Discount discount)
     {
@@ -104,6 +109,7 @@ public class DiscountsController : ControllerBase
         }
     }
 
+    [Authorize]
     [HttpPost("user/{userId}")]
     public IActionResult CreateForUser(string userId, [FromBody] Discount discount)
     {
