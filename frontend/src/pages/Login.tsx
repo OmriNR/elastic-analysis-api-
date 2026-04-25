@@ -11,13 +11,13 @@ export function Login() {
   const [password, setPassword] = useState('');
   const [showPass, setShowPass] = useState(false);
   const [error, setError] = useState('');
-  const { setUser } = useAuthStore();
+  const { setAuth } = useAuthStore();
   const navigate = useNavigate();
 
   const { mutate, isPending } = useMutation({
     mutationFn: () => loginUser(email, password),
-    onSuccess: (user) => {
-      setUser(user);
+    onSuccess: ({ user, token }) => {
+      setAuth(user, token);
       navigate('/');
     },
     onError: () => setError('Invalid email or password. Please try again.'),

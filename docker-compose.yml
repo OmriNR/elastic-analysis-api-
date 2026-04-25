@@ -89,6 +89,10 @@ services:
       - Rabbit__Port=5672
       - Rabbit__UserName=admin
       - Rabbit__Password=admin123
+      - Jwt__Secret=StoreAPI-Dev-Secret-Key-Change-In-Production-Min32Chars
+      - Jwt__Issuer=StoreAPI
+      - Jwt__Audience=StoreAPIClients
+      - Jwt__ExpiryMinutes=60
 
 volumes:
   postgres_data:

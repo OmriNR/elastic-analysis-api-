@@ -1,4 +1,5 @@
-﻿using Domain;
+using Domain;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Services.Interfaces;
 
@@ -13,6 +14,7 @@ public class ImagesController : ControllerBase
         _imagesService = imagesService;
     }
 
+    [AllowAnonymous]
     [HttpGet("GetProductImage({id})")]
     public IActionResult GetProductImage(string id)
     {
@@ -36,6 +38,7 @@ public class ImagesController : ControllerBase
         }
     }
 
+    [AllowAnonymous]
     [HttpGet("GetUserImage({userId})")]
     public IActionResult GetUserImage(string userId)
     {
@@ -59,6 +62,7 @@ public class ImagesController : ControllerBase
         }
     }
 
+    [Authorize]
     [HttpPost("UploadUserImage/{userId}")]
     [Consumes("multipart/form-data")]
     public IActionResult UploadUserImage(string userId, IFormFile file)
@@ -83,7 +87,8 @@ public class ImagesController : ControllerBase
             return Problem(ex.Message);
         }
     }
-    
+
+    [Authorize]
     [HttpPost("UploadProductImage/{productId}")]
     [Consumes("multipart/form-data")]
     public IActionResult UploadProductImage(string productId, IFormFile file)

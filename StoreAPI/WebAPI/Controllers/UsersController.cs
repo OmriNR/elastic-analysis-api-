@@ -1,6 +1,9 @@
-﻿using Domain;
+using Domain;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Services.Interfaces;
+using WebAPI.DTOs;
+using Services.Services;
 
 namespace WebAPI.Controllers;
 
@@ -9,12 +12,15 @@ namespace WebAPI.Controllers;
 public class UsersController : ControllerBase
 {
     private readonly IUsersService _service;
+    private readonly TokenService _tokenService;
 
-    public UsersController(IUsersService service)
+    public UsersController(IUsersService service, TokenService tokenService)
     {
-        this._service = service;
+        _service = service;
+        _tokenService = tokenService;
     }
 
+    [AllowAnonymous]
     [HttpPost("GetUser")]
     public IActionResult GetUser([FromBody] User request)
     {
@@ -29,7 +35,7 @@ public class UsersController : ControllerBase
                 case Statuses.INVALID:
                     return BadRequest(error);
                 default:
-                    return Ok(user);
+                    return Ok(new LoginResponse(user, _tokenService.GenerateToken(user)));
             }
         }
         catch (Exception ex)
@@ -38,6 +44,7 @@ public class UsersController : ControllerBase
         }
     }
 
+    [AllowAnonymous]
     [HttpPost("create")]
     public IActionResult CreateUser([FromBody] User user)
     {
@@ -48,9 +55,9 @@ public class UsersController : ControllerBase
             switch (status)
             {
                 case Statuses.INVALID:
-                    return  BadRequest(error);
+                    return BadRequest(error);
                 default:
-                    return Ok(newUser);
+                    return Ok(new LoginResponse(newUser, _tokenService.GenerateToken(newUser)));
             }
         }
         catch (Exception ex)
@@ -59,6 +66,7 @@ public class UsersController : ControllerBase
         }
     }
 
+    [Authorize]
     [HttpPut("update")]
     public IActionResult UpdateUser([FromBody] User user)
     {
