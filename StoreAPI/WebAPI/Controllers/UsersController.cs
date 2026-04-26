@@ -97,12 +97,12 @@ public class UsersController : ControllerBase
     }
 
     [Authorize]
-    [HttpGet("setAdmin({requestedId}, {askedUserId})")]
-    public IActionResult SetAdmin(string requestedId, string askedUserId)
+    [HttpPost("setAdmin")]
+    public IActionResult SetAdmin([FromBody] UserRequest userRequest)
     {
         try
         {
-            _service.SetAdmin(requestedId, askedUserId, out var status, out var error);
+            _service.SetAdmin(userRequest.TargetUserId, userRequest.RequestedUserId, out var status, out var error);
 
             if (status == Statuses.NOT_FOUND)
                 return NotFound(error);
@@ -110,7 +110,7 @@ public class UsersController : ControllerBase
             if (status == Statuses.INVALID)
                 return StatusCode(403, error);
 
-            return Ok($"User {askedUserId} has became admin by {requestedId}");
+            return Ok($"User {userRequest.TargetUserId} has became admin by {userRequest.RequestedUserId}");
         }
         catch (Exception ex)
         {
@@ -119,12 +119,12 @@ public class UsersController : ControllerBase
     }
 
     [Authorize]
-    [HttpGet("setActivity({requestedId}, {askedUserId})")]
-    public IActionResult SetActivity(string requestedId, string askedUserId)
+    [HttpPost("setActivity")]
+    public IActionResult SetActivity([FromBody] UserRequest userRequest)
     {
         try
         {
-            _service.SetActive(requestedId, askedUserId, out var status, out var error);
+            _service.SetActive(userRequest.TargetUserId, userRequest.RequestedUserId, out var status, out var error);
 
             if (status == Statuses.NOT_FOUND)
                 return NotFound(error);
@@ -132,7 +132,7 @@ public class UsersController : ControllerBase
             if (status == Statuses.INVALID)
                 return StatusCode(403, error);
 
-            return Ok($"User {askedUserId} activity has been changed by {requestedId}");
+            return Ok($"User {userRequest.TargetUserId} activity has been changed by {userRequest.RequestedUserId}");
         }
         catch (Exception ex)
         {

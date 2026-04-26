@@ -19,7 +19,7 @@ export const getAllUsers = (requesterId: string) =>
   apiClient.get<User[]>(`/api/users/getAllUsers(${requesterId}`).then(r => r.data);
 
 export const setAdmin = (requesterId: string, targetUserId: string) =>
-  apiClient.get<string>(`/api/users/setAdmin(${requesterId}, ${targetUserId})`).then(r => r.data);
+  apiClient.post<string>('/api/users/setAdmin', { requested_user_id: requesterId, target_user_id: targetUserId }).then(r => r.data);
 
 export const setActivity = (requesterId: string, targetUserId: string) =>
-  apiClient.get<string>(`/api/users/setActivity(${requesterId}, ${targetUserId})`).then(r => r.data);
+  apiClient.post<string>('/api/users/setActivity', { requested_user_id: requesterId, target_user_id: targetUserId }).then(r => r.data);

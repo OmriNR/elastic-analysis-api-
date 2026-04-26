@@ -98,6 +98,7 @@ public class UsersService : IUsersService
         string id = Guid.NewGuid().ToString();
 
         user.UserId = id;
+        user.CreatedAt = DateTime.Now;
         
         _repository.CreateUser(user);
 
@@ -106,17 +107,17 @@ public class UsersService : IUsersService
         return newUser;
     }
 
-    public void SetAdmin(string requested, string asked, out Statuses status, out string error)
+    public void SetAdmin(string target, string requested, out Statuses status, out string error)
     {
         error = string.Empty;
         status = Statuses.OK;
         
-        _logger.LogInformation("setting admin for user {0} by {1}", requested, asked);
+        _logger.LogInformation("setting admin for user {0} by {1}", target, requested);
         
-        var askedUser = _repository.GetUserById(asked);
+        var targetUser = _repository.GetUserById(target);
         var requestedUser = _repository.GetUserById(requested);
 
-        if (askedUser == null || requestedUser == null)
+        if (target == null || requestedUser == null)
         {
             _logger.LogError($"One of the users does not exist");
             error = "One of the users does not exist";
@@ -124,37 +125,37 @@ public class UsersService : IUsersService
             return;
         }
 
-        if (!askedUser.IsAdmin)
+        if (!requestedUser.IsAdmin)
         {
-            _logger.LogError("The asked user is not admin");
+            _logger.LogError("The requesting user is not admin");
             error = "The asked user is not admin";
             status = Statuses.INVALID;
             return;
         }
 
-        if (requestedUser.IsAdmin)
+        if (targetUser.IsAdmin)
         {
-            _logger.LogError("The requested user is already admin");
+            _logger.LogError("The target user is already admin");
             error = "The requested user is already admin";
             status = Statuses.INVALID;
             return;
         }
         
-        requestedUser.IsAdmin = true;
-        _repository.UpdateUser(requestedUser);
+        targetUser.IsAdmin = true;
+        _repository.UpdateUser(targetUser);
     }
 
-    public void SetActive(string requested, string asked, out Statuses status, out string error)
+    public void SetActive(string target, string requested, out Statuses status, out string error)
     {
         error = string.Empty;
         status = Statuses.OK;
         
-        _logger.LogInformation("setting activity for user {0} by {1}", requested, asked);
+        _logger.LogInformation("setting activity for user {0} by {1}", target, requested);
         
-        var askedUser = _repository.GetUserById(asked);
+        var targetUser = _repository.GetUserById(target);
         var requestedUser = _repository.GetUserById(requested);
 
-        if (askedUser == null || requestedUser == null)
+        if (targetUser == null || requestedUser == null)
         {
             _logger.LogError($"One of the users does not exist");
             error = "One of the users does not exist";
@@ -162,16 +163,16 @@ public class UsersService : IUsersService
             return;
         }
 
-        if (!askedUser.IsAdmin)
+        if (!requestedUser.IsAdmin)
         {
-            _logger.LogError("The asked user is not admin");
+            _logger.LogError("The requesting user is not admin");
             error = "The asked user is not admin";
             status = Statuses.INVALID;
             return;
         }
         
-        requestedUser.IsActive = !requestedUser.IsActive;
-        _repository.UpdateUser(requestedUser);
+        targetUser.IsActive = !targetUser.IsActive;
+        _repository.UpdateUser(targetUser);
     }
 
     public List<User> GetAllUsers(string userId, out Statuses status, out string error)
@@ -192,7 +193,7 @@ public class UsersService : IUsersService
 
         if (!requestedUser.IsAdmin)
         {
-            _logger.LogError("The requested user is not admin");
+            _logger.LogError("The requesting user is not admin");
             error = "The requested user is not admin";
             status = Statuses.INVALID;
             return null;
