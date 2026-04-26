@@ -1,5 +1,5 @@
 import { apiClient } from './client';
-import type { User } from '../types';
+import type { User, PublicUser } from '../types';
 
 export interface LoginResponse {
   user: User;
@@ -23,3 +23,6 @@ export const setAdmin = (requesterId: string, targetUserId: string) =>
 
 export const setActivity = (requesterId: string, targetUserId: string) =>
   apiClient.post<string>('/api/users/setActivity', { requested_user_id: requesterId, target_user_id: targetUserId }).then(r => r.data);
+
+export const getUserById = (id: string) =>
+  apiClient.get<PublicUser>(`/api/users/${id}`).then(r => r.data);

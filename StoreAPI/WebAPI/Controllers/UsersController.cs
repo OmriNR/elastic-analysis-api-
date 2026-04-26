@@ -21,6 +21,22 @@ public class UsersController : ControllerBase
     }
 
     [AllowAnonymous]
+    [HttpGet("{id}")]
+    public IActionResult GetUserById(string id)
+    {
+        try
+        {
+            var user = _service.GetUserById(id);
+            if (user == null) return NotFound("User not found");
+            return Ok(new PublicUserDto(user.UserId, user.Properties.UserName, user.CreatedAt.ToString("o")));
+        }
+        catch (Exception ex)
+        {
+            return Problem(ex.Message);
+        }
+    }
+
+    [AllowAnonymous]
     [HttpPost("GetUser")]
     public IActionResult GetUser([FromBody] User request)
     {

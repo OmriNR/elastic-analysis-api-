@@ -87,7 +87,6 @@ public class ProductsController : ControllerBase
         }
     }
 
-    [Authorize]
     [HttpGet("users/{userId}")]
     public IActionResult GetUsers(string userId)
     {

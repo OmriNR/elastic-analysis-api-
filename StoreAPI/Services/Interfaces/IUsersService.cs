@@ -10,4 +10,5 @@ public interface IUsersService
     void SetAdmin(string target, string request, out Statuses status, out string error);
     void SetActive(string target, string request, out Statuses status, out string error);
     List<User> GetAllUsers(string userId, out Statuses status, out string error);
+    User GetUserById(string id);
 }

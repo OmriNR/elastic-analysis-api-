@@ -50,6 +50,12 @@ export interface Order {
   items: Product[];
 }
 
+export interface PublicUser {
+  userId: string;
+  userName: string;
+  createdAt: string;
+}
+
 export interface CartItem {
   product: Product;
   quantity: number;
