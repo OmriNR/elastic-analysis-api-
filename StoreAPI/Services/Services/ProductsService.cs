@@ -68,6 +68,10 @@ public class ProductsService : IProductsService
         }
         else
         {
+            var activeUsersIds = _userRepository.GetAllUsers().Where(x => x.IsActive).Select(x => x.UserId).ToList();
+            
+            products = products.Where(x => activeUsersIds.Contains(x.OwnerId)).ToList();
+            
             status = Statuses.OK;
             error = string.Empty;
         }
@@ -188,6 +192,12 @@ public class ProductsService : IProductsService
             error = $"User {user} not found";
             
         }
+        else if (!check.IsActive)
+        {
+            _logger.LogInformation($"User {user} is not active");
+            status = Statuses.INVALID;
+            error = $"User {user} is not active";
+        }
         else
         {
             products =  _productsRepository.GetProductsByUser(user);
@@ -236,6 +246,12 @@ public class ProductsService : IProductsService
             if (owner == null)
             {
                 error = $"user {product.OwnerId} does not exist";
+                return false;
+            }
+
+            if (!owner.IsActive)
+            {
+                error = $"Inactive users can't add new products to the store";
                 return false;
             }
         }

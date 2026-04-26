@@ -32,7 +32,12 @@ public class UsersRepository : IUsersRepository
         _context.Users.Add(user);
         _context.SaveChanges();
     }
-    
+
+    public List<User> GetAllUsers()
+    {
+        return _context.Users.ToList();
+    }
+
     public void UpdateUser(User user)
     {
         var local =  _context.Users.Where(u => u.Email == user.Email).FirstOrDefault();

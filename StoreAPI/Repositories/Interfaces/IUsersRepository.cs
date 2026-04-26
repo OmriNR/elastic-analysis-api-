@@ -9,4 +9,5 @@ public interface IUsersRepository
     User GetUserByEmail(string email);
     void UpdateUser(User user);
     void CreateUser(User user);
+    List<User> GetAllUsers();
 }

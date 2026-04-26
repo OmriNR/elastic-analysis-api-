@@ -106,6 +106,103 @@ public class UsersService : IUsersService
         return newUser;
     }
 
+    public void SetAdmin(string requested, string asked, out Statuses status, out string error)
+    {
+        error = string.Empty;
+        status = Statuses.OK;
+        
+        _logger.LogInformation("setting admin for user {0} by {1}", requested, asked);
+        
+        var askedUser = _repository.GetUserById(asked);
+        var requestedUser = _repository.GetUserById(requested);
+
+        if (askedUser == null || requestedUser == null)
+        {
+            _logger.LogError($"One of the users does not exist");
+            error = "One of the users does not exist";
+            status = Statuses.NOT_FOUND;
+            return;
+        }
+
+        if (!askedUser.IsAdmin)
+        {
+            _logger.LogError("The asked user is not admin");
+            error = "The asked user is not admin";
+            status = Statuses.INVALID;
+            return;
+        }
+
+        if (requestedUser.IsAdmin)
+        {
+            _logger.LogError("The requested user is already admin");
+            error = "The requested user is already admin";
+            status = Statuses.INVALID;
+            return;
+        }
+        
+        requestedUser.IsAdmin = true;
+        _repository.UpdateUser(requestedUser);
+    }
+
+    public void SetActive(string requested, string asked, out Statuses status, out string error)
+    {
+        error = string.Empty;
+        status = Statuses.OK;
+        
+        _logger.LogInformation("setting activity for user {0} by {1}", requested, asked);
+        
+        var askedUser = _repository.GetUserById(asked);
+        var requestedUser = _repository.GetUserById(requested);
+
+        if (askedUser == null || requestedUser == null)
+        {
+            _logger.LogError($"One of the users does not exist");
+            error = "One of the users does not exist";
+            status = Statuses.NOT_FOUND;
+            return;
+        }
+
+        if (!askedUser.IsAdmin)
+        {
+            _logger.LogError("The asked user is not admin");
+            error = "The asked user is not admin";
+            status = Statuses.INVALID;
+            return;
+        }
+        
+        requestedUser.IsActive = !requestedUser.IsActive;
+        _repository.UpdateUser(requestedUser);
+    }
+
+    public List<User> GetAllUsers(string userId, out Statuses status, out string error)
+    {
+        error = string.Empty;
+        status = Statuses.OK;
+        _logger.LogInformation($"Getting all users, asked user {userId}");
+        
+        var requestedUser = _repository.GetUserById(userId);
+
+        if (requestedUser == null)
+        {
+            _logger.LogError($"User {userId} not found");
+            error = "User not found";
+            status = Statuses.INVALID;
+            return null;
+        }
+
+        if (!requestedUser.IsAdmin)
+        {
+            _logger.LogError("The requested user is not admin");
+            error = "The requested user is not admin";
+            status = Statuses.INVALID;
+            return null;
+        }
+        
+        var allUsers = _repository.GetAllUsers();
+
+        return allUsers;
+    }
+
     private bool IsUserValid(User user, out string error)
     {
         error = string.Empty;
