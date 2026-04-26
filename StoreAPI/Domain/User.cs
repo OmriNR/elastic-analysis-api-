@@ -31,5 +31,5 @@ public class User
     
     [DataMember(Name = "properties")]
     [JsonPropertyName("properties")]
-    public UserProperties Properties { get; set; }
+    public UserProperties? Properties { get; set; }
 }

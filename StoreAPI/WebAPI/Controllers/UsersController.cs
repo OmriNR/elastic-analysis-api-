@@ -106,9 +106,9 @@ public class UsersController : ControllerBase
 
             if (status == Statuses.NOT_FOUND)
                 return NotFound(error);
-            
+
             if (status == Statuses.INVALID)
-                return Forbid(error);
+                return StatusCode(403, error);
 
             return Ok($"User {askedUserId} has became admin by {requestedId}");
         }
@@ -128,9 +128,9 @@ public class UsersController : ControllerBase
 
             if (status == Statuses.NOT_FOUND)
                 return NotFound(error);
-            
+
             if (status == Statuses.INVALID)
-                return Forbid(error);
+                return StatusCode(403, error);
 
             return Ok($"User {askedUserId} activity has been changed by {requestedId}");
         }
@@ -153,7 +153,7 @@ public class UsersController : ControllerBase
                 case Statuses.NOT_FOUND:
                     return NotFound(error);
                 case Statuses.INVALID:
-                    return Forbid(error);
+                    return StatusCode(403, error);
                 default:
                     return Ok(allUsers);
             }
