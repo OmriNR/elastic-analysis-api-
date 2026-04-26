@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { ShoppingCart, User, Menu, X, Store, LogOut, Package } from 'lucide-react';
+import { ShoppingCart, User, Menu, X, Store, LogOut, Package, Shield } from 'lucide-react';
 import { useAuthStore } from '../../store/authStore';
 import { useCartStore } from '../../store/cartStore';
 
@@ -96,6 +96,15 @@ export function Navbar() {
                       >
                         <Package className="h-4 w-4" /> My Orders
                       </Link>
+                      {user.is_admin && (
+                        <Link
+                          to="/admin"
+                          onClick={() => setProfileOpen(false)}
+                          className="flex items-center gap-2 px-4 py-2.5 text-sm text-purple-700 transition-colors hover:bg-purple-50"
+                        >
+                          <Shield className="h-4 w-4" /> Admin Panel
+                        </Link>
+                      )}
                       <button
                         onClick={handleLogout}
                         className="flex w-full items-center gap-2 px-4 py-2.5 text-sm text-red-600 transition-colors hover:bg-red-50"

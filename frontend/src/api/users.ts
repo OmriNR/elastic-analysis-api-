@@ -14,3 +14,12 @@ export const createUser = (user: Omit<User, 'user_id' | 'created_at'>) =>
 
 export const updateUser = (user: User) =>
   apiClient.put<User>('/api/users/update', user).then(r => r.data);
+
+export const getAllUsers = (requesterId: string) =>
+  apiClient.get<User[]>(`/api/users/getAllUsers(${requesterId}`).then(r => r.data);
+
+export const setAdmin = (requesterId: string, targetUserId: string) =>
+  apiClient.get<string>(`/api/users/setAdmin(${requesterId}, ${targetUserId})`).then(r => r.data);
+
+export const setActivity = (requesterId: string, targetUserId: string) =>
+  apiClient.get<string>(`/api/users/setActivity(${requesterId}, ${targetUserId})`).then(r => r.data);

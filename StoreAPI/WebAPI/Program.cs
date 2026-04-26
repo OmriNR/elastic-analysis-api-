@@ -104,7 +104,35 @@ var app = builder.Build();
 //app.Services.GetRequiredService<IMessageProducer>();
 using (var scope = app.Services.CreateScope())
 {
-    scope.ServiceProvider.GetRequiredService<AppDBContext>().Database.EnsureCreated();
+    var db = scope.ServiceProvider.GetRequiredService<AppDBContext>();
+    db.Database.EnsureCreated();
+
+    if (!db.Users.Any(u => u.IsAdmin))
+    {
+        db.Users.Add(new Domain.User
+        {
+            UserId = Guid.NewGuid().ToString(),
+            Email = "admin@store.com",
+            Password = "Admin123!",
+            IsActive = true,
+            IsAdmin = true,
+            CreatedAt = DateTime.UtcNow,
+            Properties = new Domain.UserProperties
+            {
+                UserName = "Admin",
+                Age = 0,
+                Gender = "other",
+                Location = new Domain.GeoProperties
+                {
+                    City = "",
+                    Country = "",
+                    Address = "",
+                    ZipCode = ""
+                }
+            }
+        });
+        db.SaveChanges();
+    }
 }
 
 app.UseSwagger();
