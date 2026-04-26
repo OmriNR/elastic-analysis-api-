@@ -28,6 +28,22 @@ services:
     command: server /data --console-address ":9001"
     volumes:
       - minio_data:/data
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  createbuckets:
+    image: minio/mc
+    depends_on:
+      minio:
+        condition: service_healthy
+    entrypoint: >
+      /bin/sh -c "
+      mc alias set myminio http://minio:9000 admin password123 &&
+      mc mb --ignore-existing myminio/store-images &&
+      mc anonymous set public myminio/store-images"
 
   elasticsearch:
     image: docker.elastic.co/elasticsearch/elasticsearch:8.11.0
@@ -80,6 +96,8 @@ services:
     depends_on:
       db:
         condition: service_healthy
+      createbuckets:
+        condition: service_completed_successfully
     ports:
       - "8082:80"
     environment:
@@ -93,6 +111,9 @@ services:
       - Jwt__Issuer=StoreAPI
       - Jwt__Audience=StoreAPIClients
       - Jwt__ExpiryMinutes=60
+      - Minio__ServiceUrl=http://minio:9000
+      - Minio__AccessKey=admin
+      - Minio__SecretKey=password123
 
   frontend:
     build:

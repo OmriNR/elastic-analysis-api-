@@ -1,8 +1,8 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { PackagePlus, ChevronDown } from 'lucide-react';
+import { PackagePlus, ChevronDown, ImagePlus, X } from 'lucide-react';
 import { useAuthStore } from '../store/authStore';
-import { createProduct } from '../api/products';
+import { createProduct, uploadProductImage } from '../api/products';
 import { Button } from '../components/ui/Button';
 
 const CATEGORIES = ['Electronics', 'Clothing', 'Books', 'Home', 'Sports', 'Beauty', 'Toys', 'Food'];
@@ -22,16 +22,36 @@ export function SellProduct() {
   const [form, setForm] = useState(EMPTY_FORM);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (!user) navigate('/login');
   }, [user, navigate]);
+
+  useEffect(() => {
+    if (!imageFile) { setImagePreview(null); return; }
+    const url = URL.createObjectURL(imageFile);
+    setImagePreview(url);
+    return () => URL.revokeObjectURL(url);
+  }, [imageFile]);
 
   if (!user) return null;
 
   const set = (field: keyof typeof EMPTY_FORM) => (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
   ) => setForm(f => ({ ...f, [field]: e.target.value }));
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) setImageFile(file);
+  };
+
+  const clearImage = () => {
+    setImageFile(null);
+    if (fileInputRef.current) fileInputRef.current.value = '';
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -64,6 +84,15 @@ export function SellProduct() {
         price,
         quantity,
       });
+
+      if (imageFile) {
+        try {
+          await uploadProductImage(created.product_id, imageFile);
+        } catch {
+          // Image upload failure is non-fatal; product was created successfully
+        }
+      }
+
       navigate(`/products/${created.product_id}`);
     } catch {
       setError('Failed to create product. Please try again.');
@@ -94,6 +123,42 @@ export function SellProduct() {
               {error}
             </div>
           )}
+
+          <div>
+            <label className="mb-1.5 block text-xs font-medium text-slate-600">Product Image</label>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept=".jpg,.jpeg,.png,.webp"
+              onChange={handleImageChange}
+              className="hidden"
+            />
+            {imagePreview ? (
+              <div className="relative">
+                <img
+                  src={imagePreview}
+                  alt="Preview"
+                  className="h-48 w-full rounded-xl object-cover"
+                />
+                <button
+                  type="button"
+                  onClick={clearImage}
+                  className="absolute right-2 top-2 flex h-7 w-7 items-center justify-center rounded-full bg-white/80 text-slate-600 shadow hover:bg-white"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              </div>
+            ) : (
+              <button
+                type="button"
+                onClick={() => fileInputRef.current?.click()}
+                className="flex h-32 w-full flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed border-slate-200 bg-slate-50 text-slate-400 transition hover:border-indigo-300 hover:bg-indigo-50 hover:text-indigo-400"
+              >
+                <ImagePlus className="h-6 w-6" />
+                <span className="text-xs">Click to upload image (JPG, PNG, WEBP · max 5 MB)</span>
+              </button>
+            )}
+          </div>
 
           <div>
             <label className="mb-1.5 block text-xs font-medium text-slate-600">Product Name *</label>

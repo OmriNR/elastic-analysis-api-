@@ -6,6 +6,7 @@ using Services.Interfaces;
 namespace WebAPI.Controllers;
 
 [ApiController]
+[Route("Images")]
 public class ImagesController : ControllerBase
 {
     private readonly IImagesService _imagesService;
@@ -15,7 +16,7 @@ public class ImagesController : ControllerBase
     }
 
     [AllowAnonymous]
-    [HttpGet("GetProductImage({id})")]
+    [HttpGet("GetProductImage/{id}")]
     public IActionResult GetProductImage(string id)
     {
         try
@@ -39,7 +40,7 @@ public class ImagesController : ControllerBase
     }
 
     [AllowAnonymous]
-    [HttpGet("GetUserImage({userId})")]
+    [HttpGet("GetUserImage/{userId}")]
     public IActionResult GetUserImage(string userId)
     {
         try
