@@ -72,6 +72,12 @@ public class UsersController : ControllerBase
     {
         try
         {
+
+            if (user.IsAdmin)
+            {
+                return BadRequest("This endpoint is not used for admin permissions");
+            }
+            
             var udapted = _service.UpdateUser(user, out var status, out var error);
 
             switch (status)
@@ -87,6 +93,74 @@ public class UsersController : ControllerBase
         catch (Exception ex)
         {
             return Problem(ex.Message);
+        }
+    }
+
+    [Authorize]
+    [HttpGet("setAdmin({requestedId}, {askedUserId})")]
+    public IActionResult SetAdmin(string requestedId, string askedUserId)
+    {
+        try
+        {
+            _service.SetAdmin(requestedId, askedUserId, out var status, out var error);
+
+            if (status == Statuses.NOT_FOUND)
+                return NotFound(error);
+            
+            if (status == Statuses.INVALID)
+                return Forbid(error);
+
+            return Ok($"User {askedUserId} has became admin by {requestedId}");
+        }
+        catch (Exception ex)
+        {
+            return Problem(ex.Message);
+        }
+    }
+
+    [Authorize]
+    [HttpGet("setActivity({requestedId}, {askedUserId})")]
+    public IActionResult SetActivity(string requestedId, string askedUserId)
+    {
+        try
+        {
+            _service.SetActive(requestedId, askedUserId, out var status, out var error);
+
+            if (status == Statuses.NOT_FOUND)
+                return NotFound(error);
+            
+            if (status == Statuses.INVALID)
+                return Forbid(error);
+
+            return Ok($"User {askedUserId} activity has been changed by {requestedId}");
+        }
+        catch (Exception ex)
+        {
+            return Problem(ex.Message);
+        }
+    }
+    
+    [Authorize]
+    [HttpGet("getAllUsers({userId}")]
+    public IActionResult GetAllUsers(string userId)
+    {
+        try
+        {
+            var allUsers = _service.GetAllUsers(userId, out var status, out var error);
+
+            switch (status)
+            {
+                case Statuses.NOT_FOUND:
+                    return NotFound(error);
+                case Statuses.INVALID:
+                    return Forbid(error);
+                default:
+                    return Ok(allUsers);
+            }
+        }
+        catch (Exception e)
+        {
+            return Problem(e.Message);
         }
     }
 }

@@ -94,6 +94,16 @@ services:
       - Jwt__Audience=StoreAPIClients
       - Jwt__ExpiryMinutes=60
 
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: frontend
+    depends_on:
+      - storeapi
+    ports:
+      - "3000:80"
+
 volumes:
   postgres_data:
   minio_data:
