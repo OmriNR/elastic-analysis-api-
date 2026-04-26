@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { ShoppingCart, User, Menu, X, Store, LogOut, Package, Shield } from 'lucide-react';
+import { ShoppingCart, User, Menu, X, Store, LogOut, Package, Shield, PlusCircle } from 'lucide-react';
 import { useAuthStore } from '../../store/authStore';
 import { useCartStore } from '../../store/cartStore';
 
@@ -54,6 +54,15 @@ export function Navbar() {
           </div>
 
           <div className="flex items-center gap-2">
+            {user && (
+              <Link
+                to="/sell"
+                className="hidden items-center gap-1.5 rounded-xl border border-indigo-200 bg-indigo-50 px-3 py-2 text-sm font-medium text-indigo-600 transition-colors hover:bg-indigo-100 md:flex"
+              >
+                <PlusCircle className="h-4 w-4" />
+                Sell
+              </Link>
+            )}
             <Link
               to="/cart"
               className="relative flex h-10 w-10 items-center justify-center rounded-xl text-slate-600 transition-colors hover:bg-slate-100 hover:text-slate-900"
@@ -150,6 +159,15 @@ export function Navbar() {
               {link.label}
             </Link>
           ))}
+          {user && (
+            <Link
+              to="/sell"
+              onClick={() => setMenuOpen(false)}
+              className="mt-2 flex items-center gap-2 rounded-xl border border-indigo-200 bg-indigo-50 px-4 py-2.5 text-sm font-medium text-indigo-600"
+            >
+              <PlusCircle className="h-4 w-4" /> Sell a Product
+            </Link>
+          )}
           {!user && (
             <Link
               to="/login"

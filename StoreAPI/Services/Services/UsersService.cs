@@ -204,6 +204,11 @@ public class UsersService : IUsersService
         return allUsers;
     }
 
+    public User GetUserById(string id)
+    {
+        return _repository.GetUserById(id);
+    }
+
     private bool IsUserValid(User user, out string error)
     {
         error = string.Empty;

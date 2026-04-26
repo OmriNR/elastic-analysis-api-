@@ -11,6 +11,8 @@ import { Register } from './pages/Register';
 import { Profile } from './pages/Profile';
 import { Orders } from './pages/Orders';
 import { Admin } from './pages/Admin';
+import { SellProduct } from './pages/SellProduct';
+import { SellerProfile } from './pages/SellerProfile';
 import { NotFound } from './pages/NotFound';
 
 export function App() {
@@ -29,6 +31,8 @@ export function App() {
           <Route path="/profile" element={<Profile />} />
           <Route path="/orders" element={<Orders />} />
           <Route path="/admin" element={<Admin />} />
+          <Route path="/sell" element={<SellProduct />} />
+          <Route path="/seller/:userId" element={<SellerProfile />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </main>

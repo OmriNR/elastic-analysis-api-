@@ -1,19 +1,28 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ShoppingCart, Tag } from 'lucide-react';
+import { ShoppingCart, Tag, User } from 'lucide-react';
+import { useQuery } from '@tanstack/react-query';
 import type { Product, Discount } from '../../types';
 import { Badge } from '../ui/Badge';
 import { productImageUrl } from '../../api/client';
 import { useCartStore } from '../../store/cartStore';
+import { getUserById } from '../../api/users';
 
 interface ProductCardProps {
   product: Product;
   discount?: Discount;
+  onCartClick?: (e: React.MouseEvent) => void;
 }
 
-export function ProductCard({ product, discount }: ProductCardProps) {
+export function ProductCard({ product, discount, onCartClick }: ProductCardProps) {
   const addItem = useCartStore(s => s.addItem);
   const [imgError, setImgError] = useState(false);
+
+  const { data: owner } = useQuery({
+    queryKey: ['user', product.owner_id],
+    queryFn: () => getUserById(product.owner_id),
+    staleTime: 5 * 60 * 1000,
+  });
 
   const isDiscountValid = discount && new Date(discount.expired_at) > new Date();
   const discountedPrice = isDiscountValid
@@ -22,7 +31,11 @@ export function ProductCard({ product, discount }: ProductCardProps) {
 
   const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault();
-    addItem(product, isDiscountValid ? discount : undefined);
+    if (onCartClick) {
+      onCartClick(e);
+    } else {
+      addItem(product, isDiscountValid ? discount : undefined);
+    }
   };
 
   return (
@@ -89,8 +102,18 @@ export function ProductCard({ product, discount }: ProductCardProps) {
             </button>
           </div>
 
-          <div className="mt-2 text-xs text-slate-400">
-            {product.quantity > 0 ? `${product.quantity} in stock` : 'Unavailable'}
+          <div className="mt-2 flex items-center justify-between">
+            <span className="text-xs text-slate-400">
+              {product.quantity > 0 ? `${product.quantity} in stock` : 'Unavailable'}
+            </span>
+            <Link
+              to={`/seller/${product.owner_id}`}
+              onClick={e => e.stopPropagation()}
+              className="flex items-center gap-1 text-xs text-indigo-500 hover:text-indigo-700 hover:underline"
+            >
+              <User className="h-3 w-3" />
+              {owner?.userName ?? '…'}
+            </Link>
           </div>
         </div>
       </div>

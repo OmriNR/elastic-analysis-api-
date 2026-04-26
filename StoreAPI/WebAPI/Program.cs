@@ -133,6 +133,47 @@ using (var scope = app.Services.CreateScope())
         });
         db.SaveChanges();
     }
+
+    var adminUser = db.Users.FirstOrDefault(u => u.IsAdmin);
+    if (adminUser != null && !db.Products.Any())
+    {
+        db.Products.AddRange(
+            new Domain.Product
+            {
+                ProductId = Guid.NewGuid().ToString(),
+                OwnerId = adminUser.UserId,
+                Name = "Wireless Noise-Cancelling Headphones",
+                Description = "Premium over-ear headphones with active noise cancellation, 30-hour battery life, and crystal-clear audio for an immersive listening experience.",
+                Category = "Electronics",
+                SubCategory = "Audio",
+                Price = 149.99,
+                Quantity = 50
+            },
+            new Domain.Product
+            {
+                ProductId = Guid.NewGuid().ToString(),
+                OwnerId = adminUser.UserId,
+                Name = "Classic Leather Jacket",
+                Description = "Timeless genuine leather jacket with a slim fit design, zip pockets, and a durable inner lining. Available in multiple sizes.",
+                Category = "Clothing",
+                SubCategory = "Outerwear",
+                Price = 199.99,
+                Quantity = 30
+            },
+            new Domain.Product
+            {
+                ProductId = Guid.NewGuid().ToString(),
+                OwnerId = adminUser.UserId,
+                Name = "Ergonomic Office Chair",
+                Description = "Adjustable lumbar support, breathable mesh back, and 360-degree swivel. Designed for all-day comfort during long work sessions.",
+                Category = "Home",
+                SubCategory = "Furniture",
+                Price = 349.99,
+                Quantity = 15
+            }
+        );
+        db.SaveChanges();
+    }
 }
 
 app.UseSwagger();
