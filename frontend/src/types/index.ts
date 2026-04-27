@@ -35,7 +35,7 @@ export interface Product {
 
 export interface Discount {
   discount_id: string;
-  prodcut_id: string;
+  product_id: string;
   percentage: number;
   expired_at: string;
 }

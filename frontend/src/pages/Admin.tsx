@@ -1,16 +1,24 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Shield, Users, ToggleLeft, ToggleRight, ShieldCheck } from 'lucide-react';
+import { Shield, Users, ToggleLeft, ToggleRight, ShieldCheck, Tag, Trash2, Percent } from 'lucide-react';
 import { getAllUsers, setAdmin, setActivity } from '../api/users';
+import { getAllCategories } from '../api/products';
+import { getAllActiveDiscounts, createDiscountForCategory, deleteDiscount } from '../api/discounts';
 import { useAuthStore } from '../store/authStore';
-import type { User } from '../types';
+import { Button } from '../components/ui/Button';
+import type { User, Discount } from '../types';
 
 export function Admin() {
   const { user: currentUser } = useAuthStore();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [actionError, setActionError] = useState<string | null>(null);
+
+  const [discountCategory, setDiscountCategory] = useState('');
+  const [discountPct, setDiscountPct] = useState('');
+  const [discountExpiry, setDiscountExpiry] = useState('');
+  const [discountResult, setDiscountResult] = useState<{ ok: boolean; msg: string } | null>(null);
 
   if (!currentUser) {
     navigate('/login');
@@ -25,6 +33,16 @@ export function Admin() {
   const { data: users = [], isLoading, isError } = useQuery({
     queryKey: ['admin', 'users'],
     queryFn: () => getAllUsers(currentUser.user_id),
+  });
+
+  const { data: categories = [] } = useQuery({
+    queryKey: ['categories'],
+    queryFn: getAllCategories,
+  });
+
+  const { data: activeDiscounts = [], isLoading: discountsLoading } = useQuery({
+    queryKey: ['admin', 'discounts'],
+    queryFn: getAllActiveDiscounts,
   });
 
   const adminMutation = useMutation({
@@ -45,9 +63,40 @@ export function Admin() {
     onError: () => setActionError('Failed to update activity status.'),
   });
 
+  const categoryDiscountMutation = useMutation({
+    mutationFn: () =>
+      createDiscountForCategory(discountCategory, {
+        product_id: '',
+        percentage: parseFloat(discountPct),
+        expired_at: new Date(discountExpiry).toISOString(),
+      }),
+    onSuccess: (discounts) => {
+      queryClient.invalidateQueries({ queryKey: ['admin', 'discounts'] });
+      setDiscountResult({ ok: true, msg: `Discount applied to ${discounts.length} product(s) in "${discountCategory}".` });
+      setDiscountCategory('');
+      setDiscountPct('');
+      setDiscountExpiry('');
+      setTimeout(() => setDiscountResult(null), 4000);
+    },
+    onError: () => {
+      setDiscountResult({ ok: false, msg: 'Failed to apply discount. Make sure the category has products.' });
+      setTimeout(() => setDiscountResult(null), 4000);
+    },
+  });
+
+  const deleteDiscountMutation = useMutation({
+    mutationFn: (id: string) => deleteDiscount(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin', 'discounts'] });
+    },
+    onError: () => setActionError('Failed to disable discount.'),
+  });
+
   const isPending = (userId: string) =>
     (adminMutation.isPending && adminMutation.variables === userId) ||
     (activityMutation.isPending && activityMutation.variables === userId);
+
+  const minExpiry = new Date(Date.now() + 60000).toISOString().slice(0, 16);
 
   return (
     <div className="min-h-screen bg-slate-50 py-8">
@@ -58,7 +107,7 @@ export function Admin() {
           </div>
           <div>
             <h1 className="text-2xl font-bold text-slate-900">Admin Panel</h1>
-            <p className="text-sm text-slate-500">Manage users, permissions and activity</p>
+            <p className="text-sm text-slate-500">Manage users, permissions, activity and discounts</p>
           </div>
         </div>
 
@@ -68,6 +117,144 @@ export function Admin() {
           </div>
         )}
 
+        {/* Apply Category Discount */}
+        <div className="mb-6 rounded-2xl bg-white shadow-sm">
+          <div className="flex items-center gap-2 border-b border-slate-100 px-6 py-4">
+            <Percent className="h-4 w-4 text-slate-500" />
+            <h2 className="font-semibold text-slate-800">Apply Category Discount</h2>
+          </div>
+          <div className="px-6 py-5">
+            <p className="mb-4 text-sm text-slate-500">
+              Apply a discount to all products in a category at once.
+            </p>
+            <div className="grid grid-cols-3 gap-4">
+              <div>
+                <label className="mb-1.5 block text-sm font-medium text-slate-700">Category</label>
+                <select
+                  value={discountCategory}
+                  onChange={e => setDiscountCategory(e.target.value)}
+                  className="w-full rounded-xl border border-slate-200 px-4 py-2.5 text-sm outline-none transition focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100"
+                >
+                  <option value="">Select category</option>
+                  {categories.map(cat => (
+                    <option key={cat} value={cat}>{cat}</option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label className="mb-1.5 block text-sm font-medium text-slate-700">Discount (%)</label>
+                <input
+                  type="number"
+                  min={1}
+                  max={99}
+                  value={discountPct}
+                  onChange={e => setDiscountPct(e.target.value)}
+                  placeholder="e.g. 15"
+                  className="w-full rounded-xl border border-slate-200 px-4 py-2.5 text-sm outline-none transition focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100"
+                />
+              </div>
+              <div>
+                <label className="mb-1.5 block text-sm font-medium text-slate-700">Expires At</label>
+                <input
+                  type="datetime-local"
+                  min={minExpiry}
+                  value={discountExpiry}
+                  onChange={e => setDiscountExpiry(e.target.value)}
+                  className="w-full rounded-xl border border-slate-200 px-4 py-2.5 text-sm outline-none transition focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100"
+                />
+              </div>
+            </div>
+
+            {discountResult && (
+              <div className={`mt-3 rounded-xl border px-4 py-3 text-sm ${
+                discountResult.ok
+                  ? 'border-green-200 bg-green-50 text-green-700'
+                  : 'border-red-200 bg-red-50 text-red-700'
+              }`}>
+                {discountResult.msg}
+              </div>
+            )}
+
+            <div className="mt-4">
+              <Button
+                onClick={() => categoryDiscountMutation.mutate()}
+                loading={categoryDiscountMutation.isPending}
+                disabled={!discountCategory || !discountPct || !discountExpiry}
+              >
+                <Tag className="h-4 w-4" /> Apply Discount
+              </Button>
+            </div>
+          </div>
+        </div>
+
+        {/* Active Discounts */}
+        <div className="mb-6 rounded-2xl bg-white shadow-sm">
+          <div className="flex items-center gap-2 border-b border-slate-100 px-6 py-4">
+            <Tag className="h-4 w-4 text-slate-500" />
+            <h2 className="font-semibold text-slate-800">Active Discounts</h2>
+            {!discountsLoading && (
+              <span className="ml-auto rounded-full bg-slate-100 px-2.5 py-0.5 text-xs font-medium text-slate-600">
+                {activeDiscounts.length}
+              </span>
+            )}
+          </div>
+
+          {discountsLoading && (
+            <div className="flex items-center justify-center py-10 text-slate-400">
+              Loading discounts…
+            </div>
+          )}
+
+          {!discountsLoading && activeDiscounts.length === 0 && (
+            <div className="flex items-center justify-center py-10 text-slate-400">
+              No active discounts.
+            </div>
+          )}
+
+          {!discountsLoading && activeDiscounts.length > 0 && (
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="border-b border-slate-100 text-left text-xs font-semibold uppercase tracking-wide text-slate-400">
+                    <th className="px-6 py-3">Product ID</th>
+                    <th className="px-6 py-3">Discount</th>
+                    <th className="px-6 py-3">Expires At</th>
+                    <th className="px-6 py-3 text-right">Actions</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-50">
+                  {activeDiscounts.map((d: Discount) => (
+                    <tr key={d.discount_id} className="transition-colors hover:bg-slate-50/60">
+                      <td className="px-6 py-4 font-mono text-xs text-slate-500">{d.product_id}</td>
+                      <td className="px-6 py-4">
+                        <span className="rounded-full bg-orange-100 px-2.5 py-0.5 text-xs font-semibold text-orange-700">
+                          -{d.percentage}%
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 text-slate-500">
+                        {new Date(d.expired_at).toLocaleString()}
+                      </td>
+                      <td className="px-6 py-4">
+                        <div className="flex justify-end">
+                          <button
+                            onClick={() => deleteDiscountMutation.mutate(d.discount_id)}
+                            disabled={deleteDiscountMutation.isPending && deleteDiscountMutation.variables === d.discount_id}
+                            title="Disable discount"
+                            className="flex items-center gap-1.5 rounded-lg border border-red-200 bg-red-50 px-3 py-1.5 text-xs font-medium text-red-700 transition-colors hover:bg-red-100 disabled:opacity-50"
+                          >
+                            <Trash2 className="h-3.5 w-3.5" /> Disable
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
+
+        {/* Users Table */}
         <div className="rounded-2xl bg-white shadow-sm">
           <div className="flex items-center gap-2 border-b border-slate-100 px-6 py-4">
             <Users className="h-4 w-4 text-slate-500" />

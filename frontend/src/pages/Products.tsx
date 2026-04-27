@@ -3,6 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useSearchParams } from 'react-router-dom';
 import { SlidersHorizontal, X, Search } from 'lucide-react';
 import { getAllProducts, getAllCategories } from '../api/products';
+import { getAllActiveDiscounts } from '../api/discounts';
 import { ProductCard } from '../components/products/ProductCard';
 import { PageLoader, SkeletonCard } from '../components/ui/Loading';
 
@@ -32,6 +33,16 @@ export function Products() {
     queryKey: ['categories'],
     queryFn: getAllCategories,
   });
+
+  const { data: discounts = [] } = useQuery({
+    queryKey: ['discounts', 'active'],
+    queryFn: getAllActiveDiscounts,
+  });
+
+  const discountMap = useMemo(
+    () => Object.fromEntries(discounts.map(d => [d.product_id, d])),
+    [discounts]
+  );
 
   const filtered = useMemo(() => {
     let list = [...products];
@@ -159,7 +170,7 @@ export function Products() {
             ) : (
               <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-3">
                 {filtered.map(product => (
-                  <ProductCard key={product.product_id} product={product} />
+                  <ProductCard key={product.product_id} product={product} discount={discountMap[product.product_id]} />
                 ))}
               </div>
             )}

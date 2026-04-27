@@ -52,7 +52,15 @@ public class DiscountsRepository : IDiscountsRepository
             .Where(d => d.ExpiredAt >=  DateTime.Now)
             .OrderByDescending(d => d.ExpiredAt)
             .FirstOrDefault();
-        
+
         return discount;
+    }
+
+    public List<Discount> GetAllActiveDiscounts()
+    {
+        return _context.Discounts
+            .Where(d => d.ExpiredAt >= DateTime.Now)
+            .OrderByDescending(d => d.ExpiredAt)
+            .ToList();
     }
 }

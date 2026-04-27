@@ -190,6 +190,32 @@ public class DiscountService : IDiscountsService
         return  newDiscounts;
     }
 
+    public List<Discount> GetAllActiveDiscounts()
+    {
+        _logger.LogInformation("Getting all active discounts");
+        return _discountsRepository.GetAllActiveDiscounts();
+    }
+
+    public void DeleteDiscount(string id, out Statuses status, out string error)
+    {
+        _logger.LogInformation($"Deleting discount {id}");
+        error = string.Empty;
+        status = Statuses.OK;
+
+        var discount = _discountsRepository.GetDiscount(id);
+
+        if (discount == null)
+        {
+            _logger.LogError($"Discount {id} not found");
+            status = Statuses.NOT_FOUND;
+            error = $"Discount {id} not found";
+            return;
+        }
+
+        _discountsRepository.DeleteDiscount(discount);
+        _logger.LogInformation($"Discount {id} deleted successfully");
+    }
+
     public Discount UpdateDiscount(Discount discount, out Statuses status, out string error)
     {
         error = string.Empty;
