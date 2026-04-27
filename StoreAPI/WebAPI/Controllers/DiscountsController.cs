@@ -1,6 +1,5 @@
-﻿using Domain;
+using Domain;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Services.Interfaces;
 
@@ -61,6 +60,21 @@ public class DiscountsController : ControllerBase
         }
     }
 
+    [AllowAnonymous]
+    [HttpGet("all")]
+    public IActionResult GetAll()
+    {
+        try
+        {
+            var discounts = _discountsService.GetAllActiveDiscounts();
+            return Ok(discounts);
+        }
+        catch (Exception ex)
+        {
+            return Problem(ex.Message);
+        }
+    }
+
     [Authorize]
     [HttpPost]
     public IActionResult Post([FromBody] Discount discount)
@@ -84,14 +98,18 @@ public class DiscountsController : ControllerBase
             return Problem(ex.Message);
         }
     }
-    
+
     [Authorize]
     [HttpPost("category/{category}")]
-    public IActionResult CraeteForCategory(string category, [FromBody] Discount discount)
+    public IActionResult CreateForCategory(string category, [FromBody] Discount discount)
     {
+        var isAdmin = User.FindFirst("is_admin")?.Value == "true";
+        if (!isAdmin)
+            return Forbid();
+
         try
         {
-            var newDiscount = _discountsService.CreateDiscountsByCategory(discount, category, out var status, out var error);
+            var newDiscounts = _discountsService.CreateDiscountsByCategory(discount, category, out var status, out var error);
 
             switch (status)
             {
@@ -100,7 +118,7 @@ public class DiscountsController : ControllerBase
                 case Statuses.INVALID:
                     return BadRequest(error);
                 default:
-                    return Ok(newDiscount);
+                    return Ok(newDiscounts);
             }
         }
         catch (Exception ex)
@@ -113,6 +131,13 @@ public class DiscountsController : ControllerBase
     [HttpPost("user/{userId}")]
     public IActionResult CreateForUser(string userId, [FromBody] Discount discount)
     {
+        var requestingUserId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value
+            ?? User.FindFirst("sub")?.Value;
+        var isAdmin = User.FindFirst("is_admin")?.Value == "true";
+
+        if (!isAdmin && requestingUserId != userId)
+            return Forbid();
+
         try
         {
             var newDiscounts = _discountsService.CreateDiscountsByUser(discount, userId, out var status, out var error);
@@ -125,6 +150,32 @@ public class DiscountsController : ControllerBase
                     return BadRequest(error);
                 default:
                     return Ok(newDiscounts);
+            }
+        }
+        catch (Exception ex)
+        {
+            return Problem(ex.Message);
+        }
+    }
+
+    [Authorize]
+    [HttpDelete("{id}")]
+    public IActionResult Delete(string id)
+    {
+        var isAdmin = User.FindFirst("is_admin")?.Value == "true";
+        if (!isAdmin)
+            return Forbid();
+
+        try
+        {
+            _discountsService.DeleteDiscount(id, out var status, out var error);
+
+            switch (status)
+            {
+                case Statuses.NOT_FOUND:
+                    return NotFound(error);
+                default:
+                    return Ok();
             }
         }
         catch (Exception ex)

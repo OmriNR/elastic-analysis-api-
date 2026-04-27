@@ -8,4 +8,5 @@ public interface IDiscountsRepository
     void UpdateDiscount(Discount discount);
     Discount? GetDiscount(string id);
     Discount? GetDiscountByProduct(string productId);
+    List<Discount> GetAllActiveDiscounts();
 }

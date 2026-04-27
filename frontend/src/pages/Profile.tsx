@@ -1,8 +1,9 @@
 import { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { User, MapPin, Save, LogOut, Camera } from 'lucide-react';
+import { User, MapPin, Save, LogOut, Camera, Tag } from 'lucide-react';
 import { updateUser, uploadUserImage } from '../api/users';
+import { createDiscountForUser } from '../api/discounts';
 import { userImageUrl } from '../api/client';
 import { useAuthStore } from '../store/authStore';
 import { Button } from '../components/ui/Button';
@@ -24,6 +25,10 @@ export function Profile() {
   const [imageKey, setImageKey] = useState(0);
   const [imgError, setImgError] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const [discountPct, setDiscountPct] = useState('');
+  const [discountExpiry, setDiscountExpiry] = useState('');
+  const [discountResult, setDiscountResult] = useState<{ ok: boolean; msg: string } | null>(null);
 
   if (!user) {
     navigate('/login');
@@ -49,6 +54,25 @@ export function Profile() {
     },
   });
 
+  const discountMutation = useMutation({
+    mutationFn: () =>
+      createDiscountForUser(user.user_id, {
+        product_id: '',
+        percentage: parseFloat(discountPct),
+        expired_at: new Date(discountExpiry).toISOString(),
+      }),
+    onSuccess: (discounts) => {
+      setDiscountResult({ ok: true, msg: `Discount applied to ${discounts.length} product(s).` });
+      setDiscountPct('');
+      setDiscountExpiry('');
+      setTimeout(() => setDiscountResult(null), 4000);
+    },
+    onError: () => {
+      setDiscountResult({ ok: false, msg: 'Failed to apply discount. Make sure you have products listed.' });
+      setTimeout(() => setDiscountResult(null), 4000);
+    },
+  });
+
   const handleLogout = () => {
     logout();
     navigate('/');
@@ -67,6 +91,8 @@ export function Profile() {
       if (fileInputRef.current) fileInputRef.current.value = '';
     }
   };
+
+  const minExpiry = new Date(Date.now() + 60000).toISOString().slice(0, 16);
 
   return (
     <div className="min-h-screen bg-slate-50 py-8">
@@ -214,6 +240,60 @@ export function Profile() {
             </Button>
             <Button variant="danger" onClick={handleLogout}>
               <LogOut className="h-4 w-4" /> Sign Out
+            </Button>
+          </div>
+        </div>
+
+        {/* Discounts */}
+        <div className="mt-5 rounded-2xl bg-white p-6 shadow-sm">
+          <h2 className="mb-5 flex items-center gap-2 font-semibold text-slate-800">
+            <Tag className="h-4 w-4 text-indigo-500" /> Apply Discount to All My Products
+          </h2>
+          <p className="mb-4 text-sm text-slate-500">
+            Set a discount that will be applied to all products you currently have listed.
+          </p>
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="mb-1.5 block text-sm font-medium text-slate-700">Discount (%)</label>
+              <input
+                type="number"
+                min={1}
+                max={99}
+                value={discountPct}
+                onChange={e => setDiscountPct(e.target.value)}
+                placeholder="e.g. 20"
+                className="w-full rounded-xl border border-slate-200 px-4 py-2.5 text-sm outline-none transition focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100"
+              />
+            </div>
+            <div>
+              <label className="mb-1.5 block text-sm font-medium text-slate-700">Expires At</label>
+              <input
+                type="datetime-local"
+                min={minExpiry}
+                value={discountExpiry}
+                onChange={e => setDiscountExpiry(e.target.value)}
+                className="w-full rounded-xl border border-slate-200 px-4 py-2.5 text-sm outline-none transition focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100"
+              />
+            </div>
+          </div>
+
+          {discountResult && (
+            <div className={`mt-3 rounded-xl border px-4 py-3 text-sm ${
+              discountResult.ok
+                ? 'border-green-200 bg-green-50 text-green-700'
+                : 'border-red-200 bg-red-50 text-red-700'
+            }`}>
+              {discountResult.msg}
+            </div>
+          )}
+
+          <div className="mt-4">
+            <Button
+              onClick={() => discountMutation.mutate()}
+              loading={discountMutation.isPending}
+              disabled={!discountPct || !discountExpiry}
+            >
+              <Tag className="h-4 w-4" /> Apply Discount
             </Button>
           </div>
         </div>

@@ -1,7 +1,9 @@
+import { useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
 import { ArrowRight, ShoppingBag, Zap, Shield, Truck } from 'lucide-react';
 import { getAllProducts, getAllCategories } from '../api/products';
+import { getAllActiveDiscounts } from '../api/discounts';
 import { ProductCard } from '../components/products/ProductCard';
 import { Button } from '../components/ui/Button';
 import { SkeletonCard } from '../components/ui/Loading';
@@ -33,6 +35,16 @@ export function Home() {
     queryKey: ['categories'],
     queryFn: getAllCategories,
   });
+
+  const { data: discounts = [] } = useQuery({
+    queryKey: ['discounts', 'active'],
+    queryFn: getAllActiveDiscounts,
+  });
+
+  const discountMap = useMemo(
+    () => Object.fromEntries(discounts.map(d => [d.product_id, d])),
+    [discounts]
+  );
 
   const featured = products.slice(0, 8);
 
@@ -137,7 +149,7 @@ export function Home() {
             {productsLoading
               ? Array.from({ length: 8 }).map((_, i) => <SkeletonCard key={i} />)
               : featured.map(product => (
-                  <ProductCard key={product.product_id} product={product} />
+                  <ProductCard key={product.product_id} product={product} discount={discountMap[product.product_id]} />
                 ))}
           </div>
           {!productsLoading && products.length > 8 && (
