@@ -13,16 +13,14 @@ public class OrdersService : IOrdersService
     private readonly IUsersRepository _userRepository;
     private readonly IProductsRepository _productsRepository;
     private readonly IDiscountsRepository _discountsRepository;
-    private readonly IMessageProducer _messageProducer;
 
-    public OrdersService(ILogger<IOrdersService> logger, IOrdersRepository ordersRepository, IUsersRepository userRepository, IProductsRepository productsRepository, IDiscountsRepository discountsRepository, IMessageProducer messageProducer)
+    public OrdersService(ILogger<IOrdersService> logger, IOrdersRepository ordersRepository, IUsersRepository userRepository, IProductsRepository productsRepository, IDiscountsRepository discountsRepository)
     {
         _logger = logger;
         _ordersRepository = ordersRepository;
         _userRepository = userRepository;
         _productsRepository = productsRepository;
         _discountsRepository = discountsRepository;
-        _messageProducer = messageProducer;
     }
 
     public Order GetOrder(string id, out Statuses status, out string error)

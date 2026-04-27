@@ -9,9 +9,7 @@ using Repositories.Interfaces;
 using Repositories.Repositories;
 using Serilog;
 using Serilog.Sinks.Elasticsearch;
-using Services;
 using Services.Interfaces;
-using Services.Rabbit;
 using Services.Services;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -93,8 +91,6 @@ builder.Services.AddScoped<IOrdersRepository, OrdersRepository>();
 
 builder.Services.AddScoped<IImagesRepository, ImagesRepository>();
 builder.Services.AddScoped<IImagesService, ImagesService>();
-
-builder.Services.AddSingleton<IMessageProducer, MessageProducer>();
 
 builder.Services.AddScoped<TokenService>();
 
