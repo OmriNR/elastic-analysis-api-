@@ -24,5 +24,16 @@ export const setAdmin = (requesterId: string, targetUserId: string) =>
 export const setActivity = (requesterId: string, targetUserId: string) =>
   apiClient.post<string>('/api/users/setActivity', { requested_user_id: requesterId, target_user_id: targetUserId }).then(r => r.data);
 
+export const getMe = () =>
+  apiClient.get<User>('/api/users/me').then(r => r.data);
+
 export const getUserById = (id: string) =>
   apiClient.get<PublicUser>(`/api/users/${id}`).then(r => r.data);
+
+export const uploadUserImage = async (userId: string, file: File): Promise<void> => {
+  const formData = new FormData();
+  formData.append('file', file);
+  await apiClient.post(`/Images/UploadUserImage/${userId}`, formData, {
+    headers: { 'Content-Type': undefined },
+  });
+};

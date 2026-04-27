@@ -1,3 +1,5 @@
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 using Domain;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -18,6 +20,26 @@ public class UsersController : ControllerBase
     {
         _service = service;
         _tokenService = tokenService;
+    }
+
+    [Authorize]
+    [HttpGet("me")]
+    public IActionResult GetMe()
+    {
+        try
+        {
+            var userId = User.FindFirstValue(JwtRegisteredClaimNames.Sub);
+            if (userId == null) return Unauthorized();
+
+            var user = _service.GetUserById(userId);
+            if (user == null) return NotFound("User not found");
+
+            return Ok(user);
+        }
+        catch (Exception ex)
+        {
+            return Problem(ex.Message);
+        }
     }
 
     [AllowAnonymous]

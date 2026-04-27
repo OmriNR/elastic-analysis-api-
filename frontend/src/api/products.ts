@@ -28,8 +28,10 @@ export const updateProduct = (product: Product) =>
 export const deleteProduct = (id: string) =>
   apiClient.delete(`/api/products/${id}`).then(r => r.data);
 
-export const uploadProductImage = (productId: string, file: File): Promise<void> => {
+export const uploadProductImage = async (productId: string, file: File): Promise<void> => {
   const formData = new FormData();
   formData.append('file', file);
-  return apiClient.post(`/Images/UploadProductImage/${productId}`, formData).then(() => {});
+  await apiClient.post(`/Images/UploadProductImage/${productId}`, formData, {
+    headers: { 'Content-Type': undefined },
+  });
 };

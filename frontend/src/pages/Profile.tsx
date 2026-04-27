@@ -1,8 +1,9 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { User, MapPin, Save, LogOut } from 'lucide-react';
-import { updateUser } from '../api/users';
+import { User, MapPin, Save, LogOut, Camera } from 'lucide-react';
+import { updateUser, uploadUserImage } from '../api/users';
+import { userImageUrl } from '../api/client';
 import { useAuthStore } from '../store/authStore';
 import { Button } from '../components/ui/Button';
 
@@ -19,6 +20,10 @@ export function Profile() {
   const [address, setAddress] = useState(user?.properties?.location?.address ?? '');
   const [zipCode, setZipCode] = useState(user?.properties?.location?.zip_code ?? '');
   const [saved, setSaved] = useState(false);
+  const [imageUploading, setImageUploading] = useState(false);
+  const [imageKey, setImageKey] = useState(0);
+  const [imgError, setImgError] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   if (!user) {
     navigate('/login');
@@ -49,6 +54,20 @@ export function Profile() {
     navigate('/');
   };
 
+  const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setImageUploading(true);
+    try {
+      await uploadUserImage(user.user_id, file);
+      setImgError(false);
+      setImageKey(k => k + 1);
+    } finally {
+      setImageUploading(false);
+      if (fileInputRef.current) fileInputRef.current.value = '';
+    }
+  };
+
   return (
     <div className="min-h-screen bg-slate-50 py-8">
       <div className="mx-auto max-w-2xl px-4 sm:px-6 lg:px-8">
@@ -57,8 +76,36 @@ export function Profile() {
         {/* Account info */}
         <div className="mb-5 rounded-2xl bg-white p-6 shadow-sm">
           <div className="flex items-center gap-4">
-            <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-indigo-100">
-              <User className="h-8 w-8 text-indigo-600" />
+            <div
+              className="relative h-16 w-16 cursor-pointer"
+              onClick={() => !imageUploading && fileInputRef.current?.click()}
+              title="Change profile picture"
+            >
+              {imgError ? (
+                <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-indigo-100">
+                  <User className="h-8 w-8 text-indigo-600" />
+                </div>
+              ) : (
+                <img
+                  key={imageKey}
+                  src={userImageUrl(user.user_id)}
+                  alt="Profile"
+                  className="h-16 w-16 rounded-2xl object-cover"
+                  onError={() => setImgError(true)}
+                />
+              )}
+              <div className="absolute inset-0 flex items-center justify-center rounded-2xl bg-black/30 opacity-0 transition-opacity hover:opacity-100">
+                {imageUploading
+                  ? <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                  : <Camera className="h-5 w-5 text-white" />}
+              </div>
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept=".jpg,.jpeg,.png,.webp"
+                className="hidden"
+                onChange={handleImageChange}
+              />
             </div>
             <div>
               <p className="text-lg font-semibold text-slate-800">{user.properties?.user_name || 'User'}</p>
