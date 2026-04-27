@@ -17,6 +17,11 @@ public class UsersTests
     private const string INVALID_PASSWORD = "WrongPassword";
 
     private const string USER_ID = "user-id-123";
+    private const string ADMIN_USER_ID = "admin-user-id";
+    private const string NON_ADMIN_USER_ID = "non-admin-user-id";
+    private const string TARGET_USER_ID = "target-user-id";
+    private const string ALREADY_ADMIN_TARGET_ID = "already-admin-target-id";
+    private const string NOT_FOUND_USER_ID = "not-found-user-id";
 
     private static User validUser = new User()
     {
@@ -24,6 +29,7 @@ public class UsersTests
         Email = EXISTS_EMAIL,
         Password = VALID_PASSWORD,
         IsActive = true,
+        IsAdmin = false,
         Properties = new UserProperties()
         {
             UserName = "TestUser",
@@ -239,6 +245,34 @@ public class UsersTests
         }
     };
 
+    private static User adminUser = new User()
+    {
+        UserId = ADMIN_USER_ID,
+        IsActive = true,
+        IsAdmin = true
+    };
+
+    private static User nonAdminUser = new User()
+    {
+        UserId = NON_ADMIN_USER_ID,
+        IsActive = true,
+        IsAdmin = false
+    };
+
+    private static User targetUser = new User()
+    {
+        UserId = TARGET_USER_ID,
+        IsActive = true,
+        IsAdmin = false
+    };
+
+    private static User alreadyAdminTarget = new User()
+    {
+        UserId = ALREADY_ADMIN_TARGET_ID,
+        IsActive = true,
+        IsAdmin = true
+    };
+
     private Mock<IUsersRepository> _usersRepositoryMock;
     private IUsersService _service;
 
@@ -253,11 +287,30 @@ public class UsersTests
         _usersRepositoryMock.Setup(repo =>
             repo.GetUserByEmail(NOT_EXISTS_EMAIL)).Returns((User)null);
 
+        // Generic fallback for GetUserById — specific setups below take precedence (Moq last-wins)
         _usersRepositoryMock.Setup(repo =>
             repo.GetUserById(It.IsAny<string>())).Returns(validUser);
 
-        ILogger<UsersService> _logger = new NullLogger<UsersService>();
-        _service = new UsersService(_usersRepositoryMock.Object, _logger);
+        _usersRepositoryMock.Setup(repo =>
+            repo.GetUserById(ADMIN_USER_ID)).Returns(adminUser);
+
+        _usersRepositoryMock.Setup(repo =>
+            repo.GetUserById(NON_ADMIN_USER_ID)).Returns(nonAdminUser);
+
+        _usersRepositoryMock.Setup(repo =>
+            repo.GetUserById(TARGET_USER_ID)).Returns(targetUser);
+
+        _usersRepositoryMock.Setup(repo =>
+            repo.GetUserById(ALREADY_ADMIN_TARGET_ID)).Returns(alreadyAdminTarget);
+
+        _usersRepositoryMock.Setup(repo =>
+            repo.GetUserById(NOT_FOUND_USER_ID)).Returns((User)null);
+
+        _usersRepositoryMock.Setup(repo =>
+            repo.GetAllUsers()).Returns(new List<User> { validUser, adminUser, nonAdminUser, targetUser });
+
+        ILogger<UsersService> logger = new NullLogger<UsersService>();
+        _service = new UsersService(_usersRepositoryMock.Object, logger);
     }
 
     [TestCase(EXISTS_EMAIL, VALID_PASSWORD, Statuses.OK, "")]
@@ -287,6 +340,44 @@ public class UsersTests
 
         Assert.That(status, Is.EqualTo(expectedStatus));
         Assert.That(error, Is.EqualTo(expectedError));
+    }
+
+    [TestCase(TARGET_USER_ID, ADMIN_USER_ID, Statuses.OK, "")]
+    [TestCase(TARGET_USER_ID, NOT_FOUND_USER_ID, Statuses.NOT_FOUND, "One of the users does not exist")]
+    [TestCase(TARGET_USER_ID, NON_ADMIN_USER_ID, Statuses.INVALID, "The asked user is not admin")]
+    [TestCase(ALREADY_ADMIN_TARGET_ID, ADMIN_USER_ID, Statuses.INVALID, "The requested user is already admin")]
+    public void Set_Admin(string target, string requestedBy, Statuses expectedStatus, string expectedError)
+    {
+        _service.SetAdmin(target, requestedBy, out var status, out var error);
+
+        Assert.That(status, Is.EqualTo(expectedStatus));
+        Assert.That(error, Is.EqualTo(expectedError));
+    }
+
+    [TestCase(TARGET_USER_ID, ADMIN_USER_ID, Statuses.OK, "")]
+    [TestCase(NOT_FOUND_USER_ID, ADMIN_USER_ID, Statuses.NOT_FOUND, "One of the users does not exist")]
+    [TestCase(TARGET_USER_ID, NOT_FOUND_USER_ID, Statuses.NOT_FOUND, "One of the users does not exist")]
+    [TestCase(TARGET_USER_ID, NON_ADMIN_USER_ID, Statuses.INVALID, "The asked user is not admin")]
+    public void Set_Active(string target, string requestedBy, Statuses expectedStatus, string expectedError)
+    {
+        _service.SetActive(target, requestedBy, out var status, out var error);
+
+        Assert.That(status, Is.EqualTo(expectedStatus));
+        Assert.That(error, Is.EqualTo(expectedError));
+    }
+
+    [TestCase(ADMIN_USER_ID, Statuses.OK, "")]
+    [TestCase(NOT_FOUND_USER_ID, Statuses.INVALID, "User not found")]
+    [TestCase(NON_ADMIN_USER_ID, Statuses.INVALID, "The requested user is not admin")]
+    public void Get_All_Users(string requestedBy, Statuses expectedStatus, string expectedError)
+    {
+        var users = _service.GetAllUsers(requestedBy, out var status, out var error);
+
+        Assert.That(status, Is.EqualTo(expectedStatus));
+        Assert.That(error, Is.EqualTo(expectedError));
+
+        if (expectedStatus == Statuses.OK)
+            Assert.That(users, Is.Not.Null.And.Not.Empty);
     }
 
     public static IEnumerable<TestCaseData> CreateUserTestCases()
