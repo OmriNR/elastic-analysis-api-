@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { Routes, Route } from 'react-router-dom';
 import { Navbar } from './components/layout/Navbar';
 import { Footer } from './components/layout/Footer';
@@ -14,8 +15,19 @@ import { Admin } from './pages/Admin';
 import { SellProduct } from './pages/SellProduct';
 import { SellerProfile } from './pages/SellerProfile';
 import { NotFound } from './pages/NotFound';
+import { getMe } from './api/users';
+import { useAuthStore } from './store/authStore';
 
 export function App() {
+  const { token, setUser, logout } = useAuthStore();
+
+  useEffect(() => {
+    if (!token) return;
+    getMe()
+      .then(setUser)
+      .catch(logout);
+  }, []);
+
   return (
     <div className="flex min-h-screen flex-col bg-slate-50">
       <Navbar />
