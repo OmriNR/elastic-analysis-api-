@@ -74,6 +74,23 @@ services:
       elasticsearch:
         condition: service_healthy
 
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: admin
+      RABBITMQ_DEFAULT_PASS: admin123
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
   orderspublisherapi:
     build:
       context: ./OrdersPublisherAPI
@@ -98,6 +115,8 @@ services:
         condition: service_healthy
       createbuckets:
         condition: service_completed_successfully
+      rabbitmq:
+        condition: service_healthy
     ports:
       - "8082:80"
     environment:
@@ -129,3 +148,4 @@ volumes:
   postgres_data:
   minio_data:
   elasticsearch_data:
+  rabbitmq_data:

@@ -7,17 +7,20 @@ namespace Services.Services;
 
 public class DiscountService : IDiscountsService
 {
+    private const string Queue = "discounts_queue";
     private readonly ILogger<IDiscountsService> _logger;
     private readonly IDiscountsRepository _discountsRepository;
     private readonly IUsersRepository _userRepository;
     private readonly IProductsRepository _productsRepository;
+    private readonly IMessageProducer _messageProducer;
 
-    public DiscountService(ILogger<IDiscountsService> logger, IDiscountsRepository discountsRepository, IUsersRepository userRepository, IProductsRepository productsRepository)
+    public DiscountService(ILogger<IDiscountsService> logger, IDiscountsRepository discountsRepository, IUsersRepository userRepository, IProductsRepository productsRepository, IMessageProducer messageProducer)
     {
         _logger = logger;
         _discountsRepository = discountsRepository;
         _userRepository = userRepository;
         _productsRepository = productsRepository;
+        _messageProducer = messageProducer;
     }
 
     public Discount GetDiscountById(string id, out Statuses status, out string error)
@@ -84,9 +87,10 @@ public class DiscountService : IDiscountsService
             var newDiscount = _discountsRepository.GetDiscount(discount.DiscountId);
 
             _logger.LogInformation($"Discount created successfully, new Discount Id: {newDiscount!.DiscountId}");
+            _messageProducer.PublishMessage(newDiscount, Queue);
             return newDiscount!;
         }
-        
+
         _logger.LogError($"Discount {discount} is not valid. Error: {error}");
         status = Statuses.INVALID;
         return null;
@@ -123,6 +127,7 @@ public class DiscountService : IDiscountsService
                 var newDiscount = _discountsRepository.GetDiscount(discountId);
 
                 _logger.LogInformation($"Discount created successfully, new Discount Id: {newDiscount!.DiscountId}");
+                _messageProducer.PublishMessage(newDiscount, Queue);
                 newDiscounts.Add(newDiscount);
             }
             else
@@ -132,7 +137,7 @@ public class DiscountService : IDiscountsService
                 return null;
             }
         }
-        
+
         return newDiscounts;
     }
 
@@ -177,6 +182,7 @@ public class DiscountService : IDiscountsService
                 var newDiscount = _discountsRepository.GetDiscount(discountId);
             
                 _logger.LogInformation($"Discount created successfully, new Discount Id: {newDiscount!.DiscountId}");
+                _messageProducer.PublishMessage(newDiscount, Queue);
                 newDiscounts.Add(newDiscount);
             }
             else
@@ -186,8 +192,8 @@ public class DiscountService : IDiscountsService
                 return null;
             }
         }
-        
-        return  newDiscounts;
+
+        return newDiscounts;
     }
 
     public List<Discount> GetAllActiveDiscounts()

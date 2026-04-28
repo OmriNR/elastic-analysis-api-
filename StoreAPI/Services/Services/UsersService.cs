@@ -7,13 +7,16 @@ namespace Services.Services;
 
 public class UsersService : IUsersService
 {
+    private const string Queue = "users_queue";
     private readonly IUsersRepository _repository;
     private readonly ILogger<UsersService> _logger;
+    private readonly IMessageProducer _messageProducer;
 
-    public UsersService(IUsersRepository repository, ILogger<UsersService> logger)
+    public UsersService(IUsersRepository repository, ILogger<UsersService> logger, IMessageProducer messageProducer)
     {
         _repository = repository;
         _logger = logger;
+        _messageProducer = messageProducer;
     }
 
     public User GetUser(string email, string password, out Statuses status, out string error)
@@ -103,7 +106,7 @@ public class UsersService : IUsersService
         _repository.CreateUser(user);
 
         var newUser = _repository.GetUserById(id);
-
+        _messageProducer.PublishMessage(newUser, Queue);
         return newUser;
     }
 

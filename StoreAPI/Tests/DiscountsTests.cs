@@ -87,6 +87,7 @@ public class DiscountsTests
     private Mock<IDiscountsRepository> _discountsRepositoryMock;
     private Mock<IProductsRepository> _productsRepositoryMock;
     private Mock<IUsersRepository> _userRepositoryMock;
+    private Mock<IMessageProducer> _messageProducer;
     private IDiscountsService _service;
 
     [SetUp]
@@ -95,6 +96,7 @@ public class DiscountsTests
         _discountsRepositoryMock = new Mock<IDiscountsRepository>();
         _userRepositoryMock = new Mock<IUsersRepository>();
         _productsRepositoryMock = new Mock<IProductsRepository>();
+        _messageProducer = new Mock<IMessageProducer>();
 
         _discountsRepositoryMock.Setup(repo =>
             repo.GetDiscount(It.Is<string>(p => p != DISCOUT_ID_NOT_EXISTS))).Returns(valid_discount);
@@ -142,7 +144,8 @@ public class DiscountsTests
             repo.GetUserById(It.Is<string>(id => id == NOT_EXISTS_USER))).Returns((User)null);
 
         ILogger<IDiscountsService> logger = new NullLogger<IDiscountsService>();
-        _service = new DiscountService(logger, _discountsRepositoryMock.Object, _userRepositoryMock.Object, _productsRepositoryMock.Object);
+        _service = new DiscountService(logger, _discountsRepositoryMock.Object, _userRepositoryMock.Object, 
+            _productsRepositoryMock.Object, _messageProducer.Object);
     }
 
     [TestCase(DISCOUT_ID_EXISTS, Statuses.OK, "")]

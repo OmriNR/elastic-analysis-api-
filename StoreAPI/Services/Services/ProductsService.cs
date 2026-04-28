@@ -7,15 +7,18 @@ namespace Services.Services;
 
 public class ProductsService : IProductsService
 {
+    private const string Queue = "products_queue";
     private readonly ILogger<IProductsService> _logger;
     private readonly IProductsRepository _productsRepository;
     private readonly IUsersRepository _userRepository;
+    private readonly IMessageProducer _messageProducer;
 
-    public ProductsService(ILogger<IProductsService> logger, IProductsRepository productsRepository, IUsersRepository userRepository)
+    public ProductsService(ILogger<IProductsService> logger, IProductsRepository productsRepository, IUsersRepository userRepository, IMessageProducer messageProducer)
     {
         _logger = logger;
         _productsRepository = productsRepository;
         _userRepository = userRepository;
+        _messageProducer = messageProducer;
     }
 
     public Product GetProductById(string id, out Statuses status, out string error)
@@ -150,6 +153,7 @@ public class ProductsService : IProductsService
             var newProduct = _productsRepository.GetProduct(productId.ToString());
             
             _logger.LogInformation("Product is created {id}", productId);
+            _messageProducer.PublishMessage(newProduct, Queue);
             return newProduct!;
         }
         

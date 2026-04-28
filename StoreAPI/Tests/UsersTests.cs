@@ -274,13 +274,14 @@ public class UsersTests
     };
 
     private Mock<IUsersRepository> _usersRepositoryMock;
+    private Mock<IMessageProducer> _messageProducerMock;
     private IUsersService _service;
 
     [SetUp]
     public void Setup()
     {
         _usersRepositoryMock = new Mock<IUsersRepository>();
-
+        _messageProducerMock = new Mock<IMessageProducer>();
         _usersRepositoryMock.Setup(repo =>
             repo.GetUserByEmail(EXISTS_EMAIL)).Returns(validUser);
 
@@ -310,7 +311,7 @@ public class UsersTests
             repo.GetAllUsers()).Returns(new List<User> { validUser, adminUser, nonAdminUser, targetUser });
 
         ILogger<UsersService> logger = new NullLogger<UsersService>();
-        _service = new UsersService(_usersRepositoryMock.Object, logger);
+        _service = new UsersService(_usersRepositoryMock.Object, logger, _messageProducerMock.Object);
     }
 
     [TestCase(EXISTS_EMAIL, VALID_PASSWORD, Statuses.OK, "")]

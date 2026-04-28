@@ -128,6 +128,7 @@ public class OrdersTests
     private Mock<IUsersRepository> _userRepositoryMock;
     private Mock<IOrdersRepository> _ordersRepositoryMock;
     private Mock<IDiscountsRepository> _discountsRepositoryMock;
+    private Mock<IMessageProducer> _messageProducer;
     private IOrdersService _service;
 
     [SetUp]
@@ -137,6 +138,7 @@ public class OrdersTests
         _userRepositoryMock = new Mock<IUsersRepository>();
         _discountsRepositoryMock = new Mock<IDiscountsRepository>();
         _ordersRepositoryMock = new Mock<IOrdersRepository>();
+        _messageProducer = new Mock<IMessageProducer>();
 
         // Match any ID except ORDER_ID_NOT_FOUND so dynamically generated order IDs work in CreateOrder
         _ordersRepositoryMock.Setup(repo =>
@@ -182,7 +184,9 @@ public class OrdersTests
             repo.GetProduct(PRODUCT_ID_NOT_FOUND)).Returns((Product)null);
 
         ILogger<IOrdersService> logger = new NullLogger<IOrdersService>();
-        _service = new OrdersService(logger, _ordersRepositoryMock.Object, _userRepositoryMock.Object, _productsRepositoryMock.Object, _discountsRepositoryMock.Object);
+        _service = new OrdersService(logger, _ordersRepositoryMock.Object, 
+            _userRepositoryMock.Object, _productsRepositoryMock.Object, 
+            _discountsRepositoryMock.Object, _messageProducer.Object);
     }
 
     [Test, TestCaseSource(nameof(GetTestCases))]

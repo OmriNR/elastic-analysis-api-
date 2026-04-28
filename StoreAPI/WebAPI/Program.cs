@@ -77,6 +77,8 @@ builder.Services.AddSingleton<IAmazonS3>(sp =>
     return new AmazonS3Client(minioConfig["AccessKey"], minioConfig["SecretKey"], config);
 });
 
+builder.Services.AddSingleton<IMessageProducer, RabbitMqProducer>();
+
 builder.Services.AddScoped<IProductsRepository, ProductsRepository>();
 builder.Services.AddScoped<IProductsService, ProductsService>();
 
@@ -96,7 +98,6 @@ builder.Services.AddScoped<TokenService>();
 
 var app = builder.Build();
 
-//app.Services.GetRequiredService<IMessageProducer>();
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<AppDBContext>();
