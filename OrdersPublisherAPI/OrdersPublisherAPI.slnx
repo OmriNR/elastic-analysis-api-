@@ -1,6 +1,0 @@
-<Solution>
-  <Project Path="Domain/Domain.csproj" />
-  <Project Path="Repositories/Repositories.csproj" />
-  <Project Path="Services/Services.csproj" />
-  <Project Path="WebAPI/WebAPI.csproj" />
-</Solution>
