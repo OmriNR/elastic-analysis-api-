@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk.Worker">
+
+    <PropertyGroup>
+        <TargetFramework>net11.0</TargetFramework>
+        <Nullable>enable</Nullable>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <UserSecretsId>dotnet-Listener-3ce571c7-8777-44e1-a4cd-af19688c8d14</UserSecretsId>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Elastic.Clients.Elasticsearch" Version="8.11.0"/>
+        <PackageReference Include="Microsoft.Extensions.Hosting" Version="11.0.0-preview.2.26159.112"/>
+        <PackageReference Include="RabbitMQ.Client" Version="7.2.1"/>
+    </ItemGroup>
+</Project>
