@@ -92,6 +92,7 @@ public class ProductsTests
 
     private Mock<IProductsRepository> _productsRepositoryMock;
     private Mock<IUsersRepository> _userRepositoryMock;
+    private Mock<IMessageProducer> _messageProducerMock;
     private IProductsService _service;
 
     [SetUp]
@@ -99,6 +100,7 @@ public class ProductsTests
     {
         _productsRepositoryMock = new Mock<IProductsRepository>();
         _userRepositoryMock = new Mock<IUsersRepository>();
+        _messageProducerMock = new Mock<IMessageProducer>();
 
         _productsRepositoryMock.Setup(repo =>
             repo.GetProduct(It.Is<string>(id => id != PRODUCT_ID_NOT_FOUND))).Returns(validProduct);
@@ -133,7 +135,7 @@ public class ProductsTests
         _userRepositoryMock.Setup(repo => repo.GetAllUsers()).Returns(new List<User> { activeUser });
 
         ILogger<IProductsService> logger = new NullLogger<IProductsService>();
-        _service = new ProductsService(logger, _productsRepositoryMock.Object, _userRepositoryMock.Object);
+        _service = new ProductsService(logger, _productsRepositoryMock.Object, _userRepositoryMock.Object, _messageProducerMock.Object);
     }
 
     [Test]

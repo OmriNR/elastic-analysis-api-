@@ -7,20 +7,22 @@ namespace Services.Services;
 
 public class OrdersService : IOrdersService
 {
-    private const string queue = "orders_queue";
+    private const string Queue = "orders_queue";
     private readonly ILogger<IOrdersService> _logger;
     private readonly IOrdersRepository _ordersRepository;
     private readonly IUsersRepository _userRepository;
     private readonly IProductsRepository _productsRepository;
     private readonly IDiscountsRepository _discountsRepository;
+    private readonly IMessageProducer _messageProducer;
 
-    public OrdersService(ILogger<IOrdersService> logger, IOrdersRepository ordersRepository, IUsersRepository userRepository, IProductsRepository productsRepository, IDiscountsRepository discountsRepository)
+    public OrdersService(ILogger<IOrdersService> logger, IOrdersRepository ordersRepository, IUsersRepository userRepository, IProductsRepository productsRepository, IDiscountsRepository discountsRepository, IMessageProducer messageProducer)
     {
         _logger = logger;
         _ordersRepository = ordersRepository;
         _userRepository = userRepository;
         _productsRepository = productsRepository;
         _discountsRepository = discountsRepository;
+        _messageProducer = messageProducer;
     }
 
     public Order GetOrder(string id, out Statuses status, out string error)
@@ -177,7 +179,7 @@ public class OrdersService : IOrdersService
         _ordersRepository.CreateOrder(order);
         
         _logger.LogInformation($"Order {orderId} created, publishing it.");
-        //_messageProducer.PublishMessage(orderId, "order.created");
+        _messageProducer.PublishMessage(order, Queue);
         
         _logger.LogInformation("Updating stock of products");
         order!.Items.ForEach(product =>
