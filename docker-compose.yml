@@ -99,12 +99,14 @@ services:
     depends_on:
       db:
         condition: service_healthy
+      elasticsearch:
+        condition: service_healthy
     ports:
       - "8081:80"
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ConnectionStrings__PostgresDb=Host=db;Database=storeapi_db;Username=storeapi_user;Password=storeapi_pass
-      - Elasticsearch__url=https://localhost:9200
+      - Elasticsearch__Url=http://elasticsearch:9200
   storeapi:
     build:
       context: ./StoreAPI
@@ -116,6 +118,8 @@ services:
       createbuckets:
         condition: service_completed_successfully
       rabbitmq:
+        condition: service_healthy
+      elasticsearch:
         condition: service_healthy
     ports:
       - "8082:80"
@@ -133,6 +137,7 @@ services:
       - Minio__ServiceUrl=http://minio:9000
       - Minio__AccessKey=admin
       - Minio__SecretKey=password123
+      - Elasticsearch__Url=http://elasticsearch:9200
 
   frontend:
     build:

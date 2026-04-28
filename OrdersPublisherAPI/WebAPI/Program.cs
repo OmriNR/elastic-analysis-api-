@@ -1,9 +1,26 @@
 using Microsoft.EntityFrameworkCore;
 using Repositories;
 using Repositories.Repositories;
+using Serilog;
+using Serilog.Sinks.Elasticsearch;
 using Services;
 
 var builder = WebApplication.CreateBuilder(args);
+
+var elasticsearchUrl = builder.Configuration["Elasticsearch:Url"] ?? "http://localhost:9200";
+
+Log.Logger = new LoggerConfiguration()
+    .Enrich.FromLogContext()
+    .WriteTo.Console()
+    .WriteTo.Elasticsearch(new ElasticsearchSinkOptions(new Uri(elasticsearchUrl))
+    {
+        AutoRegisterTemplate = true,
+        IndexFormat = "orders-api-logs-{0:yyyy.MM.dd}",
+        NumberOfReplicas = 1,
+        NumberOfShards = 2
+    }).CreateLogger();
+
+builder.Host.UseSerilog();
 
 // Add services to the container.
 builder.Services.AddControllers();
@@ -21,6 +38,8 @@ var app = builder.Build();
 
 app.UseSwagger();
 app.UseSwaggerUI();
+
+app.UseSerilogRequestLogging();
 
 app.UseHttpsRedirection();
 app.UseRouting();
