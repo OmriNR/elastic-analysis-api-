@@ -90,23 +90,6 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
-
-  orderspublisherapi:
-    build:
-      context: ./OrdersPublisherAPI
-      dockerfile: Dockerfile
-    container_name: orderspublisherapi
-    depends_on:
-      db:
-        condition: service_healthy
-      elasticsearch:
-        condition: service_healthy
-    ports:
-      - "8081:80"
-    environment:
-      - ASPNETCORE_ENVIRONMENT=Development
-      - ConnectionStrings__PostgresDb=Host=db;Database=storeapi_db;Username=storeapi_user;Password=storeapi_pass
-      - Elasticsearch__Url=http://elasticsearch:9200
   storeapi:
     build:
       context: ./StoreAPI
@@ -120,6 +103,8 @@ services:
       rabbitmq:
         condition: service_healthy
       elasticsearch:
+        condition: service_healthy
+      minio:
         condition: service_healthy
     ports:
       - "8082:80"
@@ -138,7 +123,24 @@ services:
       - Minio__AccessKey=admin
       - Minio__SecretKey=password123
       - Elasticsearch__Url=http://elasticsearch:9200
-
+  queuelistener:
+    build:
+      context: ./QueueListener
+      dockerfile: Dockerfile
+    container_name: queuelistener
+    depends_on:
+      elasticsearch:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    ports:
+      - "8081:80"
+    environment:
+      - Rabbit__Host=rabbitmq
+      - Rabbit__Port=5672
+      - Rabbit__UserName=admin
+      - Rabbit__Password=admin123
+      - Elasticsearch__Url=http://elasticsearch:9200
   frontend:
     build:
       context: ./frontend
