@@ -91,10 +91,22 @@ services:
       timeout: 5s
       retries: 5
 
-  # orderspublisherapi: temporarily removed — its source (.csproj/.sln) and
-  # Dockerfile are missing from the repo (only build-cache leftovers remain
-  # under OrdersPublisherAPI/), so this service cannot build. Restore the
-  # project source and re-add this service to deploy it.
+  orderspublisherapi:
+    build:
+      context: ./OrdersPublisherAPI
+      dockerfile: Dockerfile
+    container_name: orderspublisherapi
+    depends_on:
+      db:
+        condition: service_healthy
+      elasticsearch:
+        condition: service_healthy
+    ports:
+      - "8081:80"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings__PostgresDb=Host=db;Database=storeapi_db;Username=storeapi_user;Password=storeapi_pass
+      - Elasticsearch__Url=http://elasticsearch:9200
   storeapi:
     build:
       context: ./StoreAPI
