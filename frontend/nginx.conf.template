@@ -1,0 +1,35 @@
+server {
+    listen 80;
+
+    # Resolve the StoreAPI hostname at request time rather than once at nginx startup, so this
+    # container doesn't crash-loop if StoreAPI is briefly unresolvable (e.g. mid-deploy) when
+    # nginx (re)starts. NGINX_LOCAL_RESOLVERS is populated by the base image's
+    # 15-local-resolvers.envsh from /etc/resolv.conf (enabled via NGINX_ENTRYPOINT_LOCAL_RESOLVERS
+    # in the Dockerfile).
+    resolver ${NGINX_LOCAL_RESOLVERS} valid=10s;
+
+    root /usr/share/nginx/html;
+    index index.html;
+
+    # Proxy API and image requests to StoreAPI.
+    # STOREAPI_HOST is injected at container start (see docker-entrypoint.d envsubst)
+    # and defaults to the docker-compose service name for local dev.
+    location /api/ {
+        set $storeapi_upstream http://${STOREAPI_HOST};
+        proxy_pass $storeapi_upstream;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+    }
+
+    location /Images/ {
+        set $storeapi_upstream http://${STOREAPI_HOST};
+        proxy_pass $storeapi_upstream;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+    }
+
+    # SPA fallback — all other routes serve index.html
+    location / {
+        try_files $uri $uri/ /index.html;
+    }
+}

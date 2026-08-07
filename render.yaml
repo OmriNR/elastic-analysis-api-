@@ -1,0 +1,108 @@
+# Render Blueprint for elastic-analysis-api-.
+#
+# Deploys: StoreAPI (web service) + frontend (web service) + a managed Postgres
+# database + MinIO (private service, for product/user image storage).
+#
+# Deliberately NOT included: Elasticsearch/Kibana, RabbitMQ, OrdersPublisherAPI,
+# QueueListener, PublishListener. Render has no managed Elasticsearch or RabbitMQ,
+# and this stack was scoped down to StoreAPI + frontend only. StoreAPI still logs
+# to Elasticsearch and publishes order events to RabbitMQ if configured — with
+# neither present here, log shipping silently no-ops and the order/checkout flow
+# (which publishes to RabbitMQ) will fail until a broker is added.
+#
+# One-time manual step after creating this Blueprint: Render will prompt for the
+# `sync: false` values below. Enter the SAME password for MINIO_ROOT_PASSWORD
+# (on the minio service) and Minio__SecretKey (on storeapi) — they must match
+# since Minio__AccessKey/MINIO_ROOT_USER are already hardcoded to "storeapi".
+#
+# Plans/regions below are minimum-viable defaults — adjust in the Render
+# dashboard (or here) for your traffic and budget. The Postgres `free` plan
+# expires after a limited trial period; switch to `basic-256mb` or higher for
+# anything long-lived.
+
+databases:
+  - name: storeapi-db
+    databaseName: storeapi_db
+    user: storeapi_user
+    plan: free
+
+services:
+  # Internal-only S3-compatible storage for product/user images.
+  # Not publicly reachable; only storeapi talks to it, over Render's private network.
+  - type: pserv
+    name: minio
+    runtime: image
+    image:
+      url: docker.io/minio/minio:latest
+    plan: starter
+    dockerCommand: server /data --console-address ":9001"
+    disk:
+      name: minio-data
+      mountPath: /data
+      sizeGB: 10
+    envVars:
+      - key: MINIO_ROOT_USER
+        value: storeapi
+      - key: MINIO_ROOT_PASSWORD
+        sync: false
+
+  - type: web
+    name: storeapi
+    runtime: docker
+    dockerfilePath: ./StoreAPI/Dockerfile
+    dockerContext: ./StoreAPI
+    plan: starter
+    healthCheckPath: /swagger/index.html
+    envVars:
+      - key: ASPNETCORE_ENVIRONMENT
+        value: Production
+      - key: DB_HOST
+        fromDatabase:
+          name: storeapi-db
+          property: host
+      - key: DB_PORT
+        fromDatabase:
+          name: storeapi-db
+          property: port
+      - key: DB_NAME
+        fromDatabase:
+          name: storeapi-db
+          property: database
+      - key: DB_USER
+        fromDatabase:
+          name: storeapi-db
+          property: user
+      - key: DB_PASSWORD
+        fromDatabase:
+          name: storeapi-db
+          property: password
+      - key: Minio__ServiceUrl
+        fromService:
+          type: pserv
+          name: minio
+          property: hostport
+      - key: Minio__AccessKey
+        value: storeapi
+      - key: Minio__SecretKey
+        sync: false
+      - key: Jwt__Secret
+        generateValue: true
+      - key: Jwt__Issuer
+        value: StoreAPI
+      - key: Jwt__Audience
+        value: StoreAPIClients
+      - key: Jwt__ExpiryMinutes
+        value: "60"
+
+  - type: web
+    name: frontend
+    runtime: docker
+    dockerfilePath: ./frontend/Dockerfile
+    dockerContext: ./frontend
+    plan: free
+    envVars:
+      - key: STOREAPI_HOST
+        fromService:
+          type: web
+          name: storeapi
+          property: hostport

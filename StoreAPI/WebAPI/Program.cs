@@ -66,16 +66,36 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 builder.Services.AddAuthorization();
 
 AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
-var connectionString = builder.Configuration.GetConnectionString("PostgresDb");
+// Render's managed Postgres exposes host/user/password as separate values (its combined
+// connectionString is a postgres:// URI, which Npgsql does not parse), so when DB_HOST is
+// present, assemble the ADO-style connection string from those instead of falling back to
+// appsettings.json's ConnectionStrings:PostgresDb default (which targets the docker-compose
+// "db" host and would otherwise take precedence since it's never empty).
+var dbHost = builder.Configuration["DB_HOST"];
+var connectionString = !string.IsNullOrEmpty(dbHost)
+    ? $"Host={dbHost};" +
+      $"Port={builder.Configuration["DB_PORT"] ?? "5432"};" +
+      $"Database={builder.Configuration["DB_NAME"]};" +
+      $"Username={builder.Configuration["DB_USER"]};" +
+      $"Password={builder.Configuration["DB_PASSWORD"]};" +
+      $"SSL Mode={builder.Configuration["DB_SSL_MODE"] ?? "Require"};Trust Server Certificate=true"
+    : builder.Configuration.GetConnectionString("PostgresDb");
 builder.Services.AddDbContext<AppDBContext>(options => options.UseNpgsql(connectionString));
 
 var minioConfig = builder.Configuration.GetSection("Minio");
 
 builder.Services.AddSingleton<IAmazonS3>(sp =>
 {
+    var minioServiceUrl = minioConfig["ServiceUrl"];
+    // Render's private-network fromService reference resolves to a bare "host:port", not a URL.
+    if (!string.IsNullOrEmpty(minioServiceUrl) && !minioServiceUrl.Contains("://"))
+    {
+        minioServiceUrl = $"http://{minioServiceUrl}";
+    }
+
     var config = new AmazonS3Config
     {
-        ServiceURL = minioConfig["ServiceUrl"],
+        ServiceURL = minioServiceUrl,
         ForcePathStyle = true
     };
     return new AmazonS3Client(minioConfig["AccessKey"], minioConfig["SecretKey"], config);

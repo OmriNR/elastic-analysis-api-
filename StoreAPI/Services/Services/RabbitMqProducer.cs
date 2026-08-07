@@ -10,8 +10,8 @@ namespace Services.Services;
 public class RabbitMqProducer : IMessageProducer, IDisposable
 {
     private readonly ILogger<RabbitMqProducer> _logger;
-    private readonly IConnection _connection;
-    private readonly IChannel _channel;
+    private readonly IConnection? _connection;
+    private readonly IChannel? _channel;
 
     public RabbitMqProducer(ILogger<RabbitMqProducer> logger, IConfiguration configuration)
     {
@@ -25,12 +25,31 @@ public class RabbitMqProducer : IMessageProducer, IDisposable
             Password = configuration["Rabbit:Password"] ?? "guest"
         };
 
-        _connection = factory.CreateConnectionAsync().GetAwaiter().GetResult();
-        _channel = _connection.CreateChannelAsync().GetAwaiter().GetResult();
+        // IMessageProducer is a constructor dependency of most services (Users, Products, Orders,
+        // Discounts), so a throwing connect here would take down virtually the entire API whenever
+        // RabbitMQ isn't deployed. Degrade to a disabled producer instead — PublishMessage becomes
+        // a logged no-op — so the rest of the app keeps working without a broker configured.
+        try
+        {
+            _connection = factory.CreateConnectionAsync().GetAwaiter().GetResult();
+            _channel = _connection.CreateChannelAsync().GetAwaiter().GetResult();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex,
+                "Could not connect to RabbitMQ at {Host}:{Port}. Message publishing is disabled.",
+                factory.HostName, factory.Port);
+        }
     }
 
     public void PublishMessage<T>(T message, string queue)
     {
+        if (_channel == null)
+        {
+            _logger.LogWarning("Skipped publishing to queue '{Queue}': RabbitMQ is not connected.", queue);
+            return;
+        }
+
         _channel.QueueDeclareAsync(
             queue: queue,
             durable: true,
